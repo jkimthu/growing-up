@@ -15,38 +15,37 @@
 
 %       1. Determine duration of each individual growth curve
 %               a. How does the mean and stdev of this vary between expts?
-%       2. Fraction these time-lengths
-%       3. For a set number of fractions, starting with three, bin all data
-%          belonging to a specific fraction.
-%       4. Plot growth rate vs time
+%       2. Associate each time point (in growth curve) with a fraction of cell cycle 
+%       3. Bin data belonging to a desired window.
+%       4. Plot the bejeezy out of these cell cycle based groupings!
 
 
 % Envisioned data matrix:
 
-%       t(row)     Lngth     drop?      curve#    fraktion
-%         1          x        nan         1           1
-%         2          x         0          1           2
-%         3          x         0          1           3
-%         4          x         1          2           1
-%         5          x         0          2           2
-%         6          x         0          2           3
-%         7          x         1          3           1
-%         8          x         0          3           2
-%         9          x         0          3           3
-%         10         x         1          4           1
+%        row     Time     Lngth     drop?      curve#     cc stage
+%         1        t        x        nan         1           1
+%         2        t        x         0          1           2
+%         3        t        x         0          1           3
+%         4        t        x         1          2           1
+%         5        t        x         0          2           2
+%         6        t        x         0          2           3
+%         7        t        x         1          3           1
+%         8        t        x         0          3           2
+%         9        t        x         0          3           3
+%         10       t        x         1          4           1
 
 
-%       1. t(row) is row number
-%       2. Use drops in length to determine end of each growth curve
-%       3. If drop, then start counting upcoming rows as part of new curve
-%       4. max(curve#) is more likely than not less than a full growth curve
-%                a. throw out? how does this deplete our data set?
-%                b. clever way to use final curve?
-%       5. Pool timepoints from each fraction bin
-%       6. Use timepoints to pool appropriate growth rates (Mews)
+%       where,
+%                row     =  row number, obvi
+%                t       =  all timepoints associated with concatinated length trajectories
+%                x       =  length values from concatentated length trajectories
+%                drop?   =  finding where individual cell cycles start and end, a boolean 
+%                curve   =  an id number for each individual cell cycle
+%                stage   =  time since birth / duration of entire cycle
 
 
-% Assessment goal:
+
+% Considerations:
 
 %       1. Does separation between phase-sorted subpopulations occur?
 %       2. Vary number of fractions. Which leads to the best separation?
