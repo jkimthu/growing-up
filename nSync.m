@@ -15,7 +15,7 @@
 
 %       1. Determine duration of each individual growth curve
 %               a. How does the mean and stdev of this vary between expts?
-%       2. Associate each time point (in growth curve) with a fraction of cell cycle 
+%       2. Associate each time point (in growth curve) with a fraction of cell cycle
 %       3. Bin data belonging to a desired window.
 %       4. Plot the bejeezy out of these cell cycle based groupings!
 
@@ -40,7 +40,7 @@
 %                t       =  all timepoints associated with concatinated length trajectories
 %                x       =  length values from concatentated length trajectories
 %                mu      =  calculated growth rates from SlidingFits.m
-%                drop?   =  finding where individual cell cycles start and end, a boolean 
+%                drop?   =  finding where individual cell cycles start and end, a boolean
 %                curve   =  an id number for each individual cell cycle
 %                stage   =  time since birth / duration of entire cycle
 
@@ -82,28 +82,28 @@ muVals = [];
 % Select xy positions for analysis / concatenation
 
 for n=1:2
-                                                                           
-    for m = 1:length(M7{n})                                                % use length of growth rate data as it is 
+    
+    for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
         trackDuration = length(M7{n}(m).Parameters(:,1));                  % to sliding fit
-                                                                           
+        
         timeTrack = T(3:trackDuration+2,n)/(60*60);                        % collect timestamp (hr)
         Time = [Time; timeTrack];                                          % concenate timestamp
-       
+        
         lengthTrack = D7{n}(m).MajAx(3:trackDuration+2);                   % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
         muTrack = M7{n}(m).Parameters(:,1);                                % collect elongation rates (1/hr)
-        muVals = [muVals; muTrack;                                         % concatenate growth rates
+        muVals = [muVals; muTrack];                                        % concatenate growth rates
         
     end
 end
 muVals(muVals<0) = NaN;
 
-%Tbin = ceil(Time*20);                                                     % time increments = 0.005 hr      
+%Tbin = ceil(Time*20);                                                     % time increments = 0.005 hr
 %Tbinned = accumarray(Tbin,lengthVals,[],@(x) {x});
 %clear Num_mu Ttrack ThreeMins m n;
 
 
-
-
+%%
+        
