@@ -84,33 +84,38 @@ isDrop = [];
 dropThreshold = -0.75;                                                     % consider greater negatives a division event
 
 curveFinder = [];
-%curveCounter = 0;                                                          
+ccStage = [];                                                         
 
 
 
 % Select xy positions for analysis / concatenation
 
-for n=1:2
+for n=1%:2
     
-    for m = 1:length(M7{n})                                                % use length of growth rate data as it is
+    for m = 1%:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
-        %   track #                                                        % to sliding fit
+                                                                           % to sliding fit
+        %   track #                                                        
         trackDuration = length(M7{n}(m).Parameters(:,1));
         Track = ones(trackDuration,1);
         trackNumber = [trackNumber; trackCounter*Track];
         trackCounter = trackCounter + 1;                                   % cumulative count of tracks in condition
         
+        
         %   time
         timeTrack = T(3:trackDuration+2,n)/(60*60);                        % collect timestamp (hr)
         Time = [Time; timeTrack];                                          % concenate timestamp
+        
         
         %   lengths
         lengthTrack = D7{n}(m).MajAx(3:trackDuration+2);                   % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
+        
         %   growth rate
         muTrack = M7{n}(m).Parameters(:,1);                                % collect elongation rates (1/hr)
         muVals = [muVals; muTrack];                                        % concatenate growth rates
+        
         
         %   drop?
         dropTrack = diff(lengthTrack);
@@ -118,19 +123,17 @@ for n=1:2
         toBool = [0; toBool];                                              % * add zero to front, to even track lengths
         isDrop = [isDrop; toBool];
         
+        
         %   curve finder                                                   % finds and labels full curves within a single track
         fullCurves = sum(toBool) - 1;                                      % hint: full curves are bounded by ones
         curveTrack = zeros(length(toBool),1);
         curveCounter = 0;                                                  % 1. disregard incomplete first curve
                                                                            %    by starting count at 0
-        for i = 1:length(toBool)
-            
+        for i = 1:length(toBool) 
             if toBool(i) == 0
-                curveTrack(i,1) = curveCounter;                            
-                
+                curveTrack(i,1) = curveCounter;                               
             elseif (toBool(i) == 1)
                 curveCounter = curveCounter + 1;
-                
                 if curveCounter <= fullCurves
                     curveTrack(i,1) = curveCounter;
                 else                                                       % 2. how to disregard final incomplete segment? 
@@ -138,9 +141,10 @@ for n=1:2
                 end
             end
         end
-        
         curveFinder = [curveFinder; curveTrack];                           % all incomplete curves are filled with 0
 
+        
+        %   cell cycle stage
         
         
     end
@@ -150,12 +154,45 @@ muVals(muVals<0) = NaN;
 
 %%
 
-% drafting curveFinder, to count the number of full curves per track
+% drafting ccStage
 
-%        1.   
+%       1.  for each curve, determine duration (time)
+%       2.  for each time step, determine absolute time since birth
+%       3.  for each data point in vector, record as fraction:
+%                
+%               ccStage = time since birth / total curve duration
 
-%        3.   
-%        4.   fill with zeros for rest of track duration
+
+% YEAH GO!
+
+
+%   1. determining curve duration
+%
+%          i.  find rows in toBool with value of one
+%         ii.  sum(toBool) - 1 = number of full curves
+%              first fullCurves ones mark the birth of each full curve
+%        iii.  calculate difference between ones
+%
+
+
+
+isolateEvents = timeTrack.*toBool;
+eventTimes = isolateEvents(isolateEvents~=0);
+curvDurs = diff(eventTimes);                                               % for current track
+allDurations = [allDurations; curvDurs];                                   % for all curves in sample
+
+curveDurations = zeros(trackDuration,1);                                   % matching each time point with correct curveDuration
+for j = 1:length(curveFinder)
+    if curveFinder(j) == 0
+        continue
+    else
+        curveDurations(j,1) = curvDurs(curveFinder(j));
+    end
+end
+
+
+
+
 
 
 
@@ -163,7 +200,8 @@ muVals(muVals<0) = NaN;
 
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder];                  
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder];
+
 
 
 
