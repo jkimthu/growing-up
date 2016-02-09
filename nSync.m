@@ -86,15 +86,19 @@ dropThreshold = -0.75;                                                     % con
 curveFinder = [];
 ccStage = [];                                                         
 
+allDurations = [];
+curveDurations = [];
 
+timeSinceBirth = [];
 
 % Select xy positions for analysis / concatenation
 
-for n=1%:2
-    
-    for m = 1%:length(M7{n})                                                % use length of growth rate data as it is
+for n=1:2 
+     
+    for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
                                                                            % to sliding fit
+                                                                           
         %   track #                                                        
         trackDuration = length(M7{n}(m).Parameters(:,1));
         Track = ones(trackDuration,1);
@@ -102,9 +106,11 @@ for n=1%:2
         trackCounter = trackCounter + 1;                                   % cumulative count of tracks in condition
         
         
+        
         %   time
         timeTrack = T(3:trackDuration+2,n)/(60*60);                        % collect timestamp (hr)
         Time = [Time; timeTrack];                                          % concenate timestamp
+        
         
         
         %   lengths
@@ -112,9 +118,11 @@ for n=1%:2
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
         
+        
         %   growth rate
         muTrack = M7{n}(m).Parameters(:,1);                                % collect elongation rates (1/hr)
         muVals = [muVals; muTrack];                                        % concatenate growth rates
+        
         
         
         %   drop?
@@ -124,32 +132,66 @@ for n=1%:2
         isDrop = [isDrop; toBool];
         
         
-        %   curve finder                                                   % finds and labels full curves within a single track
-        fullCurves = sum(toBool) - 1;                                      % hint: full curves are bounded by ones
+        
+        %   curve finder                                                   
+        fullCurves = sum(toBool) - 1;                                      
         curveTrack = zeros(length(toBool),1);
-        curveCounter = 0;                                                  % 1. disregard incomplete first curve
-                                                                           %    by starting count at 0
+        curveCounter = 0;                                                  % finds and labels full curves within a single track
+                                                                           % hint: full curves are bounded by ones
         for i = 1:length(toBool) 
-            if toBool(i) == 0
-                curveTrack(i,1) = curveCounter;                               
+            if toBool(i) == 0                                              % 1. disregard incomplete first curve
+                curveTrack(i,1) = curveCounter;                            %    by starting count at 0   
             elseif (toBool(i) == 1)
-                curveCounter = curveCounter + 1;
-                if curveCounter <= fullCurves
+                curveCounter = curveCounter + 1;                           % 2. how to disregard final incomplete segment? 
+                if curveCounter <= fullCurves                              %    stop when curveCount exceeds number of fullCurves
                     curveTrack(i,1) = curveCounter;
-                else                                                       % 2. how to disregard final incomplete segment? 
-                    break                                                  %    stop when curveCount exceeds number of fullCurves
+                else                                                       % all incomplete curves are filled with 0
+                    break                                                  
                 end
             end
         end
-        curveFinder = [curveFinder; curveTrack];                           % all incomplete curves are filled with 0
+        curveFinder = [curveFinder; curveTrack];                           
 
         
-        %   cell cycle stage
+        
+        %   cycle duration
+        isolateEvents = timeTrack.*toBool;                                 % step one of calculating cell cycle stage           
+        eventTimes = isolateEvents(isolateEvents~=0);                      
+        elapsedTime = diff(eventTimes); % durations in current track       % 1. find time of division/birth events
+        allDurations = [allDurations; elapsedTime]; % compiled durations                                          
+                                                                           % 2. calculate time elaspased between events, and
+        curveDurs = zeros(trackDuration,1);                                %    store individual curve durations in single vector
+        for j = 1:length(curveTrack)
+            if curveTrack(j) == 0                                          % match ea time point with corresponding curve duration
+                continue
+            else
+                curveDurs(j,1) = elapsedTime(curveTrack(j)); % for current track
+            end
+        end
+        curveDurations = [curveDurations; curveDurs]; % collect all durations for analytical ease (ccStage)
         
         
-    end
-end
-muVals(muVals<0) = NaN;
+        
+        %   time since birth
+        tsbPerTrack = zeros(trackDuration,1);
+        
+        for currentCurve = 1:fullCurves; % per individual curve
+          
+            currentBirthRow = find(timeTrack == eventTimes(currentCurve));
+            nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));
+            
+            currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
+            tsbPerCurve = currentTimes - timeTrack(currentBirthRow);
+            tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve; 
+       
+        end
+        timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compile per condition
+        
+        
+        
+    end % for m
+end % for n
+%muVals(muVals<0) = NaN;
 
 
 %%
@@ -166,29 +208,53 @@ muVals(muVals<0) = NaN;
 % YEAH GO!
 
 
-%   1. determining curve duration
-%
-%          i.  find rows in toBool with value of one
-%         ii.  sum(toBool) - 1 = number of full curves
-%              first fullCurves ones mark the birth of each full curve
-%        iii.  calculate difference between ones
-%
 
+% time since birth = currentTime - birthTime
 
+timeSinceBirth = [];
 
-isolateEvents = timeTrack.*toBool;
-eventTimes = isolateEvents(isolateEvents~=0);
-curvDurs = diff(eventTimes);                                               % for current track
-allDurations = [allDurations; curvDurs];                                   % for all curves in sample
-
-curveDurations = zeros(trackDuration,1);                                   % matching each time point with correct curveDuration
-for j = 1:length(curveFinder)
-    if curveFinder(j) == 0
-        continue
-    else
-        curveDurations(j,1) = curvDurs(curveFinder(j));
-    end
+tsbPerTrack = zeros(trackDuration,1);
+for currentCurve = 1:fullCurves; % per individual curve
+    
+    
+    currentBirthRow = find(Time == eventTimes(currentCurve));
+    nextBirthRow = find(Time == eventTimes(currentCurve+1));
+    
+    currentTimes = Time(currentBirthRow:nextBirthRow-1);
+    tsbPerCurve = currentTimes - Time(currentBirthRow);
+    
+    
+    tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve; % compile per condition
 end
+timeSinceBirth = [timeSinceBirth; tsbPerTrack];
+
+%%
+clear currentCurve currentBirthRow nextBirthRow currentTimes tsbPerCurve
+clear timeSinceBirth
+%%
+
+% if fullCurves > 0
+% birthTimes = eventTimes(1:fullCurves);
+% 
+% for c = 1:fullCurves
+%     
+%     trimmedCurveFinder = curveFinder(curveFinder~=0);                      % 1.  remove zeros bc accumarray can't deal
+%     rowsPerCurve = accumarray(trimmedCurveFinder(:),1);                    % 2.  find frequency of each integer in curveFinder,
+%                                                                            %     aka timepoints per full curve
+%     birthRow = find(Time == birthTimes(c)); % row# in untrimmed set                                  
+%     
+%     for r = 0:rowsPerCurve(c)
+%         currentTime = Time(birthRow(c) + r);
+%         timeSinceBirth = currentTime - birthTimes(c);
+%         tsbPerCurve(1+r,c) = timeSinceBirth;
+%     end
+%     
+% end
+%     
+% else
+%     continue
+% end
+
 
 
 
