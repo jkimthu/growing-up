@@ -150,42 +150,46 @@ for n=1:2
                 end
             end
         end
-        curveFinder = [curveFinder; curveTrack];                           
-
-        
-        
-        %   time since birth  &  cycle duration
-        isolateEvents = timeTrack.*toBool;                                 % step one of calculating cell cycle stage           
-        eventTimes = isolateEvents(isolateEvents~=0);                      
-        elapsedTime = diff(eventTimes); % durations in current track       % 1. find time of division/birth events
-        allDurations = [allDurations; elapsedTime]; % compiled durations                                          
-                                                                           % 2. calculate time elaspased between events, and
-        curveDurs = zeros(trackDuration,1);                                %    store individual curve durations in single vector
-        for j = 1:length(curveTrack)
-            if curveTrack(j) == 0                                          % match ea time point with corresponding curve duration
-                continue
-            else
-                curveDurs(j,1) = elapsedTime(curveTrack(j)); % for current track
-            end
-        end
-        curveDurations = [curveDurations; curveDurs]; % collect all durations for analytical ease (ccStage)
+        curveFinder = [curveFinder; curveTrack];
         
         
         
-        %   time since birth
-        tsbPerTrack = zeros(trackDuration,1);
+        %   time since birth  
+        isolateEvents = timeTrack.*toBool;
+        eventTimes = isolateEvents(isolateEvents~=0);                      % 1. find time of division/birth events
+        
+        tsbPerTrack = zeros(trackDuration,1);                              % 2. calculate time elaspased between events, and
+        durationsPerTrack = zeros(fullCurves,1);                           %    store individual curve durations in single vector
         
         for currentCurve = 1:fullCurves; % per individual curve
-          
+            
             currentBirthRow = find(timeTrack == eventTimes(currentCurve));
             nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));
-            
             currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
+            
             tsbPerCurve = currentTimes - timeTrack(currentBirthRow);
-            tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve; 
-       
+            tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve;
+            
+            durationsPerTrack(currentCurve) = tsbPerCurve(end); % for cell cycle durations
         end
+        
         timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compile per condition
+        allDurations = [allDurations; durationsPerTrack]; % compiled durations
+        
+        
+        
+        %   cycle duration
+        trackBuilder = zeros(trackDuration,1);
+        for j = 1:length(curveTrack)
+            if curveTrack(j) == 0
+                continue
+            else
+                trackBuilder(j,1) = durationsPerTrack(curveTrack(j)); % for current track
+            end
+        end
+        curveDurations = [curveDurations; trackBuilder]; % collect all durations for analytical ease (ccStage)
+        
+        
         
         
         
@@ -209,54 +213,9 @@ end % for n
 
 
 
-% time since birth = currentTime - birthTime
-
-timeSinceBirth = [];
-
-tsbPerTrack = zeros(trackDuration,1);
-for currentCurve = 1:fullCurves; % per individual curve
-    
-    
-    currentBirthRow = find(Time == eventTimes(currentCurve));
-    nextBirthRow = find(Time == eventTimes(currentCurve+1));
-    
-    currentTimes = Time(currentBirthRow:nextBirthRow-1);
-    tsbPerCurve = currentTimes - Time(currentBirthRow);
-    
-    
-    tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve; % compile per condition
-end
-timeSinceBirth = [timeSinceBirth; tsbPerTrack];
-
 %%
 clear currentCurve currentBirthRow nextBirthRow currentTimes tsbPerCurve
 clear timeSinceBirth
-%%
-
-% if fullCurves > 0
-% birthTimes = eventTimes(1:fullCurves);
-% 
-% for c = 1:fullCurves
-%     
-%     trimmedCurveFinder = curveFinder(curveFinder~=0);                      % 1.  remove zeros bc accumarray can't deal
-%     rowsPerCurve = accumarray(trimmedCurveFinder(:),1);                    % 2.  find frequency of each integer in curveFinder,
-%                                                                            %     aka timepoints per full curve
-%     birthRow = find(Time == birthTimes(c)); % row# in untrimmed set                                  
-%     
-%     for r = 0:rowsPerCurve(c)
-%         currentTime = Time(birthRow(c) + r);
-%         timeSinceBirth = currentTime - birthTimes(c);
-%         tsbPerCurve(1+r,c) = timeSinceBirth;
-%     end
-%     
-% end
-%     
-% else
-%     continue
-% end
-
-
-
 
 
 
@@ -269,12 +228,4 @@ clear timeSinceBirth
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder];
 
 
-
-
-%%
-%
-%   Part Two.
-%   Identify birth/division events within individual trajectories
-%
-%
 
