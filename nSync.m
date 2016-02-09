@@ -154,7 +154,7 @@ for n=1:2
 
         
         
-        %   cycle duration
+        %   time since birth  &  cycle duration
         isolateEvents = timeTrack.*toBool;                                 % step one of calculating cell cycle stage           
         eventTimes = isolateEvents(isolateEvents~=0);                      
         elapsedTime = diff(eventTimes); % durations in current track       % 1. find time of division/birth events
