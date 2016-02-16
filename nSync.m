@@ -25,17 +25,20 @@
 %
 
 
+%        col        1         2        3         4         5          6              7                8              9 
+%       ------------------------------------------------------------------------------------------------------------------
 %        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage
-%         1         1         t        x         u         0*         1              0                3              1
-%         2         1         t        x         u         0          1              1                3              2
-%         3         1         t        x         u         0          1              2                3              3
-%         4         1         t        x         u         1          2              0                3              1
-%         5         1         t        x         u         0          2              1                3              2
-%         6         1         t        x         u         0          2              2                3              3
-%         7         1         t        x         u         1          3              0                3              1
-%         8         1         t        x         u         0          3              1                3              2
-%         9         1         t        x         u         0          3              2                3              3
-%         10        1         t        x         u         1          4              0                3              1
+%       ------------------------------------------------------------------------------------------------------------------
+%         1         1         t        x         u         0*         1              0                3              0
+%         2         1         t        x         u         0          1              1                3             .5
+%         3         1         t        x         u         0          1              2                3              1
+%         4         1         t        x         u         1          2              0                3              0
+%         5         1         t        x         u         0          2              1                3             .5 
+%         6         1         t        x         u         0          2              2                3              1
+%         7         1         t        x         u         1          3              0                3              0
+%         8         1         t        x         u         0          3              1                3             .5
+%         9         1         t        x         u         0          3              2                3              1
+%         10        1         t        x         u         1          4              0                3             nan
 
 
 %       where,
@@ -76,8 +79,8 @@ names = {dmDirectory.name}; % loaded alphabetically
 
 for dm = 1:length(names)
     load(names{dm});                
-    dataMatrices{dm} = dataMatrix;                                         % 1 = const; 2 = fluc
-end
+    dataMatrices{dm} = dataMatrix;                                         % 1 = const
+end                                                                        % 2 = fluc
 
 clear dataMatrix dmDirectory dm;
 clear names;
@@ -85,15 +88,101 @@ clear names;
 
 %%
 
-% Plotz
+
+%      O N E.  Cell cycle stage over experiment
+
+
+
+%  Heatmap: fraction of population in each cell cycle stage vs. time
+%
+%     -  figure 3 of Mathis & Ackermann pre-print: line plots separate
+%        experiments to illustrate reduced variation after pulsed shock
+%     -  here, let's plot all data points per timestep
+
+
+%  Strategy:
+%
+%     0. isolate data of interest
+%     1. define bin sizes: time and cell cycle stage
+%     2. accumulate data points (of cell cycle stage) by time bin
+%     3. spread time binned data into vertical cell cycle stage bins
+%     4. count number of points in each bin
+%     5. with counts, generate plot!
+
+
+
+
+interestingData = dataMatrices{1};  % choose condition: 1 = constant, 2 = fluctuating
+time = interestingData(:,2);                                               
+ccStage = interestingData(:,9);                                            % 0.  isolate time and ccStage vectors
+
+timeBins = ceil(time*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
+binnedByTime = accumarray(timeBins,ccStage,[],@(x) {x});                   % 2.  accumulate data by associated time bin 
+
+
+
+
+%%
+% Spread values in time increments into growth rate increments
+dataGrid = zeros(10,2000);                                                 % (rows) ccStage: 0 - 1, with 0.1 incr.
+                                                                           % (columns) time: 0 - 10, with 0.005 incr
+for i = 1:length(binnedByTime)
+    if isempty(binnedByTime{i})
+        continue
+    else
+        stageBins = ceil(binnedByTime{i}/.1);                              % 1b. define bin size (cell cycle stage)
+        stageBins(stageBins==0) = 1;                                       %     manually include birth into 1st bin
+        
+        currentTimeStep = binnedByTime{i};                                 % 3.  accumulate ccStage into bins
+        binnedByStage = accumarray(stageBins(~isnan(stageBins)),currentTimeStep(~isnan(currentTimeStep)),[],@(x){x});
+        
+        if isempty(binnedByStage)                                          % 4.  some timepoints are empty vectors
+            continue                                                       %     due to non-counting of NaNs.
+        else                                                               %     by-pass these empty vectors!
+            counts = cellfun(@length,binnedByStage,'UniformOutput',false);
+            counts = cell2mat(counts);
+        end
+        
+        dataGrid(1:length(counts),i) = counts;
+        
+    end
+end
+
+%clear Binme Current A Mcounts
+
+
+% For stats and normalization by total counts
+countsPerTimePoint = sum(dataGrid);
+normalizedByCount = zeros(10,2000);
+for ii = 1:length(dataGrid)
+    if countsPerTimePoint(ii) > 0
+        normalizedByCount(:,ii) = dataGrid(:,ii)./countsPerTimePoint(ii);
+    else
+        continue
+    end
+end
+
+
+%%
+figure(2)
+imagesc(normalizedByCount,[0.02 .2])
+axis xy
+axis([0,2000,1,10])
+colorbar
+
+
+
+%%
+
+% B R A I N S T O R M
+
 
 % 1. Cell cycle fraction over time
 %
 %           i. line (average)
 %          ii. scatter
 %         iii. heatmap
-%          
-
+%          iv. percent dividing
 
 % 2. Cycle durations over time 
 %
