@@ -107,68 +107,78 @@ clear names;
 %     2. accumulate data points (of cell cycle stage) by time bin
 %     3. spread time binned data into vertical cell cycle stage bins
 %     4. count number of points in each bin
-%     5. with counts, generate plot!
+%     5. with counts, generate normalized plot!
 
 
-
-
-interestingData = dataMatrices{1};  % choose condition: 1 = constant, 2 = fluctuating
-time = interestingData(:,2);                                               
-ccStage = interestingData(:,9);                                            % 0.  isolate time and ccStage vectors
-
-timeBins = ceil(time*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
-binnedByTime = accumarray(timeBins,ccStage,[],@(x) {x});                   % 2.  accumulate data by associated time bin 
-
-
-
-
-%%
-% Spread values in time increments into growth rate increments
-dataGrid = zeros(10,2000);                                                 % (rows) ccStage: 0 - 1, with 0.1 incr.
-                                                                           % (columns) time: 0 - 10, with 0.005 incr
-for i = 1:length(binnedByTime)
-    if isempty(binnedByTime{i})
-        continue
-    else
-        stageBins = ceil(binnedByTime{i}/.1);                              % 1b. define bin size (cell cycle stage)
-        stageBins(stageBins==0) = 1;                                       %     manually include birth into 1st bin
-        
-        currentTimeStep = binnedByTime{i};                                 % 3.  accumulate ccStage into bins
-        binnedByStage = accumarray(stageBins(~isnan(stageBins)),currentTimeStep(~isnan(currentTimeStep)),[],@(x){x});
-        
-        if isempty(binnedByStage)                                          % 4.  some timepoints are empty vectors
-            continue                                                       %     due to non-counting of NaNs.
-        else                                                               %     by-pass these empty vectors!
-            counts = cellfun(@length,binnedByStage,'UniformOutput',false);
-            counts = cell2mat(counts);
+for condition = 1:2
+    
+    interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
+    time = interestingData(:,2);
+    ccStage = interestingData(:,9);                                            % 0.  isolate time and ccStage vectors
+    
+    timeBins = ceil(time*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
+    binnedByTime = accumarray(timeBins,ccStage,[],@(x) {x});                   % 2.  accumulate data by associated time bin
+    
+    
+    
+    
+    % A. Generate grid of absolute counts
+    
+    dataGrid = zeros(10,2000);                                                 % (rows) ccStage: 0 - 1, with 0.1 incr.
+    % (columns) time: 0 - 10, with 0.005 incr
+    for i = 1:length(binnedByTime)
+        if isempty(binnedByTime{i})
+            continue
+        else
+            stageBins = ceil(binnedByTime{i}/.1);                              % 1b. define bin size (cell cycle stage)
+            stageBins(stageBins==0) = 1;                                       %     manually include birth into 1st bin
+            
+            currentTimeStep = binnedByTime{i};                                 % 3.  accumulate ccStage into bins
+            binnedByStage = accumarray(stageBins(~isnan(stageBins)),currentTimeStep(~isnan(currentTimeStep)),[],@(x){x});
+            
+            if isempty(binnedByStage)                                          % 4.  some timepoints are empty vectors
+                continue                                                       %     due to non-counting of NaNs.
+            else                                                               %     by-pass these empty vectors!
+                counts = cellfun(@length,binnedByStage,'UniformOutput',false);
+                counts = cell2mat(counts);
+            end
+            
+            dataGrid(1:length(counts),i) = counts;
         end
-        
-        dataGrid(1:length(counts),i) = counts;
-        
     end
-end
-
-%clear Binme Current A Mcounts
-
-
-% For stats and normalization by total counts
-countsPerTimePoint = sum(dataGrid);
-normalizedByCount = zeros(10,2000);
-for ii = 1:length(dataGrid)
-    if countsPerTimePoint(ii) > 0
-        normalizedByCount(:,ii) = dataGrid(:,ii)./countsPerTimePoint(ii);
-    else
-        continue
+    clear i currentTimeStep binnedByStage counts;
+    
+    
+    
+    % B. Normalized grid
+    
+    countsPerTimePoint = sum(dataGrid);                                        % 5.  find total counts per timepoint
+    normalizedByCount = zeros(10,2000);                                        %     divide each bin count by total
+    
+    for ii = 1:length(dataGrid)
+        if countsPerTimePoint(ii) > 0
+            normalizedByCount(:,ii) = dataGrid(:,ii)./countsPerTimePoint(ii);
+        else
+            continue
+        end
     end
+    
+    
+    
+    % C. Plot!!
+    
+    figure(1)
+    subplot(2,1,condition)
+    imagesc(normalizedByCount,[0.02 .1])
+    axis xy
+    axis([0,2000,1,10])
+    colorbar
+    hold on
+    
 end
-
 
 %%
-figure(2)
-imagesc(normalizedByCount,[0.02 .2])
-axis xy
-axis([0,2000,1,10])
-colorbar
+
 
 
 
