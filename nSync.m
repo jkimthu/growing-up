@@ -74,7 +74,7 @@
 %%
 %   Initialize.
 
-dmDirectory = dir('dm08*.mat'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+dmDirectory = dir('dm*.mat'); % note: this assumes the only two data matrices are 'const' and 'fluc'
 names = {dmDirectory.name}; % loaded alphabetically
 
 for dm = 1:length(names)
@@ -113,10 +113,10 @@ clear names;
 for condition = 1:2
     
     interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
-    time = interestingData(:,2);
+    timestamps = interestingData(:,2);
     ccStage = interestingData(:,9);                                            % 0.  isolate time and ccStage vectors
     
-    timeBins = ceil(time*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
+    timeBins = ceil(timestamps*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
     binnedByTime = accumarray(timeBins,ccStage,[],@(x) {x});                   % 2.  accumulate data by associated time bin
     
     

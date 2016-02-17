@@ -105,7 +105,7 @@ timeSinceBirth = [];
 
 % Select xy positions for analysis / concatenation
 
-for n=1:10 
+for n=11:20 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
