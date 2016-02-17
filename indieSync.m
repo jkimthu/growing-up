@@ -74,12 +74,13 @@
 %%
 %   Initialize.
 
-dmDirectory = dir('dm08*.mat'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+dmDirectory = dir('dm0810-xy*.mat');
 names = {dmDirectory.name}; % loaded alphabetically
 
 for dm = 1:length(names)
     load(names{dm});                
-    dataMatrices{dm} = dataMatrix;                                         % for entire condition
+    %dataMatrices{dm} = dataMatrix;                                        % for entire condition                               
+    dataMatrices{dm} = indivMatrix;                                        % for individual positions
 end                                                                        
 
 clear dataMatrix dmDirectory dm;

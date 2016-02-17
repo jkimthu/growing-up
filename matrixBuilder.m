@@ -69,9 +69,11 @@
 %%
 %   Initialize.
 
-load('2015-08-18-Mu-length.mat');
+load('2015-08-10-Mu-length.mat');
 D7 = D6;
 M7 = M6;
+
+monthDay = '0810';
 
 clear D6 M6 Mu_stats;
 
@@ -103,7 +105,7 @@ timeSinceBirth = [];
 
 % Select xy positions for analysis / concatenation
 
-for n=1:12 
+for n=1:10 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -207,6 +209,12 @@ for n=1:12
                                                                            % 1   =  end of full cycle
     
     end % for m
+    
+    % to save data matrices for each xy position
+    indivDM = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction];
+    xyName = strcat('dm', monthDay, '-xy', num2str(n), '.mat');
+    save(xyName, 'indivDM');
+    
 end % for n
 %muVals(muVals<0) = NaN;
 
