@@ -131,14 +131,12 @@ for condition = 1:2;                                  % for looping between cond
         
         figure(1)
         if condition == 1
-            plot(currentTime,meanStage,'color',[0,0,1]+(period)*[.015,.015,0])   % constant
-            period
+            plot(currentTime,meanStage,'color',[0,0,0]+(1/period)*[1,1,1],'linewidth',1.01)   % constant
             axis([0,1,0,1])
             grid on
             hold on
         else
-            plot(currentTime,meanStage,'color',[0,0,0]+(period)*[.01,.04,.05])   % fluctuating
-            period
+            plot(currentTime,meanStage,'color',[0.1,0,1]+(1/period)*[0.2,0.6,0],'linewidth',1.01)   % fluctuating (blue)
             hold on
         end
         
