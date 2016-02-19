@@ -76,7 +76,7 @@
 %%
 %   Initialize data.
 
-dmDirectory = dir('dm0810-xy*.mat');
+dmDirectory = dir('dm0818-xy*.mat');
 names = {dmDirectory.name}; % loaded alphabetically
 
 for dm = 1:length(names)
@@ -117,7 +117,7 @@ expHours = 10; %  duration of experiment in hours                          % 0. 
 binFactor = 200; % time bins of 0.005 hr  
 hrPerBin = 1/binFactor; 
 
-for xy = 1:20
+for xy = 1:12
 %  
     interestingData = dataMatrices{xy};  % condition: 1 = constant, 2 = fluctuating
     timeStamps = interestingData(:,2);
@@ -140,9 +140,9 @@ for xy = 1:20
     
     
     figure(1)
-    %plot(indieTime,meanStage,'color',[0,0,0]+(xy)*[.01,.03,.03])          % constant
-    %plot(indieTime,meanStage,'color',[0,0,0]+(xy)*[.01,.025,.04])          % fluctuating
-    plot(indieTime,meanStage)
+    %plot(indieTime,meanStage,'color',[0,0,0]+(xy)*[.015,.015,.015])          % constant
+    plot(indieTime,meanStage,'color',[0,0,0]+(xy)*[.01,.04,.05])          % fluctuating
+    %plot(indieTime,meanStage)
     hold on
     
 end
