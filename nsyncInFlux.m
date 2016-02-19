@@ -77,12 +77,13 @@ clear names;
 
 
 % 0. initialize time binning parameters
-periodDuration = 1;                             % duration of nutrient period in hours                 
+periodDuration = 0.25;                             % duration of nutrient period in hours                 
 binsPerHour = 200;                              % self-explanatory 
 hrPerBin = 1/binsPerHour;                       % time bins of 0.005 hr
 
 % 0. initialize time vector for plotting
-periodTime = linspace(1, periodDuration/hrPerBin, periodDuration/hrPerBin);
+binsPerPeriod = periodDuration/hrPerBin;
+periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
 periodTime = hrPerBin*periodTime';                                       
 
 % 0. initialize looping parameters for analysis
@@ -108,13 +109,13 @@ for condition = 1:2;                                  % for looping between cond
     for period = 1:numPeriods
         
         % 3. establish current period in loop
-        currentPeriod = currentTimepoint:(currentTimepoint + binsPerHour -1);
+        currentPeriod = currentTimepoint:(currentTimepoint + binsPerPeriod -1);
         if period < numPeriods
             currentStages = binnedByTime(currentPeriod);
         else
             currentStages = binnedByTime(currentTimepoint:end);
         end
-        currentTimepoint = currentTimepoint + binsPerHour; % re-define currentTimepoint for next loop cycle
+        currentTimepoint = currentTimepoint + binsPerPeriod; % re-define currentTimepoint for next loop cycle
         
         % 4. calculate mean cell cycle stage per time bin within current period
         meanStage = cell2mat( cellfun(@nanmean,currentStages,'UniformOutput',false) );
@@ -128,20 +129,22 @@ for condition = 1:2;                                  % for looping between cond
         meanStage = meanStage(eventMask);                                          % trim all nans from ccStage vector
         currentTime = periodTime;
         currentTime = currentTime(eventMask);                                          % trim all nans from time vector
+        currentFraction = currentTime./periodDuration;
         
         figure(1)
         if condition == 1
-            plot(currentTime,meanStage,'color',[0,0,0]+(1/period)*[1,1,1],'linewidth',1.01)   % constant
+            plot(currentFraction,meanStage,'color',[0,0,0]+(1/period)*[1,1,1],'linewidth',1.01)   % constant
             axis([0,1,0,1])
             grid on
             hold on
         else
-            plot(currentTime,meanStage,'color',[0.1,0,1]+(1/period)*[0.2,0.6,0],'linewidth',1.01)   % fluctuating (blue)
+            plot(currentFraction,meanStage,'color',[0.1,0,1]+(1/period)*[0.2,0.6,0],'linewidth',1.01)   % fluctuating (blue)
             hold on
         end
         
     end
     clear period
+
 end
 
 % to close cycle, re-use final timepoint as t=0
