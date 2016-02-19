@@ -147,6 +147,3 @@ for condition = 1:2;                                  % for looping between cond
 
 end
 
-% to close cycle, re-use final timepoint as t=0
-%Zmeans = [Means(end,:); Means];
-%Zerr = [Error(end,:); Error];
