@@ -67,29 +67,37 @@ clear names;
 %   Find and plot birth events.
 
 for condition = 1:2
-    
+  
     interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
     timestamps = interestingData(:,2);
-    drops = interestingData(:,5);                                              % isolate time and drop data
+    drops = interestingData(:,5);                                          
     
-    timeBins = ceil(timestamps*binFactor);  % time bins of 0.005 hr                  % define bin size (time)
-    binnedByTime = accumarray(timeBins,drops,[],@(x) {x});                     % accumulate drops by associated time bin
+    % accumulate drops by time bin
+    timeBins = ceil(timestamps*binFactor);                
+    binnedByTime = accumarray(timeBins,drops,[],@(x) {x});                     
     
-    timeVector = linspace(1, expHours/hrPerBin, expHours/hrPerBin);            % as exact timestamps vary between xy positions,
-    timeVector = hrPerBin*timeVector';                                         % create a time vector to convert bin # to absolute time
+    % convert bin # to absolute time
+    timeVector = linspace(1, expHours/hrPerBin, expHours/hrPerBin);         
+    timeVector = hrPerBin*timeVector';                                         
     
-    birthHisto = zeros(binFactor*expHours,1);
+    % count birth events per timebin
+    birthEvents = zeros(binFactor*expHours,1);
     for i = 1:length(binnedByTime)
         
-        birthHisto(i) = sum(binnedByTime{i});                                  % count birth events per timebin
+        birthEvents(i) = sum(binnedByTime{i});                                  
         
     end
     clear i;
     
+    % normalize with number of tracks present in at timepoint
+    numTracks = cell2mat(cellfun(@length,binnedByTime,'UniformOutput',false));
+    numTracks(binFactor*expHours,1) = 0;
+    birthHisto = birthEvents./numTracks;
+    
     figure(1)
     subplot(2,1,condition)
     bar(timeVector,birthHisto)
-    axis([0,10,0,12])
+    axis([0,10,0,.15])
     hold on
     
 end
