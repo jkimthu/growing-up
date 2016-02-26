@@ -1,4 +1,4 @@
-%% (at the) rightTime
+%% rightTimeLine
 
 
 % Goal: Searching for any influence of nutrient environment on the cell cycle.
@@ -78,9 +78,9 @@ firstTimepoint = firstHour*binsPerHour + 1;         % calculate first timepoint 
 numPeriods = (finalHour-firstHour)/periodDuration;  % number of periods of interest
 totalPeriods = finalHour/periodDuration;            % total periods in experiment
 
-%%
+%
 for condition = 1:2;                                  % for looping between conditions
- %%
+ %
     % 1. isolate data of interest
     interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
     currentTimepoint = firstTimepoint;              % initialize first timepoint as current timepoint
@@ -127,35 +127,8 @@ for condition = 1:2;                                  % for looping between cond
     periodIntegers = floor(periodFraction.*binsPerHour);          % accumarray requires integers
     binnedByPeriod = accumarray(periodIntegers,notNormalized,[],@(x) {x});
     countsByPeriod = accumarray(periodIntegers,countsPerTimeBin,[],@(x) {x});
-% %%
-%     
-%     % 3. SCATTER: plot each period average per time bin, with point size dependent on count
-%     eventMask = cell2mat( cellfun(@nanmean,binnedByPeriod,'UniformOutput',false) );                   % remove zeros and nans !
-%     eventMask(eventMask==0) = NaN;
-%     eventMask = find(~isnan(eventMask));                      % find indices of cell cycle data
-%     scatterData = binnedByPeriod(eventMask);                      % trim all nans from ccStage vector
-%     counts = countsByPeriod(eventMask);
-%     current = periodTime;
-%     current = current(eventMask);                              % trim all nans from time vector
-%     currentFraction = current./periodDuration;
-%     %%
-%     figure(1)
-%     if condition == 1
-%         axis([0,1,0,5])
-%         grid on
-%         hold on
-%         for t = 1:length(scatterData)
-%             scatter(currentFraction(t),scatterData{t},2,'k')   % constant
-%         end
-% 
-%     else
-%         plot(currentFraction,scatterData,'b')   % fluctuating (blue)
-%     end
-%     
-%     %clear current currentFraction;
-    
-%
-    % 3. LINE PLOT: average accumulated averages, accounting for original counts
+
+    % 6. LINE PLOT: average accumulated averages, accounting for original counts
     normalizedDuration = zeros(binsPerPeriod,1);
     for f = 1:binsPerPeriod
         if isempty(binnedByPeriod{f})
