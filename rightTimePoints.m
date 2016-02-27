@@ -35,8 +35,8 @@
 %     1. isolate data of interest
 %     2. identify rows where drop = 1 AND timeSinceBirth = 0 AND curveDuration > 0, together these mark unique tracks      
 %     3. find curveDuration and timestamp at those rows
-%     4. assign all timestamps a period fraction
-%     5. 
+%     4. trim all undesired timestamps (i.e. keep only those in final hrs)
+%     5. assign all timestamps a period fraction
 %     6. plot !
 
 
@@ -56,10 +56,7 @@ end
 
 clear dataMatrix dmDirectory dm;
 clear names;
-
-
-% 0. initialize experimental parameters
-expHours = 10; %  duration of experiment in hours                      
+                    
 
 % 0. initialize time binning parameters
 periodDuration = 1; %0.25;                          % duration of nutrient period in hours                 
@@ -73,17 +70,12 @@ periodTime = hrPerBin*periodTime';
 
 % 0. initialize looping parameters for analysis
 firstHour = 5;                                      % time at which to initate analysis
-finalHour = 10;                                     % time at which to terminate analysis
-firstTimepoint = firstHour*binsPerHour + 1;         % calculate first timepoint (row number in binnedByTime)
-numPeriods = (finalHour-firstHour)/periodDuration;  % number of periods of interest
-totalPeriods = finalHour/periodDuration;            % total periods in experiment
 
 
 for condition = 1:2;                                  % for looping between conditions
  
     % 1. isolate data of interest
     interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
-    currentTimepoint = firstTimepoint;              % initialize first timepoint as current timepoint
     
     timeStamps = interestingData(:,2);
     drop = interestingData(:,5);                    % col #5 = drop boolean (1 = birth event)      
@@ -105,21 +97,25 @@ for condition = 1:2;                                  % for looping between cond
     end
     clear r;
 
-   
-    % 4. assign all timestamps a period fraction
+    % 4. trim off data points pre-equilibration
+    keepTheseRows = find(times > firstHour);
+    times = times(keepTheseRows);
+    durations = durations(keepTheseRows);
+    
+    % 5. assign all timestamps a period fraction
     toSubtract = floor(times);  
     onlyFractions = times-toSubtract;
     
-    % 5. plot
+    % 6. plot
     figure(1)
     subplot(2,1,condition)
     if condition == 1
         scatter(onlyFractions,durations,'k')
-        axis([0,1,0,4])
+        axis([0,1,0,5])
         grid on
     else
         scatter(onlyFractions,durations,'b')
-        axis([0,1,0,4])
+        axis([0,1,0,5])
         grid on
     end
     
