@@ -35,9 +35,10 @@
 %     1. isolate data of interest
 %     2. identify rows where drop = 1 AND timeSinceBirth = 0 AND curveDuration > 0, together these mark unique tracks      
 %     3. find curveDuration and timestamp at those rows
-%     4. assign all timestamps a period fraction
-%     5. bin and average curveDurations by period fraction
-%     6. plot !
+%     4. trim all undesired timestamps (i.e. keep only those in final hrs)
+%     5. assign all timestamps a period fraction
+%     6. bin and average curveDurations by period fraction
+%     7. plot !
 
 
 % OK! Lez go!
@@ -62,7 +63,7 @@ clear names;
 expHours = 10; %  duration of experiment in hours                      
 
 % 0. initialize time binning parameters
-periodDuration = 1;%0.25;                           % duration of nutrient period in hours                 
+periodDuration = 1; %0.25;                          % duration of nutrient period in hours                 
 binsPerHour = 200;                                  % bPH of 200 = time bins of 0.005 hours (18 sec)
 hrPerBin = 1/binsPerHour;                           % bPH of 40  = time bins of 0.025 hours (1.5 min)
 
@@ -74,16 +75,16 @@ periodTime = hrPerBin*periodTime';
 % 0. initialize looping parameters for analysis
 firstHour = 5;                                      % time at which to initate analysis
 finalHour = 10;                                     % time at which to terminate analysis
-firstTimepoint = firstHour*binsPerHour + 1;         % calculate first timepoint (row number in binnedByTime)
+%firstTimepoint = firstHour*binsPerHour + 1;         % calculate first timepoint (row number in binnedByTime)
 numPeriods = (finalHour-firstHour)/periodDuration;  % number of periods of interest
 totalPeriods = finalHour/periodDuration;            % total periods in experiment
 
-%
+
 for condition = 1:2;                                  % for looping between conditions
- %
+ 
     % 1. isolate data of interest
     interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
-    currentTimepoint = firstTimepoint;              % initialize first timepoint as current timepoint
+    %currentTimepoint = firstTimepoint;              % initialize first timepoint as current timepoint
     
     timeStamps = interestingData(:,2);
     drop = interestingData(:,5);                    % col #5 = drop boolean (1 = birth event)      
@@ -104,31 +105,34 @@ for condition = 1:2;                                  % for looping between cond
         end
     end
     clear r;
-
+    
+    % 4. trim off data points prior to firstHour
+    keepTheseRows = find(times > firstHour);
+    times = times(keepTheseRows);
+    durations = durations(keepTheseRows);
    
-    % 4. assign all timestamps a period fraction
+    % 5a. assign all timestamps a period fraction
     timeBins = ceil(times*binsPerHour);
     
-    % 5a. bin and average curveDurations by period fraction
+    % 6a. bin curveDurations by period fraction
     binnedByTime = accumarray(timeBins,durations,[],@(x) {x});
     binnedByTime{expHours/hrPerBin,1} = [];
-    
 
-    % 5b. average data points per time bin (and count, for normalization downstream)
+    % 6b. average data points per time bin (and count, for normalization downstream)
     notNormalized = cell2mat( cellfun(@nanmean,binnedByTime,'UniformOutput',false) );
     countsPerTimeBin = cell2mat( cellfun(@length,binnedByTime,'UniformOutput',false) );
     
-    % 5b. associate time bin with appropriate period fraction
+    % 6c. associate time bin with appropriate period fraction
     periodFraction = [];
     for p = 1:totalPeriods
         periodFraction = [periodFraction; periodTime];
     end
     clear p;
-    periodIntegers = floor(periodFraction.*binsPerHour);          % accumarray requires integers
-    binnedByPeriod = accumarray(periodIntegers,notNormalized,[],@(x) {x});
-    countsByPeriod = accumarray(periodIntegers,countsPerTimeBin,[],@(x) {x});
+    fractionAssignments = floor(periodFraction.*binsPerHour);          % accumarray requires integers
+    binnedByPeriod = accumarray(fractionAssignments,notNormalized,[],@(x) {x});
+    countsByPeriod = accumarray(fractionAssignments,countsPerTimeBin,[],@(x) {x});
 
-    % 6. LINE PLOT: average accumulated averages, accounting for original counts
+    % 6d. average accumulated averages, with weighting based on initial counts
     normalizedDuration = zeros(binsPerPeriod,1);
     for f = 1:binsPerPeriod
         if isempty(binnedByPeriod{f})
@@ -144,7 +148,7 @@ for condition = 1:2;                                  % for looping between cond
     clear f;
     
     
-    % 6. LINE PLOT: mean over period fraction
+    % 7. LINE PLOT: mean over period fraction
     normalizedDuration(normalizedDuration==0) = NaN;                   % ...but before plotting, remove zeros and nans !
     eventMask = find(~isnan(normalizedDuration));                      % find indices of cell cycle data
     normalizedDuration = normalizedDuration(eventMask);                % trim all nans from ccStage vector
@@ -162,7 +166,6 @@ for condition = 1:2;                                  % for looping between cond
         plot(currentFraction,normalizedDuration,'b')   % fluctuating (blue)
     end
     
-
 
 end
 
