@@ -62,11 +62,7 @@ clear names;
 periodDuration = 1; %0.25;                          % duration of nutrient period in hours                 
 binsPerHour = 200;                                  % bPH of 200 = time bins of 0.005 hours (18 sec)
 hrPerBin = 1/binsPerHour;                           % bPH of 40  = time bins of 0.025 hours (1.5 min)
-
-% 0. initialize time vector for plotting
-binsPerPeriod = periodDuration/hrPerBin;
-periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
-periodTime = hrPerBin*periodTime';                                       
+                                  
 
 % 0. initialize looping parameters for analysis
 firstHour = 5;                                      % time at which to initate analysis
