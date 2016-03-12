@@ -6,37 +6,40 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, March 11th 2016
+%  Last edit: Jen Nguyen, March 12th 2016
 
 
 
 
 % Envisioned data matrix:
 
-%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    addedSize
-%         1         1         t        x         u         0*         1              0                3              1           x  
-%         2         1         t        x         u         0          1              1                3              2           x
-%         3         1         t        x         u         0          1              2                3              3           x
-%         4         1         t        x         u         1          2              0                3              1           x
-%         5         1         t        x         u         0          2              1                3              2           x
-%         6         1         t        x         u         0          2              2                3              3           x
-%         7         1         t        x         u         1          3              0                3              1           x
-%         8         1         t        x         u         0          3              1                3              2           x
-%         9         1         t        x         u         0          3              2                3              3           x
-%         10        1         t        x         u         1          4              0                3              1           x
+%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    massAdded    addedSize
+%         1         1         t        x         u         0*         1              0                3              1           0           z-x  
+%         2         1         t        y         u         0          1              1                3              2          y-x          z-x
+%         3         1         t        z         u         0          1              2                3              3          z-x          z-x
+%         4         1         t        a         u         1          2              0                3              1           0           c-a
+%         5         1         t        b         u         0          2              1                3              2          b-a          c-a
+%         6         1         t        c         u         0          2              2                3              3          c-a          c-a
+%         7         1         t        q         u         1          3              0                3              1           0           s-q
+%         8         1         t        r         u         0          3              1                3              2          r-q          s-q
+%         9         1         t        s         u         0          3              2                3              3          s-q          s-q
+%         10        1         t        j         u         1          4              0                0              1           0            0  
+
 
 
 %     where,
-%                  row      =   row number, obvi
-%        1.        track    =   identifies track 
-%        2.        t        =   all timepoints associated with concatinated length trajectories
-%        3.        x        =   length values from concatentated length trajectories
-%        4.        mu       =   calculated growth rates from SlidingFits.m
-%        5.        drop?    =   finding where individual cell cycles start and end, a boolean
-%        6.        curve    =   an id number for each individual cell cycle
-%        7.        tSince   =   time since birth
-%        8.        stage    =   time since birth / duration of entire cycle
-%        9.        added    =   added size since time of birth
+%                  row       =   row number, obvi
+%        1.        track     =   identifies track 
+%        2.        t         =   all timepoints associated with concatinated length trajectories
+%        3.        x         =   length values from concatentated length trajectories
+%        4.        mu        =   calculated growth rates from SlidingFits.m
+%        5.        drop?     =   finding where individual cell cycles start and end, a boolean
+%        6.        curve     =   an id number for each individual cell cycle
+%        7.        tSince    =   time since birth
+%        8.        Duration  =   full duration of cell cycle pertaining to current row
+%        9.        stage     =   time since birth / duration of entire cycle
+%       10.        mass      =   increments of added size since time of birth
+%       11.        added     =   total mass added during cell cycle pertaining to current row
 
 
 
