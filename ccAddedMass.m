@@ -45,16 +45,24 @@ clear dataMatrix dmDirectory dm;
 clear names;
 
 
-%%
+%
 
 %  Stragety:
-%   
-%     0. initialize
+%
+%     0. designate time window of analysis
 %     1. isolate data of interest (ccStage and mass)
 %     2. determine bin size for mass
 %     3. accumulate ccStage based on mass bins
 %     4. calculate mean, std, n, error
 %     5. plot!
+
+
+
+% 0. designate time window of analysis
+
+firstTimepoint = 5; % in hours
+lastTimepoint = 10;
+
 
 
 for condition = 1:2          % 1 = constant, 2 = fluctuating
@@ -64,13 +72,22 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     % 1. isolate mu and ccStage data
     addedMass = interestingData(:,10);
     ccStage = interestingData(:,9);
+    timeStamps = interestingData(:,2);
+   
+    % trim off timepoints earlier than first
+    addedMass = addedMass(timeStamps >= firstTimepoint);
+    ccStage = ccStage(timeStamps >= firstTimepoint);
+    lowTrimmed_timeStamps = timeStamps(timeStamps >= firstTimepoint);
     
+    % trim off timepoints later than last
+    addedMass = addedMass(lowTrimmed_timeStamps <= lastTimepoint);
+    ccStage = ccStage(lowTrimmed_timeStamps <= lastTimepoint);
+    finalTrimmed_timeStamps = lowTrimmed_timeStamps(lowTrimmed_timeStamps <= lastTimepoint);
     
     % 2. determine bin size for mu
     
-    % replace all values of Mu > 1 or Mu <= 0 with NaN
+    % replace all values of addedMass <= 0 with NaN
     trimmedMass = addedMass;
-    trimmedMass(trimmedMass > 1) = NaN;
     trimmedMass(trimmedMass <= 0) = NaN;
     %histogram(trimmedMu)
     
@@ -79,8 +96,8 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     trimmedMass = trimmedMass(nanFilter);
     trimmedStages = ccStage(nanFilter);
     
-    % create binning vector such that bin size = 0.05 1/hr
-    muBins = ceil(trimmedMass*20);
+    % create binning vector such that bin size = 0.1 um
+    muBins = ceil(trimmedMass*10);
     
     
     % 3. accumulate ccStage by binned growth rates
@@ -98,7 +115,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(1)
     if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1])
+        axis([0,90,0,1.2])
         hold on
         grid on
         errorbar(meanStage,stdStage,'k')
@@ -111,7 +128,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(2)
         if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1])
+        axis([0,90,0,1.2])
         hold on
         grid on
         errorbar(meanStage,errorStage,'k')
