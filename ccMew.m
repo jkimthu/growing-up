@@ -4,11 +4,13 @@
 % Goal: Is cell cycle stage a function of instantaneous growth rate?
 
 %       This script accumulates cell cycle fraction data into instantaneous
-%       growth rate bins, and plots a scatter. 
-  
+%       growth rate bins, and plots a mean line with error. 
+%
+%       x axis: instananeous growth rate
+%       y axis: mean cell cycle stage
 
 
-%  Last edit: Jen Nguyen, March 13th 2016
+%  Last edit: Jen Nguyen, March 14th (pi day!) 2016
 
 
 
@@ -43,16 +45,24 @@ clear dataMatrix dmDirectory dm;
 clear names;
 
 
-%%
+%
 
 %  Stragety:
 %   
-%     0. initialize
+%     0. designate time window of analysis
 %     1. isolate data of interest (ccStage and mu)
 %     2. determine bin size for mu
 %     3. accumulate ccStage based on mu bins
 %     4. calculate mean, std, n, error
 %     5. plot!
+
+
+
+% 0. designate time window of analysis
+
+firstTimepoint = 5; % in hours
+lastTimepoint = 10;
+
 
 
 for condition = 1:2          % 1 = constant, 2 = fluctuating
@@ -62,7 +72,17 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     % 1. isolate mu and ccStage data
     Mu = interestingData(:,4);
     ccStage = interestingData(:,9);
+    timeStamps = interestingData(:,2);
+   
+    % trim off timepoints earlier than first
+    Mu = Mu(timeStamps >= firstTimepoint);
+    ccStage = ccStage(timeStamps >= firstTimepoint);
+    lowTrimmed_timeStamps = timeStamps(timeStamps >= firstTimepoint);
     
+    % trim off timepoints later than last
+    Mu = Mu(lowTrimmed_timeStamps <= lastTimepoint);
+    ccStage = ccStage(lowTrimmed_timeStamps <= lastTimepoint);
+    finalTrimmed_timeStamps = lowTrimmed_timeStamps(lowTrimmed_timeStamps <= lastTimepoint);
     
     % 2. determine bin size for mu
     
@@ -96,7 +116,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(1)
     if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1])
+        axis([0,21,0,1.2])
         hold on
         grid on
         errorbar(meanStage,stdStage,'k')
@@ -109,7 +129,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(2)
         if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1])
+        axis([0,21,0,1.2])
         hold on
         grid on
         errorbar(meanStage,errorStage,'k')
