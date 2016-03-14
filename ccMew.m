@@ -93,10 +93,12 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     
     
     % 5. plot mean and std
+    figure(1)
     if condition == 1
         plot(meanStage,'k')
-        axis([0,21,-.2,1.2])
+        axis([0,21,0,1])
         hold on
+        grid on
         errorbar(meanStage,stdStage,'k')
     else
         plot(meanStage,'b')
@@ -104,6 +106,18 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
         errorbar(meanStage,stdStage,'b')
     end
     
+    figure(2)
+        if condition == 1
+        plot(meanStage,'k')
+        axis([0,21,0,1])
+        hold on
+        grid on
+        errorbar(meanStage,errorStage,'k')
+    else
+        plot(meanStage,'b')
+        hold on
+        errorbar(meanStage,errorStage,'b')
+    end
 end
 
 
