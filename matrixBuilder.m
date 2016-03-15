@@ -39,7 +39,7 @@
 %        8.        Duration  =   full duration of cell cycle pertaining to current row
 %        9.        stage     =   time since birth / duration of entire cycle
 %       10.        mass      =   increments of added size since time of birth
-%       11.        added     =   total mass added during cell cycle pertaining to current row
+%       11.        size      =   total mass added during cell cycle pertaining to current row
 
 
 
@@ -99,7 +99,7 @@ addedSize = [];
 
 % Select xy positions for analysis / concatenation
 
-for n = 1:10 
+for n = 11:20 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due

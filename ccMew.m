@@ -1,4 +1,4 @@
-%% ccMew
+%% cell cycle, mew!
 
 
 % Goal: Is cell cycle stage a function of instantaneous growth rate?
@@ -116,7 +116,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(1)
     if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1.2])
+        axis([0,21,0,1])
         hold on
         grid on
         errorbar(meanStage,stdStage,'k')
@@ -129,7 +129,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     figure(2)
         if condition == 1
         plot(meanStage,'k')
-        axis([0,21,0,1.2])
+        axis([0,21,0,1])
         hold on
         grid on
         errorbar(meanStage,errorStage,'k')

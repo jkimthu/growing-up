@@ -84,7 +84,7 @@ for condition = 1:2          % 1 = constant, 2 = fluctuating
     ccStage = ccStage(lowTrimmed_timeStamps <= lastTimepoint);
     finalTrimmed_timeStamps = lowTrimmed_timeStamps(lowTrimmed_timeStamps <= lastTimepoint);
     
-    % 2. determine bin size for mu
+    % 2. determine bin size for added mass
     
     % replace all values of addedMass <= 0 with NaN
     trimmedMass = addedMass;
