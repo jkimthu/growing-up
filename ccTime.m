@@ -2,8 +2,12 @@
 
 
 %  Goal: Searching for synchrony in growth data.
-%        This script plots up multiple views of cell cycle stage.
-%
+%        This script plots up multiple views of cell cycle stage:
+%        
+%        1. mean and std over time
+%        2. heatmap over time
+
+
 %  Last edit: Jen Nguyen, March 27th 2016
 
 
@@ -11,8 +15,6 @@
 
 % Growth phase is defined as a specific fraction of the growth curve, as
 % calculated and assembled in matrixBuilder.
-
-
 
 % The intended input for these scripts is the following data matrix,
 % saved with the naming convention of:
@@ -45,18 +47,95 @@ clear dataMatrix dmDirectory dm;
 clear names;
 
 
-%%
+%%   O N E.
+%    Mean cell cycle stage over time 
 
 
-%      O N E.  Cell cycle stage over experiment
+%  Goal: does cell cycle stage oscillate over time?
+%        less standard deviation around mean suggests greater synchrony
 
 
-
-%  Heatmap: fraction of population in each cell cycle stage vs. time
+%  Strategy:
 %
-%     -  figure 3 of Mathis & Ackermann pre-print: line plots separate
-%        experiments to illustrate reduced variation after pulsed shock
-%     -  here, let's plot all data points per timestep
+%     0. initialize experiment and analysis parameters
+%     1. isolate data of interest
+%     2. accumulate data points (of cell cycle stage) by time bin
+%     3. calculate mean cell cycle stage per time bin
+%     4. plot!
+%     
+
+expHours = 10; %  duration of experiment in hours                          % 0.  initialize parameters
+binFactor = 200; % time bins of 0.005 hr  
+hrPerBin = 1/binFactor; 
+
+for condition = 1:2
+   
+    % 1.  isolate time and ccStage vectors
+    interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
+    timeStamps = interestingData(:,2);
+    ccStage = interestingData(:,9);                                        
+    
+    % 2.  accumulate data by associated time bin
+    timeBins = ceil(timeStamps*binFactor);                                 
+    binnedByTime = accumarray(timeBins,ccStage,[],@(x) {x});               
+    
+    % 3a.  calculate mean cell cycle stage per bin
+    meanStage = cellfun(@nanmean,binnedByTime,'UniformOutput',false);      
+    meanStage = cell2mat(meanStage);
+    
+    % 3b.  calculate std and error
+    devStage = cell2mat(cellfun(@nanstd,binnedByTime,'UniformOutput',false));
+    nStage = cell2mat(cellfun(@length,binnedByTime,'UniformOutput',false));
+    errorStage = devStage./sqrt(nStage);
+    
+    % 4a. create a time vector to convert bin # to absolute time
+    timeVector = linspace(1, expHours/hrPerBin, expHours/hrPerBin);
+    timeVector = hrPerBin*timeVector';                                       
+    
+    % 4b. before plotting, a little matrix manipulation to get around nans                                                            
+    eventMask = find(~isnan(meanStage));                                   % find indices of cell cycle data
+    meanStage = meanStage(eventMask);                                      % trim all nans from ccStage vector
+    devStage = devStage(eventMask);
+    errorStage = errorStage(eventMask);
+    timeVector = timeVector(eventMask);                                    % trim all nans from time vector
+    
+    % 4c. mean with standard deviation
+    figure(1)
+    if condition == 1
+         plot(timeVector,meanStage,'k')
+         axis([0,10,0,1])
+         hold on
+         grid on
+         errorbar(timeVector,meanStage, devStage,'k')
+    else
+        plot(timeVector,meanStage,'b')
+        hold on
+        errorbar(timeVector,meanStage,devStage,'b')
+    end
+
+    % 4d. mean with standard error
+    figure(2)
+    if condition == 1
+        plot(timeVector,meanStage,'k')
+        axis([0,10,0,1])
+        hold on
+        grid on
+        errorbar(timeVector,meanStage,errorStage,'k')
+    else
+        plot(timeVector,meanStage,'b')
+        hold on
+        errorbar(timeVector,meanStage,errorStage,'b')
+    end
+end
+
+
+%%   T W O.
+%    Heatmap of cell cycle stage over time
+
+
+%  Goal: display fraction of population in each cell cycle stage vs. time
+%        striations suggest synchrony, whereas uniformity indicates
+%        heterogeneity
 
 
 %  Strategy:
