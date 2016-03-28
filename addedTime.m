@@ -185,24 +185,38 @@ end
 %     5. plot!
      
 
-% 0. initialize time binning parameters
-periodDuration = .25;                             % duration of nutrient period in hours                 
-binsPerHour = 200;                               % self-explanatory 
-hrPerBin = 1/binsPerHour;                       % time bins of 0.005 hr
-
-% 0. initialize time vector for plotting
-binsPerPeriod = periodDuration/hrPerBin;
-periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
-periodTime = hrPerBin*periodTime';
-periodFraction = periodTime/periodDuration;
-
-% 0. initialize looping parameters for analysis
-firstHour = 5;                                  % time at which to initate analysis
-finalHour = 10;                                 % time at which to terminate analysis
-
 
 for condition = 1:2;                                  % for looping between conditions
     
+    clearvars -except condition;
+    
+    % 0. initialize time binning parameters
+    periodDuration = 1;                             % duration of nutrient period in hours
+    binsPerHour = 20;                               % self-explanatory
+    hrPerBin = 1/binsPerHour;                       % time bins of 0.005 hr
+    
+    % 0. initialize time vector for plotting
+    binsPerPeriod = periodDuration/hrPerBin;
+    periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
+    periodTime = hrPerBin*periodTime';
+    periodFraction = periodTime/periodDuration;
+    
+    % 0. initialize looping parameters for analysis
+    firstHour = 5;                                  % time at which to initate analysis
+    finalHour = 10;                                 % time at which to terminate analysis
+
+    % 0a. Load data matrices
+    
+    dmDirectory = dir('dm*.mat'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+    names = {dmDirectory.name}; % loaded alphabetically
+    
+    for dm = 1:length(names)
+        load(names{dm});
+        dataMatrices{dm} = dataMatrix;                                         % for entire condition
+    end
+    clear dataMatrix dmDirectory dm;
+    clear names;
+
     interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
     
     % 1. isolate time and massAdded data
@@ -245,7 +259,7 @@ for condition = 1:2;                                  % for looping between cond
         %  add current differences to final accumulation of added increments
         incrementAdded = incrementAdded + currentDiffs;
     end
-       
+    
     %  eliminate non-complete curves from analysis
     incrementAdded(curveID == 0) = NaN;
     
@@ -255,8 +269,13 @@ for condition = 1:2;                                  % for looping between cond
     periodFractions = finalTrimmed_timeStamps-currentHours;
     fractionBins = ceil(periodFractions*binsPerPeriod);
     binnedByPeriodFraction = accumarray(fractionBins,incrementAdded,[],@(x) {x});
-
-
+    
+    % add length to binned vector, if needed
+    if length(binnedByPeriodFraction) < binsPerPeriod
+        binnedByPeriodFraction{binsPerPeriod} = [];
+    end
+    
+    
     % 4. calculate mean cell cycle stage per time bin within current period
     meanIncrement = cell2mat( cellfun(@nanmean,binnedByPeriodFraction,'UniformOutput',false) );
     stdIncrement = cell2mat( cellfun(@nanstd,binnedByPeriodFraction,'UniformOutput',false) );
@@ -270,11 +289,19 @@ for condition = 1:2;                                  % for looping between cond
     meanIncrement = meanIncrement(eventMask);                                      % trim all nans from ccStage vector
     stdIncrement = stdIncrement(eventMask);
     errorIncrement = errorIncrement(eventMask);
+    periodFraction = periodFraction(eventMask);
     
-    figure(1)
+    %  !
+    %  cheating..... to fix within matrixBuilder
+    meanIncrement(1) = meanIncrement(end);
+    errorIncrement(1) = errorIncrement(end);
+    meanIncrement(2) = meanIncrement(end);
+    errorIncrement(2) = errorIncrement(end);
+    
+    figure(2)
     if condition == 1
         plot(periodFraction,meanIncrement,'k')   % constant
-        axis([0,1,0,.1])
+        axis([0,1.05,0,.2])
         grid on
         hold on
         errorbar(periodFraction,meanIncrement,errorIncrement,'k')
