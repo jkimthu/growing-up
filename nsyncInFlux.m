@@ -3,12 +3,8 @@
 
 % Goal: Searching for synchrony in growth data.
 
-%       Like indieSync.m, this script plots the population mean of cell cycle stage.
-%       Unlike indieSync.m, the mean is caculcated for all xy positions per condition 
-%                  instead, the multiple lines represent different cycles
-%       Uses data initiation scheme from nSync.m
-%
-%       Like meannsingle.m, this script plots a mean over a single fluctuating period    
+%       This script plots the population mean of cell cycle stage
+%	    over a single fluctuating period    
 
 
 %  Last edit: Jen Nguyen, February 19th 2016

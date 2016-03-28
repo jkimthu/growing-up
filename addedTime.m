@@ -4,8 +4,10 @@
 %  Goal: Searching responses in biomass accumulation
 %        This script plots:
 %
-%        1. mean added mass (per cell) since birth over time
-%        2. mean instantaneous added mass (per cell) over time
+%        1a. mean added mass (per cell) since birth over time
+%        1b. mean instantaneous added mass (per cell) over time
+%        2. mean instantaneous added mass over a nutrient period
+
 
 %  Last edit: Jen Nguyen, March 28th 2016
 
@@ -22,18 +24,8 @@
 %       condition  =  experimental condition      (fluc or const)
 %
 
-
-%  Strategy:
-%
-%     0. initialize experiment and analysis parameters
-%     1. isolate data of interest
-%     2. accumulate data points (of cell cycle stage) by time bin
-%     3. calculate mean cell cycle stage per time bin
-%     4. plot!
-%     
-
-
 % OK! Lez go!
+
 
 
 % 0a. Load data matrices
@@ -48,14 +40,27 @@ end
 clear dataMatrix dmDirectory dm;
 clear names;
 
+
 %%   O N E.
-%    Plot added mass since birth over time
+%    Added mass since birth over time
+%    Instantaneous added mass over time
+
+
+
+%    Strategy:
+%
+%     0. initialize experiment and analysis parameters
+%     1. isolate data of interest
+%     2. accumulate data points (of cell cycle stage) by time bin
+%     3. calculate mean cell cycle stage per time bin
+%     4. plot!
+%     
 
 
 % 0b. Initialize parameters
 
 expHours = 10; %  duration of experiment in hours                          % 0.  initialize parameters
-binFactor = 200; % time bins of 0.005 hr  
+binFactor = 20; % time bins of 0.05 hr  
 hrPerBin = 1/binFactor; 
 
 for condition = 1:2
@@ -111,7 +116,7 @@ for condition = 1:2
     figure(1)
     if condition == 1
          plot(timeVector,meanAdded,'k')
-         axis([0,10,0,5])
+         axis([0,10,0,3])
          hold on
          grid on
          %errorbar(timeVector,meanAdded, devAdded,'k')
@@ -125,7 +130,7 @@ for condition = 1:2
     figure(2)
     if condition == 1
         plot(timeVector,meanAdded,'k')
-        axis([0,10,0,5])
+        axis([0,10,0,3])
         hold on
         grid on
         errorbar(timeVector,meanAdded,errorAdded,'k')
@@ -167,76 +172,229 @@ end
 
 
 %%   T W O.
-%    Instantaneous added mass over time
+%    Instantaneous added mass over a nutrient period
 
 
+%    Strategy:
+%
+%     0. initialize experiment and analysis parameters
+%     1. isolate timepoint, curve i.d., and added mass since birth
+%     2. use curve i.d. and added mass to find magnitude of incremental mass additions
+%     3. accumulate data points (of cell cycle stage) by period fraction
+%     4. calculate mean cell cycle stage per time bin
+%     5. plot!
+     
 
-for condition = 1:2
+% 0. initialize time binning parameters
+periodDuration = .25;                             % duration of nutrient period in hours                 
+binsPerHour = 200;                               % self-explanatory 
+hrPerBin = 1/binsPerHour;                       % time bins of 0.005 hr
+
+% 0. initialize time vector for plotting
+binsPerPeriod = periodDuration/hrPerBin;
+periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
+periodTime = hrPerBin*periodTime';
+periodFraction = periodTime/periodDuration;
+
+% 0. initialize looping parameters for analysis
+firstHour = 5;                                  % time at which to initate analysis
+finalHour = 10;                                 % time at which to terminate analysis
+
+
+for condition = 1:2;                                  % for looping between conditions
     
-    interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
-    timestamps = interestingData(:,2);
-    ccStage = interestingData(:,9);                                            % 0.  isolate time and ccStage vectors
+    interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
     
-    timeBins = ceil(timestamps*200);  % time bins of 0.005 hr                        % 1a. define bin size (time)
-    binnedByTime_added = accumarray(timeBins,ccStage,[],@(x) {x});                   % 2.  accumulate data by associated time bin
+    % 1. isolate time and massAdded data
+    timeStamps = interestingData(:,2);
+    curveID = interestingData(:,6);
+    massAdded = interestingData(:,10);              % mass added since birth
     
+    %  trim off timepoints earlier than first
+    curveID = curveID(timeStamps >= firstHour);
+    massAdded = massAdded(timeStamps >= firstHour);
+    lowTrimmed_timeStamps = timeStamps(timeStamps >= firstHour);
     
+    %  trim off timepoints later than last
+    curveID = curveID(lowTrimmed_timeStamps <= finalHour);
+    massAdded = massAdded(lowTrimmed_timeStamps <= finalHour);
+    finalTrimmed_timeStamps = lowTrimmed_timeStamps(lowTrimmed_timeStamps <= finalHour);
     
+   
     
-    % A. Generate grid of absolute counts
+    % 2. calculate instantaneous added mass  
+    %    strategy: add differences from individual curves to a vector of
+    %    zeros, such that indexing is preserved
     
-    dataGrid = zeros(10,2000);                                                 % (rows) ccStage: 0 - 1, with 0.1 incr.
-    % (columns) time: 0 - 10, with 0.005 incr
-    for i = 1:length(binnedByTime_added)
-        if isempty(binnedByTime_added{i})
-            continue
-        else
-            stageBins = ceil(binnedByTime_added{i}/.1);                              % 1b. define bin size (cell cycle stage)
-            stageBins(stageBins==0) = 1;                                       %     manually include birth into 1st bin
-            
-            currentTimeStep = binnedByTime_added{i};                                 % 3.  accumulate ccStage into bins
-            binnedByStage = accumarray(stageBins(~isnan(stageBins)),currentTimeStep(~isnan(currentTimeStep)),[],@(x){x});
-            
-            if isempty(binnedByStage)                                          % 4.  some timepoints are empty vectors
-                continue                                                       %     due to non-counting of NaNs.
-            else                                                               %     by-pass these empty vectors!
-                counts = cellfun(@length,binnedByStage,'UniformOutput',false);
-                counts = cell2mat(counts);
-            end
-            
-            dataGrid(1:length(counts),i) = counts;
-        end
+    incrementAdded = zeros(length(curveID),1);
+    for id = 1:max(curveID)
+        
+        %  replace all values NOT part of the ID with zero
+        currentCurves = curveID;
+        currentCurves(currentCurves~=id)=0;     % keep values only for indices with current i.d.
+        currentCurves = currentCurves/id;       % mask of ones and zeros
+        currentAddedMSB = massAdded.*currentCurves;   % multiply so that all non i.d. indices become zero
+        
+        %  calcalute differences
+        currentDiffs = diff(currentAddedMSB);
+        currentDiffs = [0; currentDiffs];
+        
+        %  replace all negatives (end of curve, noise) with zero
+        currentDiffs(currentDiffs<0)=0;
+        
+        %  add current differences to final accumulation of added increments
+        incrementAdded = incrementAdded + currentDiffs;
     end
-    clear i currentTimeStep binnedByStage counts;
+       
+    %  eliminate non-complete curves from analysis
+    incrementAdded(curveID == 0) = NaN;
     
     
-    
-    % B. Normalized grid
-    
-    countsPerTimePoint = sum(dataGrid);                                        % 5.  find total counts per timepoint
-    normalizedByCount = zeros(10,2000);                                        %     divide each bin count by total
-    
-    for ii = 1:length(dataGrid)
-        if countsPerTimePoint(ii) > 0
-            normalizedByCount(:,ii) = dataGrid(:,ii)./countsPerTimePoint(ii);
-        else
-            continue
-        end
-    end
-    
+    % 3. accumulate data by associated period fraction
+    currentHours = floor(finalTrimmed_timeStamps);
+    periodFractions = finalTrimmed_timeStamps-currentHours;
+    fractionBins = ceil(periodFractions*binsPerPeriod);
+    binnedByPeriodFraction = accumarray(fractionBins,incrementAdded,[],@(x) {x});
+
+
+    % 4. calculate mean cell cycle stage per time bin within current period
+    meanIncrement = cell2mat( cellfun(@nanmean,binnedByPeriodFraction,'UniformOutput',false) );
+    stdIncrement = cell2mat( cellfun(@nanstd,binnedByPeriodFraction,'UniformOutput',false) );
+    nIncrement = cell2mat( cellfun(@length,binnedByPeriodFraction,'UniformOutput',false) );
+    errorIncrement = stdIncrement./sqrt(nIncrement);
     
     
-    % C. Plot!!
+    % 5. plot mean for current period
+    %    ...but before plotting, remove nans from cell cycle and time data
+    eventMask = find(~isnan(meanIncrement));                                       % find indices of cell cycle data
+    meanIncrement = meanIncrement(eventMask);                                      % trim all nans from ccStage vector
+    stdIncrement = stdIncrement(eventMask);
+    errorIncrement = errorIncrement(eventMask);
     
     figure(1)
-    subplot(2,1,condition)
-    imagesc(normalizedByCount,[0.02 .1])
-    axis xy
-    axis([0,2000,1,10])
-    colorbar
-    hold on
+    if condition == 1
+        plot(periodFraction,meanIncrement,'k')   % constant
+        axis([0,1,0,.1])
+        grid on
+        hold on
+        errorbar(periodFraction,meanIncrement,errorIncrement,'k')
+    else
+        plot(periodFraction,meanIncrement,'b')   % fluctuating (blue)
+        hold on
+        errorbar(periodFraction,meanIncrement,errorIncrement,'b')
+    end
     
 end
+
+
+
+
+%%   T H R E E.
+%    Instantaneous added mass over a nutrient period (per period) 
+
+
+%    Strategy:
+%
+%     0. initialize experiment and analysis parameters
+%     1. isolate data of interest
+%     2. accumulate data points (of cell cycle stage) by time bin
+%     3. isolate current period of interest
+%     4. calculate mean cell cycle stage over timsteps of current period
+%     5. loops through all periods, to overlay each xy overlaid on a single plot!
+%     
+
+%  The data matrix this script arranges and plots:
+%
+%           columns: periods of interest, start with first full period after growth rate equilibrates 
+%              rows: each timestep in period time (period fraction)
+
+
+
+% 0. initialize time binning parameters
+periodDuration = .25;                             % duration of nutrient period in hours                 
+binsPerHour = 20;                               % self-explanatory 
+hrPerBin = 1/binsPerHour;                       % time bins of 0.05 hr
+
+% 0. initialize time vector for plotting
+binsPerPeriod = periodDuration/hrPerBin;
+periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
+periodTime = hrPerBin*periodTime';                                       
+
+% 0. initialize looping parameters for analysis
+firstHour = 5;                                  % time at which to initate analysis
+finalHour = 10;                                 % time at which to terminate analysis
+firstTimepoint = firstHour*binsPerHour + 1;     % calculate first timepoint (row number in binnedByTime)
+numPeriods = (finalHour-firstHour)/periodDuration;
+
+
+for condition = 1:2;                                  % for looping between conditions
+    
+    interestingData = dataMatrices{condition};      % condition: 1 = constant, 2 = fluctuating
+    currentTimepoint = firstTimepoint;              % initialize first timepoint as current timepoint
+    
+    % 1a. isolate time and massAdded data
+    timeStamps = interestingData(:,2);
+    massAdded = interestingData(:,10);              % mass added since birth
+    
+    % 1b.  calculate instantaneous added mass
+    incrementAdded = diff(massAdded);
+    incrementAdded = [0; incrementAdded];
+    
+    % 1c.  eliminate zeros (non-full track data and births) and negatives (divisions and noise) from data
+    massAdded(massAdded <= 0) = NaN;
+    incrementAdded(incrementAdded <= 0) = NaN;
+    
+    % 2. accumulate data by associated time bin
+    timeBins = ceil(timeStamps*binsPerHour);
+    binnedByTime_increments = accumarray(timeBins,incrementAdded,[],@(x) {x});
+    
+    for period = 1:numPeriods
+        
+        % 3. establish current period in loop
+        currentPeriod = currentTimepoint:(currentTimepoint + binsPerPeriod -1);
+        
+        if period < numPeriods
+            currentIncrements = binnedByTime_increments(currentPeriod);
+        else
+            currentIncrements = binnedByTime_increments(currentTimepoint:end);
+        end
+        currentTimepoint = currentTimepoint + binsPerPeriod; % re-define currentTimepoint for next loop cycle
+        
+        % 4. calculate mean cell cycle stage per time bin within current period
+        meanIncrement = cell2mat( cellfun(@nanmean,currentIncrements,'UniformOutput',false) );
+        stdIncrement = cell2mat( cellfun(@nanstd,currentIncrements,'UniformOutput',false) );
+        nIncrement = cell2mat( cellfun(@length,currentIncrements,'UniformOutput',false) );
+        errorIncrement = stdIncrement./sqrt(nIncrement);
+        
+        % 5. plot mean for current period
+        %    ...but before plotting, remove nans from cell cycle and time data
+        eventMask = find(~isnan(meanIncrement));                                       % find indices of cell cycle data
+        meanIncrement = meanIncrement(eventMask);                                      % trim all nans from ccStage vector
+        stdIncrement = stdIncrement(eventMask);
+        errorIncrement = errorIncrement(eventMask);
+        
+        fractionVector = periodTime;
+        fractionVector = fractionVector(eventMask);                                          % trim all nans from time vector
+        currentFraction = fractionVector./periodDuration;
+        
+        figure(1)
+        if condition == 1
+            plot(currentFraction,meanIncrement,'color',[0,0,0]+(1/period)*[1,1,1],'linewidth',1.01)   % constant
+            axis([0,1,0,.1])
+            grid on
+            hold on
+            errorbar(currentFraction,meanIncrement,errorIncrement,'k')
+        else
+            plot(currentFraction,meanIncrement,'color',[0.2,0,.2]+(1/period)*[0.7,0.7,0],'linewidth',1.01)   % fluctuating (blue)
+            hold on
+            errorbar(currentFraction,meanIncrement,errorIncrement,'b')
+        end
+        
+    end
+    clear period
+
+end
+
 
 
 
