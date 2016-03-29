@@ -63,13 +63,25 @@ expHours = 10; %  duration of experiment in hours                          % 0. 
 binFactor = 20; % time bins of 0.05 hr  
 hrPerBin = 1/binFactor; 
 
+% 0c. initialize time window parameters for analysis
+firstHour = 3.7;                 % time at which to initate analysis
+finalHour = 8.5;                % time at which to terminate analysis
+
 for condition = 1:2
  
     % 1a.  isolate time and added mass data
     interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
     addedMass = interestingData(:,10);
     timeStamps = interestingData(:,2);
-     
+    
+    %  trim off timepoints earlier than first
+    addedMass = addedMass(timeStamps >= firstHour);
+    lowTrimmed_timeStamps = timeStamps(timeStamps >= firstHour);
+    
+    %  trim off timepoints later than last
+    addedMass = addedMass(lowTrimmed_timeStamps <= finalHour);
+    finalTrimmed_timeStamps = lowTrimmed_timeStamps(lowTrimmed_timeStamps <= finalHour);
+    
     % 1b.  calculate instantaneous added mass
     instaMass = diff(addedMass);
     instaMass = [0; instaMass];
@@ -79,7 +91,7 @@ for condition = 1:2
     instaMass(instaMass <= 0) = NaN;
     
     % 2.  accumulate data by associated time bin
-    timeBins = ceil(timeStamps*binFactor);                                 
+    timeBins = ceil(finalTrimmed_timeStamps*binFactor);                                 
     binnedByTime_added = accumarray(timeBins,addedMass,[],@(x) {x});               
     binnedByTime_insta = accumarray(timeBins,instaMass,[],@(x) {x});
     
@@ -116,7 +128,7 @@ for condition = 1:2
     figure(1)
     if condition == 1
          plot(timeVector,meanAdded,'k')
-         axis([0,10,0,3])
+         axis([firstHour,finalHour,0,3])
          hold on
          grid on
          %errorbar(timeVector,meanAdded, devAdded,'k')
@@ -130,7 +142,7 @@ for condition = 1:2
     figure(2)
     if condition == 1
         plot(timeVector,meanAdded,'k')
-        axis([0,10,0,3])
+        axis([firstHour,finalHour,0,3])
         hold on
         grid on
         errorbar(timeVector,meanAdded,errorAdded,'k')
@@ -145,7 +157,7 @@ for condition = 1:2
     figure(3)
     if condition == 1
          plot(timeVector,meanInsta,'k')
-         axis([0,10,0,.25])
+         axis([4,finalHour,0,.05])
          hold on
          grid on
          %errorbar(timeVector,meanInsta, devInsta,'k')
@@ -159,7 +171,7 @@ for condition = 1:2
     figure(4)
     if condition == 1
         plot(timeVector,meanInsta,'k')
-        axis([0,10,0,.25])
+        axis([4,finalHour,0,.05])
         hold on
         grid on
         errorbar(timeVector,meanInsta,errorInsta,'k')
@@ -201,7 +213,7 @@ for condition = 1:2;                                  % for looping between cond
     periodTime = hrPerBin*periodTime';
     periodFraction = periodTime/periodDuration;
     
-    % 0. initialize looping parameters for analysis
+    % 0. initialize time window parameters for analysis
     firstHour = 5;                                  % time at which to initate analysis
     finalHour = 10;                                 % time at which to terminate analysis
 
