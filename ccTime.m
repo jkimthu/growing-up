@@ -8,7 +8,7 @@
 %        2. heatmap over time
 
 
-%  Last edit: Jen Nguyen, March 27th 2016
+%  Last edit: Jen Nguyen, April 4th 2016
 
 
 
@@ -64,12 +64,26 @@ clear names;
 %     4. plot!
 %     
 
-expHours = 10; %  duration of experiment in hours                          % 0.  initialize parameters
-binFactor = 200; % time bins of 0.005 hr  
+expHours = 11; %  duration of experiment in hours                          % 0.  initialize parameters
+binFactor = 20; % time bins of 0.05 hr  
 hrPerBin = 1/binFactor; 
+counter = 1;
 
-for condition = 1:2
+for condition = 5
    
+    % in fluctuation experiments:
+    %       1 = constant
+    %       2 = fluctuating
+    
+    % in poly-K challenge 0316:
+    %       1 = no treatment, zero glucose
+    %       2 = no treatment, 1 uM glucose
+    %       3 = no treatment, 1 uM glucose with gentle inoculation
+    %       4 = poly-lysine,  zero glucose
+    %       5 = poly-lysine,  1 uM glucose
+    %       6 = poly-lysine,  1 uM glucose
+    
+    
     % 1.  isolate time and ccStage vectors
     interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
     timeStamps = interestingData(:,2);
@@ -101,9 +115,9 @@ for condition = 1:2
     
     % 4c. mean with standard deviation
     figure(1)
-    if condition == 1
+    if counter == 1
          plot(timeVector,meanStage,'k')
-         axis([0,10,0,1])
+         axis([0,11,0,1])
          hold on
          grid on
          errorbar(timeVector,meanStage, devStage,'k')
@@ -112,12 +126,13 @@ for condition = 1:2
         hold on
         errorbar(timeVector,meanStage,devStage,'b')
     end
-
+    
+    
     % 4d. mean with standard error
     figure(2)
-    if condition == 1
+    if counter == 1
         plot(timeVector,meanStage,'k')
-        axis([0,10,0,1])
+        axis([0,11,0,1])
         hold on
         grid on
         errorbar(timeVector,meanStage,errorStage,'k')
@@ -126,8 +141,18 @@ for condition = 1:2
         hold on
         errorbar(timeVector,meanStage,errorStage,'b')
     end
+    counter = counter + 1;
+    
+    % 4c. mean with standard error for all, without color designation
+    figure(3)
+    plot(timeVector,meanStage)
+    axis([0,11,0,1])
+    hold on
+    grid on
+    errorbar(timeVector,meanStage,errorStage)
+    
 end
-
+legend('condition 1', 'condition 2', 'condition 3', 'condition 4', 'condition 5', 'condition 6');
 
 %%   T W O.
 %    Heatmap of cell cycle stage over time

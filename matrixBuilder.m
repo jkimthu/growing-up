@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, March 12th 2016
+%  Last edit: Jen Nguyen, April 4th 2016
 
 
 
@@ -58,15 +58,15 @@
 %%
 %   Initialize.
 
-load('2015-08-10-Mu-length.mat');
+load('2016-03-16-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
-monthDay = '0810';
+monthDay = '0316';
 
 clear D6 M6 Mu_stats;
 
-%%
+
 %
 %   Part One.
 %   Assemble the ultimate data matrix!
@@ -99,7 +99,7 @@ addedSize = [];
 
 % Select xy positions for analysis / concatenation
 
-for n = 11:20 
+for n = 51:60 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -114,7 +114,8 @@ for n = 11:20
         
         
         %   TIME
-        timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                        % collect timestamp (hr)
+        %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
+        timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          % concenate timestamp
         
         
@@ -261,7 +262,6 @@ for n = 11:20
     %save(xyName, 'indivDM');
     
 end % for n
-%muVals(muVals<0) = NaN;
 
 
 
