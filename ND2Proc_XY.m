@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): March 22, 2016
+%  Last modified (jen): May 27, 2016
 
 %  Section contents:
 %
@@ -16,10 +16,16 @@
 %    3. Track cells, looping through all series
 %    4. Compile data into single workspace, D
 
+%   USER NOTES:
+%   once particles are found in test series, manually proceed through
+%         i.  trimming steps (three total)
+%        ii.  tracking steps (two total)
+%       iii.  quality control
+
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('poly-challenge-2016-03-16_xy*.nd2'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+xyDirectory = dir('monod-2016-05-25_xy*.nd2'); % note: this assumes the only two data matrices are 'const' and 'fluc'
 names = {xyDirectory.name};
 
 
@@ -61,25 +67,17 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 %  find particles in each image
 [P,Im] = Particle_Centroid_ND2(reader,FilterParameters,Threshold,[],Background,ImType,ConversionFactor,PlotFlag);  %Actual Processing
 
-%%
-
-%   USER NOTES:
-%   once particles are found in test series, manually proceed through
-%         i.  trimming steps (three total)
-%        ii.  tracking steps (two total)
-%       iii.  quality control
-
 
 %%  T H R E E.
 %   track the particles from all series 
 
-NSeries = length(names);
+%NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 1:NSeries
+for ii = 1:10  %NSeries
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
-    NImg=reader.getImageCount();
+    NImg=118; %reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
     Threshold =  [-147.904, -1];       
     Background = [];                        
@@ -144,10 +142,8 @@ for ii = 1:NSeries
 end
 
 
-save('poly-challenge-2016-03-16.mat','D','T')
-
 %%
-
+save('monod-2016-05-25.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
