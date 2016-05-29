@@ -40,10 +40,10 @@ ConversionFactor = 6.5/60;
 %  use first image of first series
 reader = bfGetReader(names{1});
 ImageNumber=1;
-ii=1;
+%ii=1;
 
 %  refine the filter parameters
-FilterTest_ND2(reader,ImageNumber,{[10,.8,40],'gaussian'})                 % Parameters for spatial filtering:
+%FilterTest_ND2(reader,ImageNumber,{[10,.8,40],'gaussian'})                 % Parameters for spatial filtering:
                                                                            
                                                                            %    first number   -  Highpass filter radius in pixels > lowpass #, Inf to skip
                                                                            %    second number  -  Lowpass filter radius in pixels, zero to skip
@@ -74,10 +74,10 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 %NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 1:10  %NSeries
+for ii = 41:50  %NSeries
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
-    NImg=118; %reader.getImageCount(); % Number of images to include in analysis, starting from 1
+    NImg=218; %reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
     Threshold =  [-147.904, -1];       
     Background = [];                        
@@ -110,7 +110,7 @@ for ii = 1:10  %NSeries
     %   trimming step three -- trim by particle width
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
-    LowerBound = 1.2;     % lower bound for restricted field, or -Inf
+    LowerBound = 1.0;     % lower bound for restricted field, or -Inf
     UpperBound = 1.6;     % upper bound for restricted field, or Inf
     
     % to actually trim the set:
