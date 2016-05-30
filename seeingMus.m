@@ -127,8 +127,6 @@ end
 %   2. divide standard dev by square root of tracks per bin
 Mu_sems = Mu_STDs./sqrt(Mu_Counts');
 
-plot( Mu_Means(1:plotUntil) )
-hold on
 errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
 hold on
 axis([0,110,-0.2,.7])
