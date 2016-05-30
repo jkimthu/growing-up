@@ -67,8 +67,8 @@ end
 load('2016-05-25-Mus-length.mat','D6','M6','T');
 Mu_stats = {};
 
-% defining conditions
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50];
+% defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
+conditions = [1 10 5.8; 11 20 9.8; 21 30 2.7; 31 40 3.9; 41 50 10.8];
 
 
 for xy = 1:length(conditions)
@@ -98,8 +98,10 @@ Time_cond = Time_cond/3600;
 %Mu_cond1(Mu_cond1<0)=NaN;
 
 %  determine size of time bins 
-Bins = ceil(Time_cond*10);            % multiplying by 200 gives time bins of 0.005 hr
-
+BinsPerHour = 10;                              % multiplying by 10 gives bins of 0.1 hr
+Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
+plotUntil = conditions(xy,3)*BinsPerHour;                                               
+                                      
 %  accumulate growth rates by bin, and calculate mean and std dev
 Mu_Means = accumarray(Bins,Mu_cond,[],@nanmean);
 Mu_STDs = accumarray(Bins,Mu_cond,[],@nanstd);
@@ -125,11 +127,11 @@ end
 %   2. divide standard dev by square root of tracks per bin
 Mu_sems = Mu_STDs./sqrt(Mu_Counts');
 
-plot(Mu_Means)
+plot( Mu_Means(1:plotUntil) )
 hold on
-errorbar(Mu_Means,Mu_sems)
+errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
 hold on
-axis([0,130,-0.1,1])
+axis([0,110,-0.2,.7])
 xlabel('Time (hours)')
 ylabel('Elongation rate (1/hr)') 
 % Saving stats
@@ -139,8 +141,9 @@ ylabel('Elongation rate (1/hr)')
 % Mu_stats(:,4) = {Mu_Counts'};
 
 clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
-clear Mu_cond Time_cond;
+clear Mu_cond Time_cond plotUntil;
 
 end
+
 legend('condition 1', 'condition 2', 'condition 3', 'condition 4', 'condition 5');
 %%
