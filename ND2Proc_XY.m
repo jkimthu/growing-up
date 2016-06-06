@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): May 27, 2016
+%  Last modified (jen): June 03, 2016
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('monod-2016-05-25_xy*.nd2'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+xyDirectory = dir('monod-2016-06-02_xy*.nd2'); % note: this assumes the only two data matrices are 'const' and 'fluc'
 names = {xyDirectory.name};
 
 
@@ -40,7 +40,7 @@ ConversionFactor = 6.5/60;
 %  use first image of first series
 reader = bfGetReader(names{1});
 ImageNumber=1;
-%ii=1;
+ii=1;
 
 %  refine the filter parameters
 %FilterTest_ND2(reader,ImageNumber,{[10,.8,40],'gaussian'})                 % Parameters for spatial filtering:
@@ -71,13 +71,13 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 %%  T H R E E.
 %   track the particles from all series 
 
-%NSeries = length(names);
+NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 41:50  %NSeries
+for ii = 1:NSeries
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
-    NImg=218; %reader.getImageCount(); % Number of images to include in analysis, starting from 1
+    NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
     Threshold =  [-147.904, -1];       
     Background = [];                        
@@ -143,7 +143,7 @@ end
 
 
 %%
-save('monod-2016-05-25.mat','D','T')
+save('monod-2016-06-02.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

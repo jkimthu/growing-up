@@ -20,12 +20,12 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('2016-05-25-Mus-length.mat');
+load('2016-06-02-Mus-length.mat');
 
 counter =0;
-for n = 1:10:50
+for n = 1:11:60
     counter = counter +1;
-    m = 5;
+    m = 3;
     
     % Extracted mu
     Mu_track = M6{n}(m).Parameters(:,1);
@@ -64,14 +64,13 @@ end
 
 % Initialize
 %clear;
-load('2016-05-25-Mus-length.mat','D6','M6','T');
-Mu_stats = {};
+load('2016-06-02-Mus-length.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10 5.8; 11 20 9.8; 21 30 2.7; 31 40 3.9; 41 50 10.8];
+conditions = [1 11 10; 12 23 10; 24 36 10; 37 46 10; 47 60 10];
 
 
-for xy = 1:length(conditions)
+for xy = 5 %:length(conditions)
 
 %    Condition One    %
 Mu_cond = [];
@@ -98,9 +97,9 @@ Time_cond = Time_cond/3600;
 %Mu_cond1(Mu_cond1<0)=NaN;
 
 %  determine size of time bins 
-BinsPerHour = 10;                              % multiplying by 10 gives bins of 0.1 hr
+BinsPerHour = 1;                              % multiplying by 10 gives bins of 0.1 hr
 Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
-plotUntil = conditions(xy,3)*BinsPerHour;                                               
+%plotUntil = floor(conditions(xy,3)*BinsPerHour);                                               
                                       
 %  accumulate growth rates by bin, and calculate mean and std dev
 Mu_Means = accumarray(Bins,Mu_cond,[],@nanmean);
@@ -127,21 +126,19 @@ end
 %   2. divide standard dev by square root of tracks per bin
 Mu_sems = Mu_STDs./sqrt(Mu_Counts');
 
-errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
+errorbar(Mu_Means,Mu_sems)
+%errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
 hold on
-axis([0,110,-0.2,.7])
+grid on
+axis([0,11,-0.2,.7])
 xlabel('Time (hours)')
 ylabel('Elongation rate (1/hr)') 
-% Saving stats
-% Mu_stats(:,1) = {Mu_Means};
-% Mu_stats(:,2) = {Mu_STDs};
-% Mu_stats(:,3) = {Mu_sems};
-% Mu_stats(:,4) = {Mu_Counts'};
+%forLegend = num2str(xy);
+%legend(forLegend)
 
 clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
 clear Mu_cond Time_cond plotUntil;
 
 end
-
-legend('condition 1', 'condition 2', 'condition 3', 'condition 4', 'condition 5');
+%legend('condition 1', 'condition 2', 'condition 3', 'condition 4', 'condition 5');
 %%
