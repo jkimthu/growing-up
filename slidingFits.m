@@ -42,18 +42,17 @@
 %  OK! HERE WE GO!
 
 %%
-%last update: June 6th, 2016
+%last update: June 9th, 2016
 
 % Positions: 
 %
-%       #  1-11 = zero glucose, stable
-%       # 12-23 = 1 nM glucose, stable
-%       # 24-36 = 10 nM glucose, stable
-%       # 37-46 = 10 nM glucose, stable duplicate
-%       # 47-60 = 100 nM glucose, stable
+%       #  1-10 = zero glucose, stable
+%       # 21-30 = 100 nM glucose, stable
+%       # 31-40 = 500 nM glucose, stable
 
 
-load('2016-06-02-trimmed.mat');
+
+load('2016-06-09-trimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -72,7 +71,7 @@ clear Fenster_trim hr_trim log_Fit SlidingData;
 %
 
 
-for n = 1:length(D7)
+for n = 1:10%length(D7)
     
     for m = 1:length(D7{n})
         
