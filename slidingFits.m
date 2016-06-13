@@ -71,7 +71,7 @@ clear Fenster_trim hr_trim log_Fit SlidingData;
 %
 
 
-for n = 1:10%length(D7)
+for n = 25:40%length(D7)
     
     for m = 1:length(D7{n})
         
@@ -227,5 +227,5 @@ end
 
 %%
 
-save('2016-06-02-Mus-length.mat', 'D', 'D6', 'M6', 'T')
+save('2016-06-09-Mus-length.mat', 'D', 'D6', 'M6', 'T')
 clear Fenster_track L_Fit Ltime pFit t_hr;
