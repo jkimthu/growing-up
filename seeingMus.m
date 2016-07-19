@@ -20,10 +20,10 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('2016-06-09-Mus-length.mat');
+load('2016-06-14-Mus-length.mat');
 
 counter =0;
-for n = 1:10:50
+for n = 1:7:30
     counter = counter +1;
     m = 3;
     
@@ -37,14 +37,15 @@ for n = 1:10:50
     % Time data (hours)
     %dT = mean(mean(diff(T)));                                              % mean time between frames (seconds)
     %Ttrack = D6{n}(m).Frame(3:Num_mu+2);                                   % original frame # in trajectory
-    timeTrack = T{n}/(60*60);
+    %timeTrack = T{n}/(60*60);
+    timeTrack = T{n}/(3600);
     
     figure(1)
     
     subplot(6,1,counter)
     plot(timeTrack(3:vectorLength+2),Ltrack2,'.',timeTrack(3:vectorLength+2),Mu_track*log(2),'r.');                          
     grid on;
-    axis([0,11.3,-0.5,6])
+    axis([0,5,-0.5,6])
     xlabel('Time (hours)')
     ylabel('Cell Length (um)')
     legend('Length','Mu');
@@ -64,19 +65,19 @@ end
 
 % Initialize
 %clear;
-load('2016-06-09-Mus-length.mat','D6','M6','T');
+load('2016-06-14-Mus-length.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10 11; 11 20 0; 21 30 11; 31 40 11; 41 50 0];
+conditions = [1 15 4.5; 16 30 11];
 %%
 
-for xy = 3:4%:length(conditions)
+for i = 1:2 %number of conditions
     
     %    Condition One    %
     Mu_cond = [];
     Time_cond = [];
     
-    for n = conditions(xy,1):conditions(xy,2)
+    for n = conditions(i,1):conditions(i,2)
         for m = 1:length(M6{n})
             
             %  assemble all instantaneous growth rates into a single vector
@@ -97,7 +98,7 @@ for xy = 3:4%:length(conditions)
     %Mu_cond1(Mu_cond1<0)=NaN;
     
     %  determine size of time bins
-    BinsPerHour = 1;                              % multiplying by 10 gives bins of 0.1 hr
+    BinsPerHour = 200;                              % multiplying by 10 gives bins of 0.1 hr
     Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
@@ -130,7 +131,7 @@ for xy = 3:4%:length(conditions)
     %errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
     hold on
     grid on
-    axis([0,11,-0.2,.7])
+    axis([0,1000,-0.1,.4])
     xlabel('Time (hours)')
     ylabel('Elongation rate (1/hr)')
     %forLegend = num2str(xy);
@@ -140,5 +141,5 @@ for xy = 3:4%:length(conditions)
     clear Mu_cond Time_cond plotUntil;
     
 end
-legend('condition 1', 'condition 3', 'condition 4');
+legend('fluc', 'const');
 %%
