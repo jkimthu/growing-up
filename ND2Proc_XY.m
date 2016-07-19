@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): June 10, 2016
+%  Last modified (jen): July 18, 2016
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('monod-2016-06-09_xy*.nd2'); % note: this assumes the only two data matrices are 'const' and 'fluc'
+xyDirectory = dir('2016-06-14_stable_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -38,7 +38,7 @@ names = {xyDirectory.name};
 ConversionFactor = 6.5/60;
 
 %  use first image of first series
-reader = bfGetReader(names{21});
+reader = bfGetReader(names{1});
 ImageNumber=1;
 %ii=1;
 
@@ -53,7 +53,7 @@ ImageNumber=1;
 FilterParameters = {[10,.8,40],'gaussian'};
 
 %%
-Threshold =  [-147.904, -1];         % [] for GUI, make array with second value +/- 1 to indicate direction of threshold, default positive.
+Threshold =  [];%[-147.904, -1];         % [] for GUI, make array with second value +/- 1 to indicate direction of threshold, default positive.
                                      % The second number gives the separation between images
                                      
 Background = [];                     % Background image to substract from data.  Run empty on a subset and rerun using the mean image in the Im structure if desired
@@ -74,12 +74,12 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 21:40
+for ii = 1:NSeries
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-147.904, -1];       
+    Threshold =  [-53.3909, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 %%
-save('monod-2016-06-09.mat','D','T')
+save('monod-2016-06-14_stable.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
