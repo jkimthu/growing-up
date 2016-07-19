@@ -42,18 +42,29 @@
 %  OK! HERE WE GO!
 
 %%
-%last update: June 9th, 2016
+%last update: June 14th, 2016
 
-% Positions: 
-%
-%       #  1-10 = zero glucose, stable
-%       # 21-30 = 100 nM glucose, stable
-%       # 31-40 = 500 nM glucose, stable
+% Each condition saved under "stable" or "fluc"
+% Datasets concatenated using:
 
+load('2016-06-14-fluc-trimmed.mat');
+D_all = D6;
+T_all = T;
+clear D D2 D3 D4 D5 D6 T;
 
+load('2016-06-14-const-trimmed.mat');
+D_all = [D_all D6];
+T_all = [T_all T];
+clear D D2 D3 D4 D5 D6 T;
 
-load('2016-06-09-trimmed.mat');
-clear D2 D3 D4 D5;
+D6 = D_all;
+T = T_all;
+
+save('2016-06-14-trimmed.mat', 'D6', 'T');
+clear D_all T_all;
+%%
+load('2016-06-14-trimmed.mat');
+
 
 %%
 
@@ -71,7 +82,7 @@ clear Fenster_trim hr_trim log_Fit SlidingData;
 %
 
 
-for n = 25:40%length(D7)
+for n = 1:length(D7)
     
     for m = 1:length(D7{n})
         
@@ -227,5 +238,5 @@ end
 
 %%
 
-save('2016-06-09-Mus-length.mat', 'D', 'D6', 'M6', 'T')
+save('2016-06-14-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
