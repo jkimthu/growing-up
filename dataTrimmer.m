@@ -42,7 +42,7 @@
 D2 = D;                                                                    % copies D for modification
 SizeStrainer = 1.5;
 
-for n = 21:40%length(D);                                                       % will give error for "undefined variable LData1" if some cells have no tracks, []    
+for n = 1:length(D);                                                       % will give error for "undefined variable LData1" if some cells have no tracks, []    
     
     for i = 1:length(D2{n})
         % for all particles in series n
@@ -74,10 +74,10 @@ clear SizeStrainer n;
 %              - in these cases, what causes these large jumps? check!
 %              - negatives are OK because cells have to divide!
 
-%D3 = D2;  
+D3 = D2;  
 JumpFrac = 0.3;                                                            % JumpFrac = threshold parameter
                                                                            % tracks that increase by a cell size fraction greater than JumpFrac will be eliminated from final dataset
-for n = 21:40%length(D);                                                       
+for n = 1:length(D);                                                       
     counter = 0;                                                           
     D3{n} = rmfield(D3{n},'Conv');                                         % remove the 'Conv' field, as it is only one element
     
@@ -125,10 +125,10 @@ clear Clumpers;
 %           - remove these, as we only want to consider tracks with at least one doubling
 %
 
-%D4 = D3;
+D4 = D3;
 Shortest = 20;                                                             % each timepoint = 3 mins; 30 tpts = 90 mins (1.5 hrs)
 
-for n = 21:40%length(D);
+for n = 1:length(D);
 
     for i = 1:length(D4{n})
         % for all particles in series n
@@ -162,10 +162,10 @@ end
 %           - removes particles that are otherwise recognized as cells
 %           
 
-%D5 = D4;
+D5 = D4;
 GoldenRatio = 1.3;                                                         % desired ratio between max and min lengths in a given track 
 
-for n = 21:40%length(D);                                                       
+for n = 1:length(D);                                                       
     
     for i = 1:length(D5{n})                                                
         LData1{i} = arrayfun(@(Q) max(Q.MajAx), D5{n}(i));                 % pull out max MajAx value
@@ -196,7 +196,7 @@ clear GoldenRatio n;
 
 %% Saving results
 
-save('2016-06-09-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
+save('2016-06-14-const-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% QUALITY CONTROL
@@ -211,7 +211,7 @@ save('2016-06-09-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'Co
 
 figure(1)
 
-for n=21:40                                                                 % adjust n as needed!
+for n=1:15                                                                 % adjust n as needed!
     counter = 0;
     Delete = zeros(1,length(n));
     
@@ -222,7 +222,7 @@ for n=21:40                                                                 % ad
     
     for m=1:length(D5{n})
         plot(T{n}(D5{n}(m).Frame(1:end))/3600,(D5{n}(m).MajAx),'Linewidth',2)
-        axis([0,12,0,15])
+        axis([0,5,0,15])
         drawnow                                                             % displays current track m
         %pause()
         w = waitforbuttonpress;                                             % waits for user to approve or reject
@@ -240,7 +240,7 @@ for n=21:40                                                                 % ad
     
     Rejects{n} = Delete;
     clear Delete m w X J K counter;
-    save('2016-06-09-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
+    save('2016-06-14-fluc-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
 clear n;
@@ -252,7 +252,7 @@ clear n;
 %
 
 figure(1)
-for n=21:40                                                              % adjust n as needed!
+for n=1:15                                                              % adjust n as needed!
     counter = 0;                                                           
     Confirmed = zeros(1,length(n));
     
@@ -270,7 +270,7 @@ for n=21:40                                                              % adjus
         m = Rejects{n}(i);
 
             plot(T{n}(D5{n}(m).Frame(1:end))/3600,(D5{n}(m).MajAx),'Linewidth',2)
-            axis([0,12,0,15])
+            axis([0,4.5,0,15])
             %plot(T(D5{n}(m).Frame(1:end),n)/60,(D5{n}(m).MajAx),'color',[0,0,1]+(n-1)*[.05,.05,0],'Linewidth',2)
             %axis([0,1100,0,15])
             drawnow                                                             % displays current track m
@@ -291,7 +291,7 @@ for n=21:40                                                              % adjus
         Trash{n} = Confirmed;
 
     clear Confirmed m w X J K counter;
-    save('2016-06-09-Rejects.mat', 'Rejects','Trash')
+    save('2016-06-14-fluc-Rejects.mat', 'Rejects','Trash')
                                                                         % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
@@ -304,8 +304,8 @@ clear n;
 %
 D6 = D5;
 Trash = cellfun(@(x)x(logical(x)),Trash,'uni',false); 
-%%
-for n = 21:40%length(D6);                                                       
+
+for n = 1:length(D6);                                                       
     
     Remove = Trash(n);
     Remove = cell2mat(Remove);
@@ -322,4 +322,4 @@ for n = 21:40%length(D6);
     clear j k F counter Remove;           
 end
 %clear n;
-save('2016-06-09-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
+save('2016-06-14-fluc-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
