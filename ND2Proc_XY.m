@@ -7,7 +7,8 @@
 %  each separately.
 
 
-%  Last modified (jen): July 18, 2016
+%  Last modified (jen): July 24, 2016
+%       for analysis:   hcf-2016-07-23
 
 %  Section contents:
 %
@@ -25,7 +26,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('2016-06-14_stable_xy*.nd2');
+xyDirectory = dir('hcf-2016-07-23_crop_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +80,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-53.3909, -1];       
+    Threshold =  [-68.8272, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +144,7 @@ end
 
 
 %%
-save('monod-2016-06-14_stable.mat','D','T')
+save('hcf-2016-07-23_cropped.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

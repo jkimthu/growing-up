@@ -41,36 +41,12 @@
 
 %  OK! HERE WE GO!
 
+
+%last update: July 25th, 2016
+
 %%
-%last update: June 14th, 2016
 
-% Each condition saved under "stable" or "fluc"
-% Datasets concatenated using:
-
-% load fluc data and save as first 15 xy in full set
-load('2016-06-14-fluc-trimmed.mat');
-D_all = D6;
-T_all = T;
-clear D D2 D3 D4 D5 D6 T;
-
-% load const data BUT generate artifical time, as timestamps of off
-load('2016-06-14-const-trimmed.mat');
-
-test = linspace(1,661,661)';
-for i = 1:15
-    Tsec{1,i} = test*60 - 60;
-end
-D_all = [D_all D6];
-T_all = [T_all Tsec];
-clear D D2 D3 D4 D5 D6 T Tsec;
-
-D6 = D_all;
-T = T_all;
-
-save('2016-06-14-trimmed.mat', 'D6', 'T');
-clear D_all T_all i test;
-%%
-load('2016-06-14-trimmed.mat');
+load('2016-07-23_cropped-trimmed.mat');
 
 
 %%
@@ -245,5 +221,5 @@ end
 
 %%
 
-save('2016-06-14-Mus-length.mat', 'D6', 'M6', 'T') %'D'
+save('2016-07-23_cropped-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;

@@ -20,10 +20,10 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('2016-06-14-Mus-length.mat');
+load('2016-07-23_cropped-Mus-length.mat');
 
 counter =0;
-for n = 1:7:30
+for n = 1:10:40
     counter = counter +1;
     m = 3;
     
@@ -42,7 +42,7 @@ for n = 1:7:30
     
     figure(1)
     
-    subplot(6,1,counter)
+    subplot(4,1,counter)
     plot(timeTrack(3:vectorLength+2),Ltrack2,'.',timeTrack(3:vectorLength+2),Mu_track*log(2),'r.');                          
     grid on;
     axis([0,5,-0.5,6])
@@ -65,13 +65,13 @@ end
 
 % Initialize
 %clear;
-load('2016-06-14-Mus-length.mat','D6','M6','T');
+load('2016-07-23_cropped-Mus-length.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 15 4.5; 16 30 11];
+conditions = [1 10 3.5; 11 20 3.5; 21 30 3.5; 31 40 3.5];
 %%
 
-for i = 1:2 %number of conditions
+for i = 1:4 %number of conditions
     
     %    Condition One    %
     Mu_cond = [];
@@ -98,7 +98,7 @@ for i = 1:2 %number of conditions
     %Mu_cond1(Mu_cond1<0)=NaN;
     
     %  determine size of time bins
-    BinsPerHour = 200;                              % multiplying by 10 gives bins of 0.1 hr
+    BinsPerHour = 10;                              % multiplying by 10 gives bins of 0.1 hr
     Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
@@ -131,7 +131,7 @@ for i = 1:2 %number of conditions
     %errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
     hold on
     grid on
-    axis([0,1000,-0.1,.4])
+    axis([0,36,-0.1,.5])
     xlabel('Time (hours)')
     ylabel('Elongation rate (1/hr)')
     %forLegend = num2str(xy);
@@ -141,5 +141,5 @@ for i = 1:2 %number of conditions
     clear Mu_cond Time_cond plotUntil;
     
 end
-legend('fluc', 'const');
+legend('fluc', 'high', 'ave', 'low');
 %%

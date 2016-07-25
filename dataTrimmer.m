@@ -196,7 +196,7 @@ clear GoldenRatio n;
 
 %% Saving results
 
-save('2016-06-14-const-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
+save('2016-07-23_cropped-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% QUALITY CONTROL
@@ -211,7 +211,7 @@ save('2016-06-14-const-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader
 
 figure(1)
 
-for n=1:15                                                                 % adjust n as needed!
+for n=31:40                                                                 % adjust n as needed!
     counter = 0;
     Delete = zeros(1,length(n));
     
@@ -240,7 +240,7 @@ for n=1:15                                                                 % adj
     
     Rejects{n} = Delete;
     clear Delete m w X J K counter;
-    save('2016-06-14-fluc-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
+    save('2016-07-23-fluc-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
 clear n;
@@ -252,7 +252,7 @@ clear n;
 %
 
 figure(1)
-for n=1:15                                                              % adjust n as needed!
+for n=1:40                                                              % adjust n as needed!
     counter = 0;                                                           
     Confirmed = zeros(1,length(n));
     
@@ -291,7 +291,7 @@ for n=1:15                                                              % adjust
         Trash{n} = Confirmed;
 
     clear Confirmed m w X J K counter;
-    save('2016-06-14-fluc-Rejects.mat', 'Rejects','Trash')
+    save('2016-07-23-Rejects.mat', 'Rejects','Trash')
                                                                         % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
@@ -322,4 +322,4 @@ for n = 1:length(D6);
     clear j k F counter Remove;           
 end
 %clear n;
-save('2016-06-14-fluc-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
+save('2016-07-23_cropped-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
