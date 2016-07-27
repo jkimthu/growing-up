@@ -196,7 +196,7 @@ clear GoldenRatio n;
 
 %% Saving results
 
-save('2016-07-23_cropped-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
+save('2016-07-24-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% QUALITY CONTROL
@@ -222,7 +222,7 @@ for n=31:40                                                                 % ad
     
     for m=1:length(D5{n})
         plot(T{n}(D5{n}(m).Frame(1:end))/3600,(D5{n}(m).MajAx),'Linewidth',2)
-        axis([0,5,0,15])
+        axis([0,10,0,15])
         drawnow                                                             % displays current track m
         %pause()
         w = waitforbuttonpress;                                             % waits for user to approve or reject
@@ -240,7 +240,7 @@ for n=31:40                                                                 % ad
     
     Rejects{n} = Delete;
     clear Delete m w X J K counter;
-    save('2016-07-23-fluc-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
+    save('2016-07-24-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
 clear n;
@@ -270,7 +270,7 @@ for n=1:40                                                              % adjust
         m = Rejects{n}(i);
 
             plot(T{n}(D5{n}(m).Frame(1:end))/3600,(D5{n}(m).MajAx),'Linewidth',2)
-            axis([0,4.5,0,15])
+            axis([0,10,0,15])
             %plot(T(D5{n}(m).Frame(1:end),n)/60,(D5{n}(m).MajAx),'color',[0,0,1]+(n-1)*[.05,.05,0],'Linewidth',2)
             %axis([0,1100,0,15])
             drawnow                                                             % displays current track m
@@ -291,7 +291,7 @@ for n=1:40                                                              % adjust
         Trash{n} = Confirmed;
 
     clear Confirmed m w X J K counter;
-    save('2016-07-23-Rejects.mat', 'Rejects','Trash')
+    save('2016-07-24-Rejects.mat', 'Rejects','Trash')
                                                                         % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
@@ -322,4 +322,4 @@ for n = 1:length(D6);
     clear j k F counter Remove;           
 end
 %clear n;
-save('2016-07-23_cropped-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
+save('2016-07-24-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')

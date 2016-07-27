@@ -42,12 +42,12 @@
 %  OK! HERE WE GO!
 
 
-%last update: July 25th, 2016
+%last update: July 27th, 2016
 
 %%
 
-load('2016-07-23_cropped-trimmed.mat');
-
+load('2016-07-24-trimmed.mat');
+clear D2 D3 D4 D5;
 
 %%
 
@@ -221,5 +221,5 @@ end
 
 %%
 
-save('2016-07-23_cropped-Mus-length.mat', 'D6', 'M6', 'T') %'D'
+save('2016-07-24-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
