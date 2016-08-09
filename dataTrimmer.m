@@ -196,7 +196,7 @@ clear GoldenRatio n;
 
 %% Saving results
 
-save('2016-07-25-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
+save('2016-08-04_b-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% QUALITY CONTROL
@@ -240,7 +240,7 @@ for n=31:40                                                                 % ad
     
     Rejects{n} = Delete;
     clear Delete m w X J K counter;
-    save('2016-07-25-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
+    save('2016-08-04_b-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
 clear n;
@@ -291,7 +291,7 @@ for n=1:40                                                              % adjust
         Trash{n} = Confirmed;
 
     clear Confirmed m w X J K counter;
-    save('2016-07-25-Rejects.mat', 'Rejects','Trash')
+    save('2016-08-04_b-Rejects.mat', 'Rejects','Trash')
                                                                         % saves current Rejects after finishing each series
 end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
 
@@ -322,4 +322,4 @@ for n = 1:length(D6);
     clear j k F counter Remove;           
 end
 %clear n;
-save('2016-07-25-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
+save('2016-08-04_b-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
