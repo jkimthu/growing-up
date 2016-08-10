@@ -26,7 +26,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('hcf-2016-08-04_b_xy*.nd2');
+xyDirectory = dir('hcf-2016-08-05_b_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -80,7 +80,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-70.6897, -1];       
+    Threshold =  [-61.0345, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -144,7 +144,7 @@ end
 
 
 
-save('hcf-2016-08-04_B.mat','D','T')
+save('hcf-2016-08-05_b.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

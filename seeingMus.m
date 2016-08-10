@@ -20,7 +20,7 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('2016-08-04_b-Mus-length.mat');
+load('2016-08-05_b-Mus-length.mat');
 
 counter =0;
 for n = 1:10:40
@@ -65,10 +65,10 @@ end
 
 % Initialize
 %clear;
-load('2016-08-04_b-Mus-length.mat','D6','M6','T');
+load('2016-08-05_b-Mus-length.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10 10; 11 20 10; 21 30 10; 31 40 10];
+conditions = [1 10 2; 11 20 4; 21 30 4; 31 40 4];
 %%
 
 for i = 1:4 %number of conditions
@@ -131,7 +131,7 @@ for i = 1:4 %number of conditions
     %errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
     hold on
     grid on
-    axis([0,260,-0.1,.5])
+    axis([0,300,-0.1,.5])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     %forLegend = num2str(xy);
