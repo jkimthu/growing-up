@@ -30,10 +30,10 @@
 % dmMMDD-fluc.mat
 
 % Initialize data.
-load('dm0818-const.mat');
+load('dm0810-const.mat');
 dC = dataMatrix;
 
-load('dm0818-fluc.mat');
+load('dm0810-fluct.mat');
 dF = dataMatrix;
 clear dataMatrix;
 
@@ -71,7 +71,7 @@ clear duration_c duration_f addedMass_c addedMass_f timeStamp_c timeStamp_f curr
 
 
 % 0. initialize time binning parameters
-periodDuration = 0.25;                             % duration of nutrient period in hours                 
+periodDuration = 1;                             % duration of nutrient period in hours                 
 binsPerHour = 1/periodDuration;                                % self-explanatory                       
 
 % 0. initialize time vector for plotting
@@ -144,14 +144,20 @@ binnedByConcentration_mass = accumarray(concentrationBins,interestingMass_trimme
 
 
 
-% 4. Plot distribution of added sizes per cell cycle
+% 4. Plot distribution of instantaneous added sizes, low vs high
 figure(2)
 histogram(binnedByConcentration_mass{1},'BinWidth',0.005) %low
 hold on
 histogram(binnedByConcentration_mass{2},'BinWidth',0.005) %high
-%hold on
-%histogram(instantaneousMass_c_trimmed,'BinWidth',0.01) %high
 xlabel('instantaneous added size')
 legend('low','high')
+
+% 5. Plot distribution of instantaneous added sizes, fluc vs stable
+figure(1)
+histogram(interestingMass_trimmed,'BinWidth',0.005) %low
+hold on
+histogram(instantaneousMass_c_trimmed,'BinWidth',0.005) %high
+xlabel('instantaneous added size')
+legend('fluc','const')
 
 % Yeah!
