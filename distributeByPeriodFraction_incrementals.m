@@ -30,15 +30,15 @@
 % dmMMDD-fluc.mat
 
 % Initialize data.
-load('dm0810-const.mat');
+load('dm0818-const.mat');
 dC = dataMatrix;
 
-load('dm0810-fluct.mat');
+load('dm0818-fluc.mat');
 dF = dataMatrix;
 clear dataMatrix;
 
 % OK! Lez go!
-
+%%
 
 
 % 0. initiaize mass data
@@ -71,14 +71,14 @@ clear duration_c duration_f addedMass_c addedMass_f timeStamp_c timeStamp_f curr
 
 
 % 0. initialize time binning parameters
-periodDuration = 1;                             % duration of nutrient period in hours                 
-binsPerHour = 4;                                % self-explanatory 
-hrPerBin = 1/binsPerHour;                       % time bins of 0.005 hr
+periodDuration = 0.25;                             % duration of nutrient period in hours                 
+binsPerHour = 1/periodDuration;                                % self-explanatory                       
 
 % 0. initialize time vector for plotting
-binsPerPeriod = periodDuration/hrPerBin;
+binsPerPeriod = 4;
+timePerBin = 1/binsPerPeriod; 
 periodTime = linspace(1, binsPerPeriod, binsPerPeriod);
-periodTime = hrPerBin*periodTime';                                       
+periodTime = timePerBin*periodTime';                                       
 
 % 0. initialize looping parameters for analysis
 firstHour = 5;                                  % time at which to initate analysis
@@ -118,8 +118,10 @@ instantaneousMass_c_trimmed = instantaneousMass_c_3(posFilter_c);
 
 
 % 2. accumulate data by associated time & concentration bin
-periodFractions = interestingTimes_trimmed - floor(interestingTimes_trimmed);
-fractionBins = ceil(periodFractions*binsPerHour);
+hourFractions = interestingTimes_trimmed - floor(interestingTimes_trimmed);
+seqPeriods = hourFractions / timePerBin;
+periodFractions = seqPeriods - floor(seqPeriods);
+fractionBins = ceil(periodFractions*binsPerPeriod);
 
 
 concentrationBins = zeros(length(fractionBins),1);
@@ -143,10 +145,10 @@ binnedByConcentration_mass = accumarray(concentrationBins,interestingMass_trimme
 
 
 % 4. Plot distribution of added sizes per cell cycle
-figure(1)
-histogram(binnedByConcentration_mass{1},'BinWidth',0.008) %low
+figure(2)
+histogram(binnedByConcentration_mass{1},'BinWidth',0.005) %low
 hold on
-histogram(binnedByConcentration_mass{2},'BinWidth',0.008) %high
+histogram(binnedByConcentration_mass{2},'BinWidth',0.005) %high
 %hold on
 %histogram(instantaneousMass_c_trimmed,'BinWidth',0.01) %high
 xlabel('instantaneous added size')

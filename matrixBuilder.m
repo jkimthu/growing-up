@@ -58,7 +58,7 @@
 %%
 %   Initialize.
 
-load('2015-08-10-Mus-length.mat');
+load('2015-08-18-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
@@ -98,7 +98,7 @@ addedSize = [];
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 1:10 
+for n = 13:24
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -300,12 +300,12 @@ save('dm0730-fluc.mat', 'dm0730_fluc');
 % dAMMDD.mat     (ave,  positions 21-30)
 % dHMMDD.mat     (high, positions 31-40)
 
-dF0810_mit(:,1) = allDurations; 
-dF0810_mit(:,2) = allDeltas;
-dF0810_mit(:,3) = allTimestamps;
+dF0818_mit(:,1) = allDurations; 
+dF0818_mit(:,2) = allDeltas;
+dF0818_mit(:,3) = allTimestamps;
 
-dC0810_mit(:,1) = allDurations;
-dC0810_mit(:,2) = allDeltas;
-dC0810_mit(:,3) = allTimestamps;
+dC0818_mit(:,1) = allDurations;
+dC0818_mit(:,2) = allDeltas;
+dC0818_mit(:,3) = allTimestamps;
 
-save('dC0810_mit.mat', 'dC0810_mit');
+save('dC0818_mit.mat', 'dC0818_mit');
