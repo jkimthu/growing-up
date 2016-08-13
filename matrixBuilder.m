@@ -58,11 +58,9 @@
 %%
 %   Initialize.
 
-load('2016-07-30-Mus-length.mat');
+load('2015-08-10-Mus-length.mat');
 D7 = D6;
 M7 = M6;
-
-monthDay = '0730';
 
 clear D6 M6 Mu_stats;
 
@@ -92,14 +90,15 @@ massAddedSinceBirth = [];
 
 allDurations = [];
 allDeltas = [];
+allTimestamps = [];
 
 curveDurations = [];
 addedSize = [];
 
-
+%%
 % Select xy positions for analysis / concatenation
 
-for n = 21:30 
+for n = 1:10 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -114,9 +113,9 @@ for n = 21:30
         
         
         %   TIME
-        %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
-        timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
-        Time = [Time; timeTrack];                                          % concenate timestamp
+        timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
+        %timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
+        Time = [Time; timeTrack];                                          % concat=enate timestamp
         
         
         
@@ -209,7 +208,7 @@ for n = 21:30
             msbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
             msbPerTrack(currentBirthRow:nextBirthRow-1,1) = msbPerCurve;
             
-            % final duration and mass
+            % final duration, and mass
             durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
             sizesPerTrack(currentCurve) = msbPerCurve(end);                % msb = mass added since birth
         end
@@ -220,6 +219,9 @@ for n = 21:30
         massAddedSinceBirth = [massAddedSinceBirth; msbPerTrack]; % compiled increments of added length
         allDeltas = [allDeltas; sizesPerTrack]; % compiled final added mass per cell cycle
         
+        if length(eventTimes) > 1
+            allTimestamps = [allTimestamps; eventTimes(2:end)]; % compiled timestamps for all cell cycles
+        end
         
         %   CURVE DURATION & ADDED SIZE
         
@@ -284,19 +286,26 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 dm0730_fluc = dataMatrix;
 save('dm0730-fluc.mat', 'dm0730_fluc');
 
-%%
 
+%%
 % Naming convention for data to distribute:
+
+% dFMMDD.mat     (fluc)
+% dCMMDD.mat     (ave)
+
+% or in the case of HCF (ETH) experiments
 
 % dFMMDD.mat     (fluc, positions 1-10)
 % dLMMDD.mat     (low,  positions 11-20)
 % dAMMDD.mat     (ave,  positions 21-30)
 % dHMMDD.mat     (high, positions 31-40)
 
-dF0730(:,1) = allDurations; 
-dF0730(:,2) = allDeltas;
+dF0810_mit(:,1) = allDurations; 
+dF0810_mit(:,2) = allDeltas;
+dF0810_mit(:,3) = allTimestamps;
 
-dA0730(:,1) = allDurations;
-dA0730(:,2) = allDeltas;
+dC0810_mit(:,1) = allDurations;
+dC0810_mit(:,2) = allDeltas;
+dC0810_mit(:,3) = allTimestamps;
 
-save('dA0730.mat', 'dA0730');
+save('dC0810_mit.mat', 'dC0810_mit');
