@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, April 4th 2016
+%  Last edit: Jen Nguyen, August 13th 2016
 
 
 
@@ -58,11 +58,11 @@
 %%
 %   Initialize.
 
-load('2016-03-16-Mus-length.mat');
+load('2016-07-30-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
-monthDay = '0316';
+monthDay = '0730';
 
 clear D6 M6 Mu_stats;
 
@@ -99,7 +99,7 @@ addedSize = [];
 
 % Select xy positions for analysis / concatenation
 
-for n = 51:60 
+for n = 21:30 
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -268,13 +268,35 @@ end % for n
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction massAddedSinceBirth addedSize];
 
+%%
 
+% Naming convention for data matrices of HCF experiments:
+
+% dmMMDD-cond.mat
+
+%      where,
+%              dm  =  dataMatrix                  (see matrixBuilder.m)
+%              MM  =  month of experimental date
+%              DD  =  day of experimental date
+%       condition  =  experimental condition      (fluc or const)
+
+
+dm0730_fluc = dataMatrix;
+save('dm0730-fluc.mat', 'dm0730_fluc');
 
 %%
 
-dF0810(:,1) = allDurations; 
-dF0810(:,2) = allDeltas;
+% Naming convention for data to distribute:
 
-dC0810(:,1) = allDurations;
-dC0810(:,2) = allDeltas;
+% dFMMDD.mat     (fluc, positions 1-10)
+% dLMMDD.mat     (low,  positions 11-20)
+% dAMMDD.mat     (ave,  positions 21-30)
+% dHMMDD.mat     (high, positions 31-40)
 
+dF0730(:,1) = allDurations; 
+dF0730(:,2) = allDeltas;
+
+dA0730(:,1) = allDurations;
+dA0730(:,2) = allDeltas;
+
+save('dA0730.mat', 'dA0730');

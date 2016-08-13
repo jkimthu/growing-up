@@ -7,7 +7,7 @@
 
 
 
-%  Last edit: Jen Nguyen, March 23th 2016
+%  Last edit: Jen Nguyen, August 12th 2016
 
 
 %  Section contents:
@@ -30,6 +30,17 @@
 % dFMMDD.mat
 % dCMMDD.mat
 
+%  OR
+
+% for Hella Controlled Fluctuating (HCF) experiments, with three stable
+% environments:
+
+% dFMMDD.mat     (fluc, positions 1-10)
+% dLMMDD.mat     (low,  positions 11-20)
+% dAMMDD.mat     (ave,  positions 21-30)
+% dHMMDD.mat     (high, positions 31-40)
+
+
 %      where,
 %              dF  =  fluctuating condition       (see matrixBuilder.m)
 %              dC  =  constant condition
@@ -46,35 +57,52 @@
 % Initialize data.
 clear
 dF = dir('dF*.mat');
-dC = dir('dC*.mat');
+dL = dir('dL*.mat');
+dA = dir('dA*.mat');
+dH = dir('dH*.mat');
 
 load(dF.name);
-load(dC.name);
-clear dF dC
+load(dL.name);
+load(dA.name);
+load(dH.name);
+clear dF dL dA dH;
 
 % Manual rename to remove date
-dF = dF0810;
-dC = dC0810;
+dF = dF0730;
+dL = dL0730;
+dA = dA0730;
+dH = dH0730;
+clear dF0730 dL0730 dA0730 dH0730;
 
-
+%%
 % Consolidate by parameter, instead of condition
 %         column 1 = constant
 %         column 2 = fluctuating
 
-duration_c = dC(:,1);
+duration_ave = dA(:,1);
 duration_f = dF(:,1);
 
-addedMass_c = dC(:,2);
+addedMass_ave = dA(:,2);
 addedMass_f = dF(:,2);
 
-dataz{1} = duration_c;
+dataz{1} = duration_ave;
 dataz{2} = duration_f;
-dataz{3} = addedMass_c;
+dataz{3} = addedMass_ave;
 dataz{4} = addedMass_f;
 
-clear duration_c duration_f addedMass_c addedMass_f;
 
+% Remove zeros
+for i = 1:length(dataz)
+        currentVar = dataz{i};
+        currentVar(currentVar <= 0) = NaN;
+        nanFilter = find(~isnan(currentVar));
+        currentVar = currentVar(nanFilter);
+        dataz_trimmed{i} = currentVar;
+end
 
+clear duration_ave duration_f addedMass_ave addedMass_f currentVar i nanFilter;
+
+%%
 % Normalize all values by respective average
 normalizedDataz{1,length(dataz)} = [];
 for i = 1:length(dataz)
@@ -93,14 +121,14 @@ figure(1)
 histogram(dataz{1},'BinWidth',0.1)
 hold on
 histogram(dataz{2},'BinWidth',0.1)
-
+legend('ave','fluc')
 
 % Plot distribution of added sizes
 figure(2)
 histogram(dataz{3},'BinWidth',0.1)
 hold on
 histogram(dataz{4},'BinWidth',0.1)
-
+legend('ave','fluc')
 
 
 % Plot distribution of normalized cell cycle durations
@@ -108,7 +136,7 @@ figure(3)
 histogram(normalizedDataz{1},'BinWidth',0.1)
 hold on
 histogram(normalizedDataz{2},'BinWidth',0.1)
-
+legend('ave','fluc')
 
 
 % Plot distribution of normalized added sizes
@@ -116,7 +144,7 @@ figure(4)
 histogram(normalizedDataz{3},'BinWidth',0.1)
 hold on
 histogram(normalizedDataz{4},'BinWidth',0.1)
-
+legend('ave','fluc')
 
 %%  T W O.
 %   plot distribution of birth size
@@ -161,8 +189,8 @@ clear names;
 
 % 0. designate time window of analysis
 
-firstTimepoint = 5; % in hours
-lastTimepoint = 10;
+firstTimepoint = 2; % in hours
+lastTimepoint = 4;
 
 % 
 for condition = 1:2   % 1 = constant, 2 = fluctuating
