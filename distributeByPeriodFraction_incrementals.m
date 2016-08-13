@@ -30,10 +30,10 @@
 % dmMMDD-fluc.mat
 
 % Initialize data.
-load('dm0810-const.mat');
+load('dm0818-const.mat');
 dC = dataMatrix;
 
-load('dm0810-fluct.mat');
+load('dm0818-fluc.mat');
 dF = dataMatrix;
 clear dataMatrix;
 
@@ -71,7 +71,7 @@ clear duration_c duration_f addedMass_c addedMass_f timeStamp_c timeStamp_f curr
 
 
 % 0. initialize time binning parameters
-periodDuration = 1;                             % duration of nutrient period in hours                 
+periodDuration = .25;                             % duration of nutrient period in hours                 
 binsPerHour = 1/periodDuration;                                % self-explanatory                       
 
 % 0. initialize time vector for plotting
