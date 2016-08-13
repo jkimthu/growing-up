@@ -137,14 +137,18 @@ figure(1)
 histogram(binnedByConcentration_mass{1},'BinWidth',0.1) %low
 hold on
 histogram(binnedByConcentration_mass{2},'BinWidth',0.1) %high
+hold on
+histogram(dataz_trimmed{3},'BinWidth',0.1) %high
 xlabel('added size per cell cycle')
-legend('low','high')
+legend('low','high','stable ave')
 
 % 5. Plot distribution of cell cycle durations
 figure(2)
 histogram(binnedByConcentration_duration{1},'BinWidth',0.1) %low
 hold on
 histogram(binnedByConcentration_duration{2},'BinWidth',0.1) %high
+hold on
+histogram(dataz_trimmed{1},'BinWidth',0.1) %high
 xlabel('cell cycle durations')
-legend('low','high')
+legend('low','high','stable ave')
 
