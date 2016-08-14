@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, August 13th 2016
+%  Last edit: Jen Nguyen, August 14th 2016
 
 
 
@@ -58,7 +58,7 @@
 %%
 %   Initialize.
 
-load('2015-08-18-Mus-length.mat');
+load('2015-08-10-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
@@ -92,13 +92,16 @@ allDurations = [];
 allDeltas = [];
 allTimestamps = [];
 
+birthSizes = [];
+birthTimes = [];
+
 curveDurations = [];
 addedSize = [];
 
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 13:24
+for n = 11:20
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -198,7 +201,7 @@ for n = 13:24
             % identify events bounding each curve
             currentBirthRow = find(timeTrack == eventTimes(currentCurve)); 
             nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));  
-            currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);      
+            currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
             
             % incremental time
             tsbPerCurve = currentTimes - timeTrack(currentBirthRow);
@@ -208,11 +211,25 @@ for n = 13:24
             msbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
             msbPerTrack(currentBirthRow:nextBirthRow-1,1) = msbPerCurve;
             
-            % final duration, and mass
+            % final duration and mass
             durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
             sizesPerTrack(currentCurve) = msbPerCurve(end);                % msb = mass added since birth
         end
         
+        
+        %   SPIN-OFF DATA COMPILATIONS (two groups):
+        %       
+        %       1. "all" group:
+        %               - all cell cycle durations
+        %               - all added masses since birth
+        %               - all corresponding timestamps per cell cycle (end)
+        %
+        %       2. "birth" group
+        %               - birth lengths
+        %               - birth timestamps
+        %
+        
+        % "ALL" group
         timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compiled values of time passed
         allDurations = [allDurations; durationsPerTrack]; % compiled final cell cycle durations
         
@@ -220,8 +237,19 @@ for n = 13:24
         allDeltas = [allDeltas; sizesPerTrack]; % compiled final added mass per cell cycle
         
         if length(eventTimes) > 1
-            allTimestamps = [allTimestamps; eventTimes(2:end)]; % compiled timestamps for all cell cycles
+            allTimestamps = [allTimestamps; eventTimes(2:end)]; % compiled timestamps for FULL cell cycles
         end
+        
+        % "BIRTH" group
+        birthLengths = lengthTrack.*toBool; % isolate lengths at birth
+        birthRows = find(birthLengths > 0);
+        sizeAtBirth = birthLengths(birthRows);
+        birthSizes = [birthSizes; sizeAtBirth];
+        
+        timeAtBirth = timeTrack(birthRows);
+        birthTimes = [birthTimes; timeAtBirth];
+        
+
         
         %   CURVE DURATION & ADDED SIZE
         
@@ -288,7 +316,7 @@ save('dm0730-fluc.mat', 'dm0730_fluc');
 
 
 %%
-% Naming convention for data to distribute:
+% Naming convention for "ALL" group:
 
 % dFMMDD.mat     (fluc)
 % dCMMDD.mat     (ave)
@@ -309,3 +337,11 @@ dC0818_mit(:,2) = allDeltas;
 dC0818_mit(:,3) = allTimestamps;
 
 save('dC0818_mit.mat', 'dC0818_mit');
+
+%%
+% Naming convention for "BIRTH" group
+
+
+spinOffs = struct('allDurations', allDurations, 'allDeltas', allDeltas, 'allTimestamps', allTimestamps, 'birthTimes', birthTimes, 'birthSizes', birthSizes);
+
+save('dF_0810.mat', 'spinOffs');
