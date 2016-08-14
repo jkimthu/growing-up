@@ -58,7 +58,7 @@
 %%
 %   Initialize.
 
-load('2015-08-10-Mus-length.mat');
+load('2015-08-18-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
@@ -101,7 +101,7 @@ addedSize = [];
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 11:20
+for n = 1:12
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -344,4 +344,4 @@ save('dC0818_mit.mat', 'dC0818_mit');
 
 spinOffs = struct('allDurations', allDurations, 'allDeltas', allDeltas, 'allTimestamps', allTimestamps, 'birthTimes', birthTimes, 'birthSizes', birthSizes);
 
-save('dF_0810.mat', 'spinOffs');
+save('dF_0818.mat', 'spinOffs');
