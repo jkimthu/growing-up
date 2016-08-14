@@ -109,11 +109,11 @@ negFilter_c = find(instantaneousMass_c >= 0);
 instantaneousMass_c_3 = instantaneousMass_c(negFilter_c);
 
 % trim off crazy add-ons
-posFilter_f = find(interestingMass_3 <= .4);
+posFilter_f = find(interestingMass_3 <= .2);
 interestingTimes_trimmed = interestingTimes_3(posFilter_f);
 interestingMass_trimmed = interestingMass_3(posFilter_f);
 
-posFilter_c = find(instantaneousMass_c_3 <= .4);
+posFilter_c = find(instantaneousMass_c_3 <= .2);
 instantaneousMass_c_trimmed = instantaneousMass_c_3(posFilter_c);
 
 
@@ -126,17 +126,27 @@ fractionBins = ceil(periodFractions*binsPerPeriod);
 
 concentrationBins = zeros(length(fractionBins),1);
 
+% for i = 1:length(fractionBins)
+%     if fractionBins(i) == 1
+%         concentrationBins(i) = 1;
+%     elseif fractionBins(i) == 4
+%         concentrationBins(i) = 1;
+%     else
+%         concentrationBins(i) = 2; 
+%     end
+% end
+% clear i;
+
 for i = 1:length(fractionBins)
     if fractionBins(i) == 1
         concentrationBins(i) = 1;
-    elseif fractionBins(i) == 4
+    elseif fractionBins(i) == 2
         concentrationBins(i) = 1;
     else
         concentrationBins(i) = 2; 
     end
 end
 clear i;
-
 
 binnedByConcentration_mass = accumarray(concentrationBins,interestingMass_trimmed,[],@(x) {x});
 %binnedByConcentration_mass = accumarray(fractionBins,interestingMass_trimmed,[],@(x) {x});
@@ -146,17 +156,17 @@ binnedByConcentration_mass = accumarray(concentrationBins,interestingMass_trimme
 
 % 4. Plot distribution of instantaneous added sizes, low vs high
 figure(2)
-histogram(binnedByConcentration_mass{1},'BinWidth',0.005) %low
+histogram(binnedByConcentration_mass{1},'Normalization', 'probability', 'BinWidth',0.005) %low
 hold on
-histogram(binnedByConcentration_mass{2},'BinWidth',0.005) %high
+histogram(binnedByConcentration_mass{2},'Normalization', 'probability', 'BinWidth',0.005) %high
 xlabel('instantaneous added size')
 legend('low','high')
 
 % 5. Plot distribution of instantaneous added sizes, fluc vs stable
 figure(1)
-histogram(interestingMass_trimmed,'BinWidth',0.005) %low
+histogram(interestingMass_trimmed,'Normalization', 'probability', 'BinWidth',0.005) %low
 hold on
-histogram(instantaneousMass_c_trimmed,'BinWidth',0.005) %high
+histogram(instantaneousMass_c_trimmed,'Normalization', 'probability', 'BinWidth',0.005) %high
 xlabel('instantaneous added size')
 legend('fluc','const')
 

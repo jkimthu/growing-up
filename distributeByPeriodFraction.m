@@ -30,11 +30,11 @@
 % dCMMDD.mat
 
 % Initialize data.
-load('dC0810_mit.mat');
-load('dF0810_mit.mat');
-dC = dC0810_mit;
-dF = dF0810_mit;
-clear dC0810_mit dF0810_mit;
+load('dC0818_mit.mat');
+load('dF0818_mit.mat');
+dC = dC0818_mit;
+dF = dF0818_mit;
+clear dC0818_mit dF0818_mit;
 
 % OK! Lez go!
 
@@ -136,11 +136,11 @@ binnedByConcentration_duration = accumarray(concentrationBins,interestingDuratio
 
 % 4. Plot distribution of added sizes per cell cycle
 figure(1)
-histogram(binnedByConcentration_mass{1},'BinWidth',0.1) %low
+histogram(binnedByConcentration_mass{1},'Normalization', 'probability', 'BinWidth',0.2) %low
 hold on
-histogram(binnedByConcentration_mass{2},'BinWidth',0.1) %high
-hold on
-histogram(dataz_trimmed{3},'BinWidth',0.1) %high
+histogram(binnedByConcentration_mass{2},'Normalization', 'probability', 'BinWidth',0.2) %high
+%hold on
+%histogram(dataz_trimmed{3},'Normalization', 'probability', 'BinWidth',0.1) %high
 xlabel('added size per cell cycle')
 legend('low','high','stable ave')
 
@@ -148,11 +148,11 @@ legend('low','high','stable ave')
 
 % 6. Plot distribution of cell cycle durations
 figure(2)
-histogram(binnedByConcentration_duration{1},'BinWidth',0.1) %low
+histogram(binnedByConcentration_duration{1},'Normalization', 'probability','BinWidth',0.2) %low
 hold on
-histogram(binnedByConcentration_duration{2},'BinWidth',0.1) %high
-hold on
-histogram(dataz_trimmed{1},'BinWidth',0.1) %high
+histogram(binnedByConcentration_duration{2},'Normalization', 'probability', 'BinWidth',0.2) %high
+%hold on
+%histogram(dataz_trimmed{1},'Normalization', 'probability', 'BinWidth',0.1) %high
 xlabel('cell cycle durations')
 legend('low','high','stable ave')
 
