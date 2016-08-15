@@ -109,6 +109,9 @@ clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTi
 % 2. calculate mean of constant environment
 mean_p60_cDur = mean(p60_cDurations);
 mean_p15_cDur = mean(p15_cDurations);
+
+median_p60_cDur = median(p60_cDurations);
+median_p15_cDur = median(p15_cDurations);
     
 clear p60_cDurations p15_cDurations;
     
@@ -118,11 +121,17 @@ clear p60_cDurations p15_cDurations;
 norm_p60_fDur = p60_fDurations./mean_p60_cDur;
 norm_p15_fDur = p15_fDurations./mean_p15_cDur;
 
+
+
+% 4. normalize fluc data by constant median
+median_norm_p60_fDur = p60_fDurations./median_p60_cDur;
+median_norm_p15_fDur = p15_fDurations./median_p15_cDur;
+
 clear p60_fDurations p15_fDurations;
 
 
 
-% 4. plot distributions of 15 min and 60 min envir on same histogram
+% 5. plot distributions of 15 min and 60 min envir on same histogram
 
 figure(1)
 histogram(norm_p60_fDur,'Normalization', 'probability', 'BinWidth',0.1)
@@ -131,6 +140,12 @@ histogram(norm_p15_fDur,'Normalization', 'probability', 'BinWidth',0.1)
 xlabel('cell cycle duration, normalized by constant mean')
 legend('60 min period','15 min period')
 
+figure(2)
+histogram(median_norm_p60_fDur,'Normalization', 'probability', 'BinWidth',0.1)
+hold on
+histogram(median_norm_p15_fDur,'Normalization', 'probability', 'BinWidth',0.1)
+xlabel('cell cycle duration, normalized by constant median')
+legend('60 min period','15 min period')
 
 % yay!
 
