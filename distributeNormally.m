@@ -85,7 +85,7 @@ lowTrimmed_p15_cTime = p15_cTime(p15_cTime >= firstTimepoint);
 p15_fDurations = p15_fDurations(p15_fTime >= firstTimepoint);
 lowTrimmed_p15_fTime = p15_fTime(p15_fTime >= firstTimepoint);
 
-clear firstTimepoint p60_cTime p60_fTime p15_cTime p15_fTime;
+%clear firstTimepoint p60_cTime p60_fTime p15_cTime p15_fTime;
 
 
 
@@ -102,7 +102,7 @@ finalTrimmed_p15_cTime = lowTrimmed_p15_cTime(lowTrimmed_p15_cTime <= lastTimepo
 p15_fDurations = p15_fDurations(lowTrimmed_p15_fTime <= lastTimepoint);
 finalTrimmed_p15_fTime = lowTrimmed_p15_fTime(lowTrimmed_p15_fTime <= lastTimepoint);
 
-clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTime lowTrimmed_p15_fTime;
+%clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTime lowTrimmed_p15_fTime;
 
     
 
@@ -113,7 +113,7 @@ mean_p15_cDur = mean(p15_cDurations);
 median_p60_cDur = median(p60_cDurations);
 median_p15_cDur = median(p15_cDurations);
     
-clear p60_cDurations p15_cDurations;
+%clear p60_cDurations p15_cDurations;
     
 
 
@@ -127,7 +127,7 @@ norm_p15_fDur = p15_fDurations./mean_p15_cDur;
 median_norm_p60_fDur = p60_fDurations./median_p60_cDur;
 median_norm_p15_fDur = p15_fDurations./median_p15_cDur;
 
-clear p60_fDurations p15_fDurations;
+%clear p60_fDurations p15_fDurations;
 
 
 
@@ -140,12 +140,24 @@ histogram(norm_p15_fDur,'Normalization', 'probability', 'BinWidth',0.1)
 xlabel('cell cycle duration, normalized by constant mean')
 legend('60 min period','15 min period')
 
-figure(2)
-histogram(median_norm_p60_fDur,'Normalization', 'probability', 'BinWidth',0.1)
+%figure(2)
+%histogram(median_norm_p60_fDur,'Normalization', 'probability', 'BinWidth',0.1)
+%hold on
+%histogram(median_norm_p15_fDur,'Normalization', 'probability', 'BinWidth',0.1)
+%xlabel('cell cycle duration, normalized by constant median')
+%legend('60 min period','15 min period')
+
+figure(3)
+histogram(p60_fDurations,'Normalization', 'probability', 'BinWidth', 0.1)
 hold on
-histogram(median_norm_p15_fDur,'Normalization', 'probability', 'BinWidth',0.1)
-xlabel('cell cycle duration, normalized by constant median')
-legend('60 min period','15 min period')
+histogram(p15_fDurations,'Normalization', 'probability', 'BinWidth', 0.1)
+hold on
+histogram(p60_cDurations,'Normalization', 'probability', 'BinWidth', 0.1)
+hold on
+histogram(p15_cDurations,'Normalization', 'probability', 'BinWidth', 0.1)
+xlabel('cell cycle duration, without normalization')
+legend('60 min, fluc', '15 min, fluc', '60 min, const', '15 min, fluc')
+
 
 % yay!
 
@@ -171,7 +183,7 @@ p60_cTime = dC.birthTimes;
 p60_fTime = dF.birthTimes;
 clear spinOffs dC dF;
 
-
+%%
 % from 15 min period experiment, 2015-08-18
 load('dC_0818.mat')
 dC = spinOffs;
@@ -206,7 +218,7 @@ lowTrimmed_p15_cTime = p15_cTime(p15_cTime >= firstTimepoint);
 p15_fSizes = p15_fSizes(p15_fTime >= firstTimepoint);
 lowTrimmed_p15_fTime = p15_fTime(p15_fTime >= firstTimepoint);
 
-clear firstTimepoint p60_cTime p60_fTime p15_cTime p15_fTime;
+%clear firstTimepoint p60_cTime p60_fTime p15_cTime p15_fTime;
 
 
 
@@ -223,7 +235,7 @@ finalTrimmed_p15_cTime = lowTrimmed_p15_cTime(lowTrimmed_p15_cTime <= lastTimepo
 p15_fSizes = p15_fSizes(lowTrimmed_p15_fTime <= lastTimepoint);
 finalTrimmed_p15_fTime = lowTrimmed_p15_fTime(lowTrimmed_p15_fTime <= lastTimepoint);
 
-clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTime lowTrimmed_p15_fTime;
+%clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTime lowTrimmed_p15_fTime;
 
     
 
@@ -231,7 +243,7 @@ clear lastTimepoint lowTrimmed_p60_cTime lowTrimmed_p60_fTime lowTrimmed_p15_cTi
 mean_p60_cSize = mean(p60_cSizes);
 mean_p15_cSize = mean(p15_cSizes);
     
-clear p60_cSizes p15_cSizes;
+%clear p60_cSizes p15_cSizes;
     
 
 
@@ -239,13 +251,13 @@ clear p60_cSizes p15_cSizes;
 norm_p60_fSize = p60_fSizes./mean_p60_cSize;
 norm_p15_fSize = p15_fSizes./mean_p15_cSize;
 
-clear p60_fDurations p15_fDurations;
+%clear p60_fDurations p15_fDurations;
 
 
 
 % 4. plot distributions of 15 min and 60 min envir on same histogram
 
-figure(2)
+figure(4)
 histogram(norm_p60_fSize(norm_p60_fSize<1.8),'Normalization', 'probability', 'BinWidth',0.02)
 hold on
 histogram(norm_p15_fSize(norm_p15_fSize<1.8),'Normalization', 'probability', 'BinWidth',0.02)
@@ -253,5 +265,15 @@ xlabel('size at birth, normalized by constant mean')
 legend('60 min period','15 min period')
 
 
+figure(5)
+histogram(p60_fSizes(p60_fSizes<5),'Normalization', 'probability', 'BinWidth', 0.1)
+hold on
+histogram(p15_fSizes(p15_fSizes<5),'Normalization', 'probability', 'BinWidth', 0.1)
+hold on
+histogram(p60_cSizes(p60_cSizes<5),'Normalization', 'probability', 'BinWidth', 0.1)
+hold on
+histogram(p15_cSizes(p15_cSizes<5),'Normalization', 'probability', 'BinWidth', 0.1)
+xlabel('absolute size at birth')
+legend('60 min, fluc', '15 min, fluc', '60 min, const', '15 min, fluc')
 
 
