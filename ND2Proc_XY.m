@@ -26,7 +26,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('hcf-2016-08-05_b_xy*.nd2');
+xyDirectory = dir('t30_2016-10-10_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -54,7 +54,7 @@ ImageNumber=1;
 FilterParameters = {[10,.8,40],'gaussian'};
 
 %%
-Threshold =  [];%[-147.904, -1];         % [] for GUI, make array with second value +/- 1 to indicate direction of threshold, default positive.
+Threshold =  [-72.7586, -1];%[-147.904, -1];         % [] for GUI, make array with second value +/- 1 to indicate direction of threshold, default positive.
                                      % The second number gives the separation between images
                                      
 Background = [];                     % Background image to substract from data.  Run empty on a subset and rerun using the mean image in the Im structure if desired
@@ -80,7 +80,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-61.0345, -1];       
+    Threshold =  [-72.7586, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -144,7 +144,7 @@ end
 
 
 
-save('hcf-2016-08-05_b.mat','D','T')
+save('t30_2016-10-10.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

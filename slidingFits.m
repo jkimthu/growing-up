@@ -42,11 +42,11 @@
 %  OK! HERE WE GO!
 
 
-%last update: August 9th, 2016
+%last update: October 12th, 2016
 
 %%
 
-load('2016-08-05_b-trimmed.mat');
+load('2016-10-10-trimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -221,5 +221,5 @@ end
 
 
 
-save('2016-08-05_b-Mus-length.mat', 'D6', 'M6', 'T') %'D'
+save('2016-10-10-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
