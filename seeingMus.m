@@ -20,7 +20,7 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('2016-10-10-Mus-length.mat');
+load('2016-10-18-Mus-length.mat');
 
 counter =0;
 for n = 1:10:40
@@ -45,7 +45,7 @@ for n = 1:10:40
     subplot(4,1,counter)
     plot(timeTrack(3:vectorLength+2),Ltrack2,'.',timeTrack(3:vectorLength+2),Mu_track*log(2),'r.');                          
     grid on;
-    axis([0,10.5,-0.5,6])
+    axis([0,10,-0.5,6])
     xlabel('Time (hours)')
     ylabel('Cell Length (um)')
     legend('Length','Mu');
@@ -65,7 +65,7 @@ end
 
 % Initialize
 %clear;
-load('2016-10-10-Mus-length.mat','D6','M6','T');
+load('2016-10-18-Mus-length.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10 10; 11 20 10; 21 30 10; 31 40 10];
@@ -131,7 +131,7 @@ for i = 1:4 %number of conditions
     %errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
     hold on
     grid on
-    axis([0,20,-0.1,.5])
+    axis([0,15,-0.1,.5])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     %forLegend = num2str(xy);
