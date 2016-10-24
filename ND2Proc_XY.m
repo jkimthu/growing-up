@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('t300_2016-10-19_xy*.nd2');
+xyDirectory = dir('t900_2016-10-20_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-7.57931, -1];       
+    Threshold =  [-11.57931, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('t300_2016-10-19.mat','D','T')
+save('t900_2016-10-20.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
