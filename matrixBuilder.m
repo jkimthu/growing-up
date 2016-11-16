@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, August 14th 2016
+%  Last edit: Jen Nguyen, November 16th 2016
 
 
 
@@ -58,7 +58,7 @@
 %%
 %   Initialize.
 
-load('2015-08-18-Mus-length.mat');
+load('2016-10-10-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
@@ -101,7 +101,7 @@ addedSize = [];
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 1:12
+for n = 31:40
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -116,8 +116,8 @@ for n = 1:12
         
         
         %   TIME
-        timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
-        %timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
+        %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
+        timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          % concat=enate timestamp
         
         
@@ -311,8 +311,8 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 %       condition  =  experimental condition      (fluc or const)
 
 
-dm0730_fluc = dataMatrix;
-save('dm0730-fluc.mat', 'dm0730_fluc');
+dm1010_high = dataMatrix;
+save('dm2016-1010-high.mat', 'dm1010_high');
 
 
 %%
@@ -328,15 +328,15 @@ save('dm0730-fluc.mat', 'dm0730_fluc');
 % dAMMDD.mat     (ave,  positions 21-30)
 % dHMMDD.mat     (high, positions 31-40)
 
-dF0818_mit(:,1) = allDurations; 
-dF0818_mit(:,2) = allDeltas;
-dF0818_mit(:,3) = allTimestamps;
-
-dC0818_mit(:,1) = allDurations;
-dC0818_mit(:,2) = allDeltas;
-dC0818_mit(:,3) = allTimestamps;
-
-save('dC0818_mit.mat', 'dC0818_mit');
+% dF0818_mit(:,1) = allDurations; 
+% dF0818_mit(:,2) = allDeltas;
+% dF0818_mit(:,3) = allTimestamps;
+% 
+% dC0818_mit(:,1) = allDurations;
+% dC0818_mit(:,2) = allDeltas;
+% dC0818_mit(:,3) = allTimestamps;
+% 
+% save('dC0818_mit.mat', 'dC0818_mit');
 
 %%
 % Naming convention for "BIRTH" group
@@ -344,4 +344,4 @@ save('dC0818_mit.mat', 'dC0818_mit');
 
 spinOffs = struct('allDurations', allDurations, 'allDeltas', allDeltas, 'allTimestamps', allTimestamps, 'birthTimes', birthTimes, 'birthSizes', birthSizes);
 
-save('dF_0818.mat', 'spinOffs');
+save('dH_2016-10-10.mat', 'spinOffs');
