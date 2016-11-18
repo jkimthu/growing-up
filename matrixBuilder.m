@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, November 16th 2016
+%  Last edit: Jen Nguyen, November 18th 2016
 
 
 
@@ -58,7 +58,7 @@
 %%
 %   Initialize.
 
-load('2016-10-10-Mus-length.mat');
+load('2016-10-20-Mus-length.mat');
 D7 = D6;
 M7 = M6;
 
@@ -242,7 +242,7 @@ for n = 31:40
         
         % "BIRTH" group
         birthLengths = lengthTrack.*toBool; % isolate lengths at birth
-        birthRows = find(birthLengths > 0);
+        birthRows = find(birthLengths > 0); % when drop=1, then that is the start of new curve
         sizeAtBirth = birthLengths(birthRows);
         birthSizes = [birthSizes; sizeAtBirth];
         
@@ -311,32 +311,9 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 %       condition  =  experimental condition      (fluc or const)
 
 
-dm1010_high = dataMatrix;
-save('dm2016-1010-high.mat', 'dm1010_high');
+%dm1010_high = dataMatrix;
+save('dm2016-10-20-high.mat', 'dataMatrix');
 
-
-%%
-% Naming convention for "ALL" group:
-
-% dFMMDD.mat     (fluc)
-% dCMMDD.mat     (ave)
-
-% or in the case of HCF (ETH) experiments
-
-% dFMMDD.mat     (fluc, positions 1-10)
-% dLMMDD.mat     (low,  positions 11-20)
-% dAMMDD.mat     (ave,  positions 21-30)
-% dHMMDD.mat     (high, positions 31-40)
-
-% dF0818_mit(:,1) = allDurations; 
-% dF0818_mit(:,2) = allDeltas;
-% dF0818_mit(:,3) = allTimestamps;
-% 
-% dC0818_mit(:,1) = allDurations;
-% dC0818_mit(:,2) = allDeltas;
-% dC0818_mit(:,3) = allTimestamps;
-% 
-% save('dC0818_mit.mat', 'dC0818_mit');
 
 %%
 % Naming convention for "BIRTH" group
@@ -344,4 +321,4 @@ save('dm2016-1010-high.mat', 'dm1010_high');
 
 spinOffs = struct('allDurations', allDurations, 'allDeltas', allDeltas, 'allTimestamps', allTimestamps, 'birthTimes', birthTimes, 'birthSizes', birthSizes);
 
-save('dH_2016-10-10.mat', 'spinOffs');
+save('dH_2016-10-20.mat', 'spinOffs');
