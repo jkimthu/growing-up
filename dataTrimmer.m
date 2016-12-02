@@ -196,7 +196,7 @@ clear GoldenRatio n;
 
 %% Saving results
 
-save('t90_2016-11-10-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2016-11-21-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% QUALITY CONTROL
