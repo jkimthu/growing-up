@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): Jan 12, 2017
+%  Last modified (jen): Jan 14, 2017
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('t30_2017-01-09_xy*.nd2');
+xyDirectory = dir('t3600_2017-01-12_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-16.069, -1];       
+    Threshold =  [-25.1034, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('t30_2017-01-09.mat','D','T')
+save('t3600_2017-01-12.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
