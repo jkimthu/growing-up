@@ -31,7 +31,7 @@
 
 % particle tracking data
 clear
-load('t300_2017-01-06.mat');
+load('t30_2017-01-09.mat');
 
 % reject data matrix
 rejectD = cell(5,40);
@@ -282,7 +282,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t300_2017-01-06-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t30_2017-01-09-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
@@ -313,14 +313,13 @@ end
 %%
 % -- final pass, check
 
-for n = 1:length(D6)
+for n = 32%:length(D6)
     for i = 1:length(D6{n})
         
         % designate subplot position
         subplot(ceil(length(D6{n})/5), 5, i)
         
         % plot
-        figure(n)
         plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
         
         % label
