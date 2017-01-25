@@ -24,13 +24,14 @@
 
 
 
-% last edit: Jan 23, 2017
+% last edit: Jan 25, 2017
 
 
 %% initialize
 
 % particle tracking data
-load('t90_2017-01-05.mat');
+clear
+load('t300_2017-01-06.mat');
 
 % reject data matrix
 rejectD = cell(5,40);
@@ -281,7 +282,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t90_2017-01-05-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-01-06-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
