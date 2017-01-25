@@ -31,7 +31,7 @@
 
 % particle tracking data
 clear
-load('t3600_2017-01-12.mat');
+load('t300_2017-01-16.mat');
 
 % reject data matrix
 rejectD = cell(5,40);
@@ -282,7 +282,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t3600_2017-01-12-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-01-16-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
