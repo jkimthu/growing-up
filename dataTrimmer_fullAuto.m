@@ -24,14 +24,14 @@
 
 
 
-% last edit: Jan 25, 2017
+% last edit: Jan 27, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('t300_2017-01-17.mat');
+load('fluorctl_2017-01-24.mat');
 
 % reject data matrix
 rejectD = cell(5,40);
@@ -282,7 +282,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t300_2017-01-17-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('fluorctl_2017-01-24.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
@@ -313,7 +313,7 @@ end
 %%
 % -- final pass, check
 
-for n = 34%:length(D6)
+for n = 1%:length(D6)
     for i = 1:length(D6{n})
         
         % designate subplot position
@@ -348,7 +348,7 @@ plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
 
 figure(1)
 
-for n=31:40                                                                 % adjust n as needed!
+for n=1:11:40                                                                 % adjust n as needed!
     counter = 0;
     Delete = zeros(1,length(n));
     

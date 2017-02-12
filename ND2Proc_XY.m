@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): Jan 24, 2017
+%  Last modified (jen): Feb 10, 2017
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('t300_2017-01-17_xy*.nd2');
+xyDirectory = dir('fluorctl_2017-01-24_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -69,7 +69,7 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 
 
 %%  T H R E E.
-%   track the particles from all series 
+%   track the particles from all series
 
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-16.5517, -1];       
+    Threshold =  [-36.2069, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('t300_2017-01-17.mat','D','T')
+save('fluorctl_2017-01-24.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
