@@ -1,6 +1,20 @@
-%% conditions.m
+%% meta.m
+
+% last edit: jen nguyen, 2017 March 6th
+
 
 % some useful metadata for each successful fluctuating experiment
+% info, by column:
+
+%       1. first xy position of condition
+%       2. final xy position of condition
+%       3. start time (hr) of steady-state behavoir, as eyeballed from mu v time plot
+%       4. end time (hr) of steady-state behavoir, as eyeballed
+
+
+% intended use:
+%       1. save each meta matrix as 'meta.mat' in appropriate expt folder
+%       2. load during analyses that require info, such as steady-state timeframes
 
 
 %% t300
