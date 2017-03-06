@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): Feb 10, 2017
+%  Last modified (jen): Mar 3, 2017
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('fluorctl_2017-01-24_xy*.nd2');
+xyDirectory = dir('t900_2017-02-13_4p25hrsin_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-36.2069, -1];       
+    Threshold =  [-6.06897, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('fluorctl_2017-01-24.mat','D','T')
+save('t900_2017-02-13-4p25hrsin.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

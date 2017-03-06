@@ -42,11 +42,11 @@
 %  OK! HERE WE GO!
 
 
-%last update: January 26th, 2016
+%last update: Feb 15th, 2017
 
 %%
 
-load('fluorctl_2017-01-24-autoTrimmed.mat');
+load('t900_2017-02-13-part1-trimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -221,5 +221,5 @@ end
 
 
 
-save('fluorctl_2017-01-24-Mus-length.mat', 'D6', 'M6', 'T') %'D'
+save('t900_2017-02-13-part1-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
