@@ -4,7 +4,7 @@
 
 %  Goal: plot average growth rate per period fraction
 
-%  Last edit: Jen Nguyen, February 22th 2017
+%  Last edit: Jen Nguyen, March 6th 2017
 
 
 
@@ -21,19 +21,25 @@
 clear
 
 % 0. Load workspace from SlidingFits.m    
-load('t900_2017-01-10-Mus-length.mat');
-conditions = [1 10; 11 20; 21 30; 31 40];
+load('t300_2017-02-11-Mus-length.mat');
+load('meta.mat');
+
 %%
 % 0. Initialize period fractioning
-periodLength = 900;                         % in seconds
+periodLength = 300;                         % in seconds
 binsPerPeriod = 20;
 
 for i = 1:2:3
     
+    % initize vectors for data accumulation
     muTrack = [];
     timeTrack = [];
     
-    for n = conditions(i,1):conditions(i,2)
+    % designate times to trim
+    minTime = meta(i,3);
+    maxTime = meta(i,4);
+    
+    for n = meta(i,1):meta(i,2)
         for m = 1:length(M6{n})
             
             %  assemble all instantaneous growth rates into a single vector
@@ -46,19 +52,15 @@ for i = 1:2:3
             
         end
     end
-
-    % designate times to trim
-    minTime = 3;
-    maxTime = 7.5;
     
     %trim times to only stable
     timeTrack(timeTrack < minTime*3600) = NaN;
     timeTrack(timeTrack > maxTime*3600) = NaN;
-    timeFilter = find(isnan(timeTrack));
+    timeFilter = find(~isnan(timeTrack));
     muTrack = muTrack(timeFilter);
-    selectTime = timeTrack(timeFilter);
+    timeTrack = timeTrack(timeFilter);
     
-    timeWarp = selectTime/periodLength;
+    timeWarp = timeTrack/periodLength; % units = seconds/seconds
     floorWarp = floor(timeWarp);
     timeWarp = timeWarp - floorWarp;
     rightBin = timeWarp * binsPerPeriod;
@@ -70,7 +72,7 @@ for i = 1:2:3
     trimmedMu(trimmedMu <= 0) = NaN;
     
     % remove NaNs from data sets
-    nanFilter = find(isnan(trimmedMu));
+    nanFilter = find(~isnan(trimmedMu));
     trimmedMu = trimmedMu(nanFilter);
     trimmedTime = rightBin(nanFilter);
     
@@ -98,10 +100,11 @@ for i = 1:2:3
     %   2. divide standard dev by square root of tracks per bin
     muSEMs = muSTDs./sqrt(muCounts');
     
+
     errorbar(muMeans,muSEMs)
     hold on
     grid on
-    axis([0.8,20.2,-0.1,.5])
+    axis([0.8,20.2,0.2,.4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
 
