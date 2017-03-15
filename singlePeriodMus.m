@@ -4,7 +4,7 @@
 
 %  Goal: plot average growth rate per period fraction
 
-%  Last edit: Jen Nguyen, March 6th 2017
+%  Last edit: Jen Nguyen, March 15th 2017
 
 
 
@@ -21,14 +21,15 @@
 clear
 
 % 0. Load workspace from SlidingFits.m    
-load('t300_2017-02-11-Mus-length.mat');
+load('t3600_2017-01-12-Mus-length.mat');
 load('meta.mat');
 
 %%
 % 0. Initialize period fractioning
-periodLength = 300;                         % in seconds
+periodLength = 3600;                         % in seconds
 binsPerPeriod = 20;
 
+%%
 for i = 1:2:3
     
     % initize vectors for data accumulation
@@ -104,7 +105,7 @@ for i = 1:2:3
     errorbar(muMeans,muSEMs)
     hold on
     grid on
-    axis([0.8,20.2,0.2,.4])
+    axis([0.8,20.2,0.15,.35])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
 

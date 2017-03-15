@@ -17,6 +17,27 @@
 %       2. load during analyses that require info, such as steady-state timeframes
 
 
+%% t30
+
+% 1.  2016-10-10  (t30)
+meta_2016oct10 = [1 10 4 10; 11 20 4.5 7.5; 21 30 4 8; 31 40 2 8];
+
+
+% 2.  2017-01-09  (t30)
+%     special features (Mu): slowly decreasing during "steady-state"
+meta_2017jan09 = [1 10 2.5 9; 11 20 4.5 8; 21 30 3 8.5; 31 40 2 8];
+
+
+%% t90
+
+% 1.  2017-01-05  (t90)
+%     special features (Mu): apparent overshoot in growth rate,
+%                            "steady-state" values do not include hump
+meta_2017jan05 = [1 10 4 9; 11 20 6 8; 21 30 3.5 7.5; 31 40 4 8];
+
+% 2.  2017-02-12  (t90)
+meta_2017feb12 = [1 10 4 9; 11 20 4 8.5; 21 30 3.5 8.5; 31 40 2 8.5];
+
 %% t300
 
 % 1.  2017-01-06 (t300)
@@ -58,3 +79,9 @@ meta_2017jan10 = [1 10 3 7.5; 11 20 NaN NaN; 21 30 3 7.5; 31 40 NaN NaN];
 meta_2017feb14 = [1 10 NaN NaN; 11 20 NaN NaN; 21 30 NaN NaN; 31 40 NaN NaN];
 
 
+%%  t3600
+
+% 1.  2017-01-12  (t3600)
+meta_2017jan12 = [1 10 3 9; 11 20 5 8.5; 21 30 3 8.5; 31 40 4 8.5];
+%     special features (Mu): apparent overshoot in growth rate,
+%                            "steady-state" values do not include hump
