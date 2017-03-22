@@ -24,14 +24,14 @@
 
 
 
-% last edit: Feb 15, 2017
+% last edit: Mar 18, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('t900_2017-02-13-4p25hrsin.mat');
+load('t300_2017-03-08.mat');
 
 % reject data matrix
 rejectD = cell(5,40);
@@ -282,7 +282,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t900_2017-02-13-4p25hrsin-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-03-08-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
