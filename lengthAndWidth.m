@@ -22,17 +22,23 @@ for m = 15;
     smoothedL = smooth(lengthTrack);
     smoothedW = smooth(widthTrack);
     
+    medianL = medfilt1(lengthTrack);
+    medianW = medfilt1(widthTrack);
     
-    figure(4)
+    figure(6)
     
     %subplot(5,1,counter)
-    %plot(timeTrack(1:length(lengthTrack)), lengthTrack, timeTrack(1:length(widthTrack)), widthTrack, 'r');
-    plot(timeTrack(1:length(smoothedL)), smoothedL, timeTrack(1:length(smoothedW)), smoothedW);
+    plot(timeTrack(1:length(lengthTrack)), lengthTrack, 'k.', timeTrack(1:length(widthTrack)), widthTrack, 'k.');
+    %hold on
+    %plot(timeTrack(1:length(smoothedL)), smoothedL, 'r.', timeTrack(1:length(smoothedW)), smoothedW, 'r.');
+    hold on
+    plot(timeTrack(1:length(medianL)), medianL, 'r.', timeTrack(1:length(medianW)), medianW, 'r.');
+    
     grid on;
     axis([0,9,-0.5,5])
     xlabel('Time (hours)')
     ylabel('Microns')
-    legend('Length','Width');
+    legend('Smoothed Length', 'Original Length', 'Smoothed Width');
     
     
     clear Mu_track Num_mu Ltrack2 Ttrack hr;
