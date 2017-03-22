@@ -1,5 +1,10 @@
 %% Automated quality control from particle tracking and its resulting data structure (D)
-%
+
+
+%  Goals: with defined selection criteria, kick out tracks that do not
+%  appear to be growing cells. of those that remain, smooth all data to
+%  reduce noise in future analyses.
+
 
 %  For each of selection criteria:
 
@@ -7,9 +12,9 @@
 %       b. remove from trimmed data structure
 %       c. place removed tracks into a "trash" data structure, for review
 
+
 %
 %  SELECTION CRITERIA:
-
 
 %   1) Tracks must be of reasonable size, SizeStrainer (1.5um)
  
@@ -24,7 +29,7 @@
 
 
 
-% last edit: Mar 18, 2017
+% last edit: Mar 22, 2017
 
 
 %% initialize
@@ -336,127 +341,3 @@ plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
 
 
 
-%% QUALITY CONTROL
-%
-%  Goal: manually examine length trajectories to ensure successful trimming
-%  Approach: display trajectories for manual discard (if needed)
-%
-%
-%  Step 1 - Plotting individual tracks from a series
-%         - Choose to either accept or discard each track
-%         
-
-figure(1)
-
-for n=1:11:40                                                                 % adjust n as needed!
-    counter = 0;
-    Delete = zeros(1,length(n));
-    
-    J = ['Click mouse to flag track for deletion'];
-    disp(J);
-    K = ['Hit keyboard to approve track'];
-    disp(K);
-    
-    for m=1:length(D6{n})
-        plot(T{n}(D6{n}(m).Frame(1:end))/3600,(D6{n}(m).MajAx),'Linewidth',2)
-        axis([0,10,0,15])
-        drawnow                                                             % displays current track m
-        %pause()
-        w = waitforbuttonpress;                                             % waits for user to approve or reject
-        % mouse click = flags track for deletion (w = 0)
-                                                                           % keyboard key = OK                      (w = 1) 
-       if w == 0
-           counter = counter + 1;
-           Delete(counter) = m;                                            % saves track number for future removal
-           X = ['Track ', num2str(m), ' of ', num2str(length(D6{n})), ' marked for deletion...'];
-           disp(X);
-       else
-           disp('OK!');
-       end
-    end
-    
-    Rejects{n} = Delete;
-    clear Delete m w X J K counter;
-    save('2016-11-23-Rejects.mat', 'Rejects')                              % saves current Rejects after finishing each series
-end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
-
-clear n;
-
-%% Quality control, continued...
-%
-%  Step 2 - Fine pass through Reject list to confirm deletion
-%
-%
-
-figure(1)
-for n=1:40                                                              % adjust n as needed!
-    counter = 0;                                                           
-    Confirmed = zeros(1,length(n));
-    
-    if Rejects{n} == 0
-        continue
-    end
-    
-    J = ['Click mouse to approve deletion'];
-    disp(J);
-    K = ['Hit keyboard to rescue track'];
-    disp(K);
-    
-    
-    for i=1:length(Rejects{n})                                             % number of tracks in Rejects piles
-        m = Rejects{n}(i);
-
-            plot(T{n}(D6{n}(m).Frame(1:end))/3600,(D6{n}(m).MajAx),'Linewidth',2)
-            axis([0,11,0,15])
-            %plot(T(D5{n}(m).Frame(1:end),n)/60,(D5{n}(m).MajAx),'color',[0,0,1]+(n-1)*[.05,.05,0],'Linewidth',2)
-            %axis([0,1100,0,15])
-            drawnow                                                             % displays current track m
-            %pause()
-            w = waitforbuttonpress;                                             % waits for user to approve or reject
-            % mouse click = flags track for deletion (w = 0)
-            % keyboard key = OK                      (w = 1)
-            if w == 0
-                counter = counter + 1;
-                Confirmed(counter) = m;                                            % saves track number for future removal
-                X = [ num2str(i), ' track of ', num2str(length(Rejects{n})), ' initial rejects confirmed for deletion...'];
-                disp(X);
-            else
-                disp('Rescued!');
-            end
-            
-        end
-        Trash{n} = Confirmed;
-
-    clear Confirmed m w X J K counter;
-    save('2016-11-23-Rejects.mat', 'Rejects','Trash')
-                                                                        % saves current Rejects after finishing each series
-end                                                                        % both D5 and Rejects are saved for potential revisitation of removed data
-
-clear n;
-
-%% Quality control, continued... 
-%
-%  Step 3 - Removing flagged tracks from data set
-%         - Delete based on track numbers saved in 'Rejects'
-%
-D6 = D6;
-Trash = cellfun(@(x)x(logical(x)),Trash,'uni',false); 
-
-for n = 1:length(D6);                                                       
-    
-    Remove = Trash(n);
-    Remove = cell2mat(Remove);
-               % replaces 0 with empty cells
-    F = ['Removing ', num2str(length(Remove)), ' flagged tracks from D6(', num2str(n), ')...']; 
-    disp(F)                                                         
-                                                   
-    counter = 0;
-    for j = 1:length(Remove)
-        k = length(Remove) - counter;                                      % remove structures based on row #
-        D6{n}(Remove(k)) = [];                                             % remove in reverse order to avoid changing smaller positions
-        counter = counter + 1;
-    end
-    clear j k F counter Remove;           
-end
-%clear n;
-save('2016-11-21-trimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'T')%, 'reader', 'ConversionFactor')
