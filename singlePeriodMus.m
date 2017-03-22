@@ -21,7 +21,7 @@
 clear
 
 % 0. Load workspace from SlidingFits.m    
-load('t3600_2017-01-12-Mus-length.mat');
+load('t300_2017-01-06--Mus-area.mat');
 load('meta.mat');
 
 %%
