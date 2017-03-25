@@ -47,7 +47,7 @@
 
 %%
 
-load('t300_2017-02-10-trimmed.mat');
+load('t900_2017-01-10-autoTrimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -177,18 +177,21 @@ for n = 1:length(D7)
         end
 
         % saving data
-        SlidingData = struct('Parameters',pFit,'Smoothed length',L_Fit,'Windows',Wtrack);
+        SlidingData = struct('Parameters',pFit,'Smoothed_length',L_Fit,'Windows',Wtrack);
         M6{n}(m) = SlidingData;
         
         clear SlidingData total_windows init_window Ltrack Ldiff total_windows;
         clear pFit L_Fit Fenster_track;
+    
+        disp(['Track ', num2str(m), ' from xy ', num2str(n), ' complete!'])
+    
     end
     
 end
 
 
 
-save('t300_2017-02-10-Mus-length.mat', 'D6', 'M6', 'T') %'D'
+save('t900_2017-01-10-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
 
 %%
