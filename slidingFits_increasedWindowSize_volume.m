@@ -42,19 +42,19 @@
 %  OK! HERE WE GO!
 
 
-% last update: Mar 29rd, 2017
+% last update: April 12, 2017
 %              working to combine analysis for length, area, and volume
 
 %%
 
-load('fluorctl_2017-01-24-autoTrimmed.mat');
-%load('t30_2017-01-09-autoTrimmed.mat');
+%load('fluorctl_2017-01-24-autoTrimmed.mat');
+load('t900_2017-01-10-autoTrimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
 
 clear m n Ltrack Ttotal dT t_hr Ltime Ldiff L_Fit w Fit pFit Wdiff;
-clear total_windows init_window Ttrack Ttrack_row Test Fenster Fenster_track Screen;
+clear init_window Ttrack Ttrack_row Test Fenster Fenster_track Screen;
 clear Fenster_trim hr_trim log_Fit SlidingData;
 
 
@@ -75,11 +75,20 @@ for n = 1:length(D7)
         lengthTrack = D7{n}(m).MajAx;                                      % loads current length trajectory
         lengthDiffs = diff(lengthTrack);                                   % used to find sharp drops
         
+        
+        % Original width data (microns)
+        widthTrack = D7{n}(m).MinAx;
+        %widthDiffs = diff(widthTrack);
+        
+        % Approximate volume
+        vcTrack = pi * lengthTrack .* (widthTrack/2).^2;
+        veTrack = 4/3 * pi * lengthTrack/2 .* (widthTrack/2.^2);
+        
         % Time data (hours)
         timeTrack = T{n}/3600;
      
         % Set-up windows
-        pointsInWindow = 13;                                                % sets number of frames in one window
+        pointsInWindow = 13;                                               % sets number of frames in one window
         firstWindow = linspace(1,pointsInWindow,pointsInWindow);           % defines frame numbers for first window
         numWindows = length(lengthDiffs) - (pointsInWindow-1);             % total windows in track
         
@@ -102,13 +111,13 @@ for n = 1:length(D7)
             if isempty(dipFinder) == 0
 
                 
-%       A.      If dip is found between window points 4 and 5,
-%               trim last data point to remove dip, only use first 4 for fit
-                if dipFinder >= 7 %length(Wdiff)
+%       A.      If dip is found after window point 7,
+%               trim until last data point before dip
+                if dipFinder >= 7 
                     trimmedWindow = currentWindow(1:dipFinder);
-                    %Wtrack(w,:) = [trimmedWindow 0];
-                    %disp(['Window ', num2str(w), '... Red!'])
+   
                     
+                    % LENGTH
                     % covert length to log scale for linear fit
                     logLength = log(lengthTrack(trimmedWindow));
                     trimmedTime = timeTrack(trimmedWindow);
@@ -122,24 +131,42 @@ for n = 1:length(D7)
                     hr = timeTrack(currentWindow);
                     L_Fit(w,:) = exp(Intercept)*exp(hr*Slope);
                     
-                    clear Fit Slope Intercept log_L hr Fenster;
+                    
+                    % VOLUME
+                    % covert volume to log scale for linear fit
+                    logVC = log(vcTrack(trimmedWindow));
+                    logVE = log(veTrack(trimmedWindow));
+                    
+                    fitVC = polyfit(trimmedTime,logVC,1);
+                    fitVE = polyfit(trimmedTime,logVE,1);
+                    
+                    pFit_VC(w,:) = fitVC;
+                    pFit_VE(w,:) = fitVE;
+                    
+                    log_FitVC = polyval(fitVC,trimmedTime);
+                    log_FitVE = polyval(fitVC,trimmedTime);
+                    
+                 
+                    % return to linear scale and generate exponential fit
+                    slopeVC = fitVC(1);
+                    interceptVC = fitVC(2);
+                    vc_Fit(w,:) = exp(interceptVC)*exp(hr*slopeVC);
+                    
+                    slopeVE = fitVE(1);
+                    interceptVE = fitVE(2);
+                    ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
+                    
+                    clear Fit Slope Intercept hr Fenster;
+                    clear fitVC fit VE slopeVC slopeVE interceptVC interceptVE;
                 end
 
                 
-%       B.    
-                
-%       C.      If dip is found between window points 4 and 5, or 3 and 4, or 2 and 3,
-%               no data recorded.
-%                 if dipFinder <= 6 
-%                     pFit(w,:) = [0 0];
-%                     L_Fit(w,:) = zeros(1,pointsInWindow);  
-%                 end
-
+%       B.      If dip is found before point 6,
+%               trim points early points until dip is removed.
                 if dipFinder <= 6
                      trimmedWindow = currentWindow(dipFinder+1:pointsInWindow);
-                    %Wtrack(w,:) = [trimmedWindow 0];
-                    %disp(['Window ', num2str(w), '... Red!'])
-                    
+
+                    % LENGTH 
                     % covert length to log scale for linear fit
                     logLength = log(lengthTrack(trimmedWindow));
                     trimmedTime = timeTrack(trimmedWindow);
@@ -152,6 +179,34 @@ for n = 1:length(D7)
                     Intercept = Fit(2);
                     hr = timeTrack(currentWindow);
                     L_Fit(w,:) = exp(Intercept)*exp(hr*Slope);
+                    
+                    
+                    % VOLUME
+                    % covert volume to log scale for linear fit
+                    logVC = log(vcTrack(trimmedWindow));
+                    logVE = log(veTrack(trimmedWindow));
+                    
+                    fitVC = polyfit(trimmedTime,logVC,1);
+                    fitVE = polyfit(trimmedTime,logVE,1);
+                    
+                    pFit_VC(w,:) = fitVC;
+                    pFit_VE(w,:) = fitVE;
+                    
+                    log_FitVC = polyval(fitVC,trimmedTime);
+                    log_FitVE = polyval(fitVC,trimmedTime);
+                    
+                 
+                    % return to linear scale and generate exponential fit
+                    slopeVC = fitVC(1);
+                    interceptVC = fitVC(2);
+                    vc_Fit(w,:) = exp(interceptVC)*exp(hr*slopeVC);
+                    
+                    slopeVE = fitVE(1);
+                    interceptVE = fitVE(2);
+                    ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
+                    
+                    clear Fit Slope Intercept hr Fenster;
+                    clear fitVC fit VE slopeVC slopeVE interceptVC interceptVE;
                 end
                   
                 
@@ -159,30 +214,59 @@ for n = 1:length(D7)
             else
                 %disp(['Window ', num2str(w), '... smooth sailing!'])
                 
+                % LENGTH
                 logLength = log(lengthTrack(currentWindow));                              
                 hr = timeTrack(currentWindow);
-                Fit = polyfit(hr,logLength,1);                                
+                Fit = polyfit(hr,logLength,1);
                 pFit(w,:) = Fit;
                 
                 Slope = Fit(1);
                 Intercept = Fit(2);
                 L_Fit(w,:) = exp(Intercept)*exp(hr*Slope);
                 
-                clear Fit Slope Intercept Screen Fenster Wdiff;
-                clear log_L hr Window;
                 
+                % VOLUME
+                % covert volume to log scale for linear fit
+                logVC = log(vcTrack(currentWindow));
+                logVE = log(veTrack(currentWindow));
+                
+                fitVC = polyfit(hr,logVC,1);
+                fitVE = polyfit(hr,logVE,1);
+                
+                pFit_VC(w,:) = fitVC;
+                pFit_VE(w,:) = fitVE;
+                
+                %log_FitVC = polyval(fitVC,trimmedTime);
+                %log_FitVE = polyval(fitVC,trimmedTime);
+                
+                
+                % return to linear scale and generate exponential fit
+                slopeVC = fitVC(1);
+                interceptVC = fitVC(2);
+                vc_Fit(w,:) = exp(interceptVC)*exp(hr*slopeVC);
+                
+                slopeVE = fitVE(1);
+                interceptVE = fitVE(2);
+                ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
+                
+                
+                clear fitVC fitVE slopeVC slopeVE interceptVC interceptVE;
+                clear Fit Slope Intercept Fenster Wdiff hr Window;
+
             end
             
-            clear Fenster Fenster_trim Wdiff Screen log_L hr hr_trim Slope Intercept log_Fit;
+            clear Fenster Fenster_trim Wdiff hr hr_trim Slope Intercept log_Fit;
+            clear log_FitVC log_FitVE logVC logVE logLength;
+             
             
         end
 
         % saving data
-        SlidingData = struct('Parameters',pFit,'Smoothed_length',L_Fit,'Windows',Wtrack);
+        SlidingData = struct('Parameters_L',pFit,'Smoothed_length',L_Fit,'Parameters_VC',pFit_VC,'Smoothed_vc',vc_Fit,'Parameters_VE',pFit_VE,'Smoothed_ve',ve_Fit,'Windows',Wtrack);
         M6{n}(m) = SlidingData;
         
-        clear SlidingData total_windows init_window Ltrack Ldiff total_windows;
-        clear pFit L_Fit Fenster_track;
+        clear SlidingData init_window lengthDiffs lengthTrack widthTrack Wtrack;
+        clear pFit L_Fit Fenster_track veTrack vcTrack vc_Fit ve_Fit pFit_VC pFit_VE;
     
         disp(['Track ', num2str(m), ' from xy ', num2str(n), ' complete!'])
     
@@ -191,9 +275,9 @@ for n = 1:length(D7)
 end
 
 
-save('fluorctl_2017-01-24-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T')
-%save('t30_2017-01-09-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T') %'D'
-clear Fenster_track L_Fit Ltime pFit t_hr;
+%save('fluorctl_2017-01-24-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T')
+save('t900_2017-01-10-increasedWindow-Mus-LV.mat', 'D6', 'M6', 'T') %'D'
+%clear Fenster_track L_Fit Ltime pFit t_hr;
 
 %%
 

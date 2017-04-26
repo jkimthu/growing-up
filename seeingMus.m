@@ -20,19 +20,19 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('t300_2017-02-10-Mus-length.mat');
+load('t3600_2017-01-12-increasedWindow-Mus-LV.mat');
 
 counter =0;
-for n = 1:10:40
+for n = 1:4%10:40
     counter = counter +1;
     m = 10;
     
     % Extracted mu
-    Mu_track = M6{n}(m).Parameters(:,1);
+    Mu_track = M6{n}(m).Parameters_VE(:,1);
     vectorLength = length(Mu_track);
     
     % Original length data (microns)
-    Ltrack2 = D6{n}(m).MajAx(3:vectorLength+2);                                  % trimmed length trajectory to match Mu
+    Ltrack2 = D6{n}(m).MajAx(7:vectorLength+6);                                  % trimmed length trajectory to match Mu
     
     % Time data (hours)
     %dT = mean(mean(diff(T)));                                              % mean time between frames (seconds)
@@ -43,9 +43,9 @@ for n = 1:10:40
     figure(1)
     
     subplot(4,1,counter)
-    plot(timeTrack(3:vectorLength+2),Ltrack2,'.',timeTrack(3:vectorLength+2),Mu_track*log(2),'r.');                          
+    plot(timeTrack(7:vectorLength+6),Ltrack2,'.',timeTrack(7:vectorLength+6),Mu_track*log(2),'r');                          
     grid on;
-    axis([0,10,-0.5,6])
+    axis([0,9,-0.05,.45])
     xlabel('Time (hours)')
     ylabel('Cell Length (um)')
     legend('Length','Mu');
@@ -65,7 +65,7 @@ end
 
 % Initialize
 clear;
-load('t300_2017-02-10-Mus-length.mat','D6','M6','T');
+load('t3600_2017-01-12-increasedWindow-Mus-LV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40];
@@ -74,18 +74,22 @@ conditions = [1 10; 11 20; 21 30; 31 40];
 for i = 1%:4 %number of conditions
     
     %    Condition One    %
-    Mu_cond = [];
+    mu_elongation = [];
+    mu_vc = [];
+    mu_ve =[];
     Time_cond = [];
     
     for n = conditions(i,1):conditions(i,2)
         for m = 1:length(M6{n})
             
             %  assemble all instantaneous growth rates into a single vector
-            Mu_cond = [Mu_cond; M6{n}(m).Parameters(:,1)];
+            mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
+            mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
+            mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
             
             %  assemble a corresponding timestamp vector
-            vectorLength = length(M6{n}(m).Parameters(:,1));
-            trackFrames = D6{n}(m).Frame(3:vectorLength+2);
+            vectorLength = length(M6{n}(m).Parameters_L(:,1));
+            trackFrames = D6{n}(m).Frame(7:vectorLength+6);
             Time_cond = [Time_cond; T{n}(trackFrames)];
             
         end
@@ -103,8 +107,14 @@ for i = 1%:4 %number of conditions
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
     %  accumulate growth rates by bin, and calculate mean and std dev
-    Mu_Means = accumarray(Bins,Mu_cond,[],@nanmean);
-    Mu_STDs = accumarray(Bins,Mu_cond,[],@nanstd);
+    mu_Elong_Means = accumarray(Bins,mu_elongation,[],@nanmean);
+    mu_Elong_STDs = accumarray(Bins,mu_elongation,[],@nanstd);
+    
+    mu_VC_Means = accumarray(Bins,mu_vc,[],@nanmean);
+    mu_VC_STDs = accumarray(Bins,mu_vc,[],@nanstd);
+    
+    mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
+    mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
     
     
     %   to calculate s.e.m.
@@ -125,17 +135,34 @@ for i = 1%:4 %number of conditions
     end
     
     %   2. divide standard dev by square root of tracks per bin
-    Mu_sems = Mu_STDs./sqrt(Mu_Counts');
+    mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
+    mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
+    mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
     
-    errorbar(Mu_Means,Mu_sems)
-    %errorbar( Mu_Means(1:plotUntil),Mu_sems(1:plotUntil) )
+    figure(1)
+    errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,275,-0.1,.4])
+    axis([0,300,-0.1,.4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    %forLegend = num2str(xy);
-    %legend(forLegend)
+    
+    figure(2)
+    errorbar(mu_VC_Means,mu_VC_sems)
+    hold on
+    grid on
+    axis([0,300,-0.1,.4])
+    xlabel('Time')
+    ylabel('Growth rate from V_cylinder (1/hr)')
+    
+    figure(3)
+    errorbar(mu_VE_Means,mu_VE_sems)
+    hold on
+    grid on
+    axis([0,300,-0.1,.4])
+    xlabel('Time')
+    ylabel('Growth rate from V_ellipse (1/hr)')
+    
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;

@@ -58,7 +58,7 @@ clear names;
 %
 %   Find and plot birth events.
 
-for condition = 1:2
+for condition = 1%:2:3
   
     interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
     timestamps = interestingData(:,2);

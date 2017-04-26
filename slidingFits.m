@@ -1,4 +1,4 @@
-%% Determination of growth rate by fitting an exponential to length trajectories
+%% Determination of growth rate by fitting an exponential to cell size trajectories
 %
 
 
@@ -23,10 +23,10 @@
 
 %  APPROACH: fit sections of each track to the following exponential
 %
-%                   L(t) = l * 2^(mu*t)
+%                   S(t) = s * 2^(mu*t)
 %
-%            where, L = final cell length
-%                   l = initial cell length
+%            where, S = final cell size
+%                   s = initial cell size
 %                   mu = growth rate over time t
 %                   t = time window
 %
@@ -42,11 +42,12 @@
 %  OK! HERE WE GO!
 
 
-%last update: Feb 15th, 2017
+% last update: Mar 23rd, 2017
+%              working to combine analysis for length, area, and volume
 
 %%
 
-load('t900_2017-02-13-part1-trimmed.mat');
+load('t300_2017-02-10-trimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -68,25 +69,19 @@ clear Fenster_trim hr_trim log_Fit SlidingData;
 for n = 1:length(D7)
     
     for m = 1:length(D7{n})
-        
+%%      
         % Original length data (microns)
-        lengthTrack = D7{n}(m).MajAx;                                           % loads current length trajectory
-        lengthDiffs = diff(lengthTrack);                                              % used to find sharp drops
+        lengthTrack = D7{n}(m).MajAx;                                      % loads current length trajectory
+        lengthDiffs = diff(lengthTrack);                                   % used to find sharp drops
         
         % Time data (hours)
-        
-        %Ttotal = length(Ltrack);                                           % finds number of frames in current trajectory
-        %dT = mean(mean(diff(T{n})));                                       % mean time between frames (seconds)
-        %Ttrack_row = linspace(1,Ttotal,Ttotal);                            % creates row of numbers from 1 to Ttotal, increment = Ttotal/Ttotal
         timeTrack = T{n}/3600;
-        %t_hr = (Ttrack_row.'*dT)/(60*60);
      
         % Set-up windows
         pointsInWindow = 5;                                                % sets number of frames in one window
         firstWindow = linspace(1,pointsInWindow,pointsInWindow);           % defines frame numbers for first window
         numWindows = length(lengthDiffs) - (pointsInWindow-1);             % total windows in track
         
-        clear  Ttrack_row Ttotal dT
         
         
         
@@ -96,7 +91,7 @@ for n = 1:length(D7)
             % Determine frames of analysis
             currentWindow = firstWindow + (w-1);                           % defines vector of frame numbers
             Wtrack(w,:) = currentWindow;
-            Wdiff = lengthDiffs(currentWindow(1:4));                             % incremental length differences in current window
+            Wdiff = lengthDiffs(currentWindow(1:pointsInWindow-1));        % incremental length differences in current window
             
             % Working around sharp dips in length
             dipFinder = find(Wdiff < -.75);  % returns 1 if all diffs are above threshold, 0 if a dip was found
@@ -104,12 +99,13 @@ for n = 1:length(D7)
             % When a window has a dip, remove dip from analysis
             % Method used depends on where dip is located:
             if isempty(dipFinder) == 0
+
                 
-                % If dip is found between window points 4 and 5,
-                % trim last data point to remove dip, only use first 4 for fit
-                if dipFinder == 4
+%       A.      If dip is found between window points 4 and 5,
+%               trim last data point to remove dip, only use first 4 for fit
+                if dipFinder == length(Wdiff)
                     trimmedWindow = currentWindow(1:4);
-                    Wtrack(w,:) = [trimmedWindow 0];
+                    %Wtrack(w,:) = [trimmedWindow 0];
                     %disp(['Window ', num2str(w), '... Red!'])
                     
                     % covert length to log scale for linear fit
@@ -119,22 +115,19 @@ for n = 1:length(D7)
                     pFit(w,:) = Fit;
                     log_Fit = polyval(Fit,trimmedTime);
                     
-                    %figure()
-                    %plot(hr_trim,log_Fit,hr_trim,log_L,'o');
-                    %grid on;
-                    %legend('Fit','Data')
-                    %title('log Data Plot')
-                    
                     % return to linear scale and generate exponential fit
                     Slope = Fit(1);
                     Intercept = Fit(2);
                     hr = timeTrack(currentWindow);
                     L_Fit(w,:) = exp(Intercept)*exp(hr*Slope);
                     
-                    clear Fit Slope Intercept log_L hr Fenster w;
+                    clear Fit Slope Intercept log_L hr Fenster;
                 end
+
                 
-                if dipFinder == 3
+%       B.      If dip is found between window points 3 and 4,
+%               double values of points 4 and 5 and use to calculate fit
+                if dipFinder == length(Wdiff)-1
                     %disp(['Window ', num2str(w), '... Dark blue!'])
                     Lengths = lengthTrack(currentWindow);
                     Dbl = 2*Lengths(4:5);
@@ -154,11 +147,13 @@ for n = 1:length(D7)
                     %figure()
                     %plot(hr,L_Fit(w,:),hr,Ltrack_d4d5,'o');
                     
-                    clear Fit Slope Intercept log_L hr Ltrack_d4d5 Wdiff Fenster w Dbl;
+                    clear Fit Slope Intercept log_L hr Ltrack_d4d5 Fenster Dbl;
                 end
                 
                 
-                if dipFinder == 2
+%       C.      If dip is found between window points 2 and 3,
+%               double values of points 3, 4 and 5 to calculate fit
+                if dipFinder == length(Wdiff)-2
                     %disp(['Window ', num2str(w), '... Dark bluuuuuueee!'])
                     Lengths = lengthTrack(currentWindow);
                     dbl = 2*Lengths(3:5);
@@ -176,7 +171,7 @@ for n = 1:length(D7)
                     %figure()
                     %plot(hr,L_Fit(w,:),hr,Ltrack_d345,'o');
                     
-                    clear Fit Slope Intercept log_L hr Ltrack_d345 Wdiff Lengths Fenster w dbl;
+                    clear Fit Slope Intercept log_L hr Ltrack_d345 Lengths Fenster dbl;
                     
                 end
                 
@@ -201,14 +196,14 @@ for n = 1:length(D7)
                 L_Fit(w,:) = exp(Intercept)*exp(hr*Slope);
                 
                 clear Fit Slope Intercept Screen Fenster Wdiff;
-                clear log_L hr Window w;
+                clear log_L hr Window;
                 
             end
             
             clear Fenster Fenster_trim Wdiff Screen log_L hr hr_trim Slope Intercept log_Fit;
             
         end
-
+%%
         % saving data
         SlidingData = struct('Parameters',pFit,'Fits',L_Fit,'Windows',Wtrack);
         M6{n}(m) = SlidingData;
@@ -223,3 +218,26 @@ end
 
 save('t900_2017-02-13-part1-Mus-length.mat', 'D6', 'M6', 'T') %'D'
 clear Fenster_track L_Fit Ltime pFit t_hr;
+
+%%
+
+% Visualizing the fit!
+
+%
+for w = 1:numWindows
+    fitTrack(w,:) = exp( pFit(w,1)*timeTrack(Wtrack(w,:)) + pFit(w,2) );
+end
+clear w
+
+% totalTpt = length(timeTrack);
+% calcTpt = length(fitTrack);
+
+figure(1)
+plot(timeTrack,lengthTrack)
+hold on
+plot(timeTrack(3:496), fitTrack(:,3),'r.');
+grid on;
+axis([0,9,1.5,5])
+xlabel('Time (hours)')
+ylabel('Microns')
+legend('Original Length', 'Smoothed Length');

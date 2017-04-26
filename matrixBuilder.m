@@ -6,24 +6,24 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, November 18th 2016
+%  Last edit: Jen Nguyen, April 12 2017
 
 
 
 
 % Envisioned data matrix:
 
-%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    massAdded    addedSize
-%         1         1         t        x         u         0*         1              0                3              1           0           z-x  
-%         2         1         t        y         u         0          1              1                3              2          y-x          z-x
-%         3         1         t        z         u         0          1              2                3              3          z-x          z-x
-%         4         1         t        a         u         1          2              0                3              1           0           c-a
-%         5         1         t        b         u         0          2              1                3              2          b-a          c-a
-%         6         1         t        c         u         0          2              2                3              3          c-a          c-a
-%         7         1         t        q         u         1          3              0                3              1           0           s-q
-%         8         1         t        r         u         0          3              1                3              2          r-q          s-q
-%         9         1         t        s         u         0          3              2                3              3          s-q          s-q
-%         10        1         t        j         u         1          4              0                0              1           0            0  
+%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    lngthAdded    addedLngth    Width    V_cyl   V_elpse  mu_vc    mu_ve  Condition o
+%         1         1         t        x         u         0*         1              0                3              1           0            z-x          wx                                          1  
+%         2         1         t        y         u         0          1              1                3              2          y-x           z-x          wy      v                                   1
+%         3         1         t        z         u         0          1              2                3              3          z-x           z-x          wz      v                                   1
+%         4         1         t        a         u         1          2              0                3              1           0            c-a          wa      v                                   1 
+%         5         1         t        b         u         0          2              1                3              2          b-a           c-a          wb      v                                   1
+%         6         1         t        c         u         0          2              2                3              3          c-a           c-a          wc      v                                   1
+%         7         1         t        q         u         1          3              0                3              1           0            s-q          wq      v                                   1
+%         8         1         t        r         u         0          3              1                3              2          r-q           s-q          wr      v                                   1
+%         9         1         t        s         u         0          3              2                3              3          s-q           s-q          ws      v                                   1
+%         10        1         t        j         u         1          4              0                0              1           0             0           wj      v                                   1  
 
 
 
@@ -38,10 +38,16 @@
 %        7.        tSince    =   time since birth
 %        8.        Duration  =   full duration of cell cycle pertaining to current row
 %        9.        stage     =   time since birth / duration of entire cycle
-%       10.        mass      =   increments of added size since time of birth
-%       11.        size      =   total mass added during cell cycle pertaining to current row
-
-
+%       10.        lAdded    =   increments of added length since time of birth
+%       11.        addedL    =   total length added during cell cycle pertaining to current row
+%       12.        width     =   width values
+%       13.        v_cyl     =   volume approximated as a cylinder
+%       14.        v_elspe   =   volume approximated as an ellipse
+%       15.        mu_vc     =   rate of doubling vol as cylinder
+%       16.        mu_ve     =   rate of doubling vol as ellipse
+%       17.        addedVC   =   volume (cylindrical) added per cell cycle
+%       18.        addedVE   =   volume (ellipsoidal) added per cell cycle
+%       19.        condition =   1 fluc; 2 low; 3 ave; 4 high
 
 % Strategy (for determining cell cycle stage):
 %
@@ -58,14 +64,14 @@
 %%
 %   Initialize.
 
-load('2016-10-20-Mus-length.mat');
+load('t900_2016-10-20-increasedWindow-Mus-LV.mat');
 D7 = D6;
 M7 = M6;
 
-clear D6 M6 Mu_stats;
+clear D6 M6 rejectsD;
 
 
-%
+%%
 %   Part One.
 %   Assemble the ultimate data matrix!
 %
@@ -73,12 +79,21 @@ clear D6 M6 Mu_stats;
 
 % Initialize data vectors for concatenation
 
+condVals = [];
+
 trackNumber = [];
 trackCounter = 1;                                                          
 
 Time = [];
+
 lengthVals = [];
+widthVals = [];
+vcVals = [];
+veVals = [];
+
 muVals = [];
+mu_vcVals = [];
+mu_veVals = [];
 
 isDrop = []; 
 dropThreshold = -0.75;                                                     % consider greater negatives a division event
@@ -86,7 +101,7 @@ dropThreshold = -0.75;                                                     % con
 curveFinder = [];                                                        
 
 timeSinceBirth = [];
-massAddedSinceBirth = [];
+lengthAddedSinceBirth = [];
 
 allDurations = [];
 allDeltas = [];
@@ -96,19 +111,21 @@ birthSizes = [];
 birthTimes = [];
 
 curveDurations = [];
-addedSize = [];
+addedLength = [];
+addedVC = [];
+addedVE = [];
 
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 31:40
+for n = 1:40
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
                                                                            % to sliding fit
                                                                            
         %   TRACK #                                                        
-        lengthCurrentTrack = length(M7{n}(m).Parameters(:,1));
+        lengthCurrentTrack = length(M7{n}(m).Parameters_L(:,1));
         Track = ones(lengthCurrentTrack,1);
         trackNumber = [trackNumber; trackCounter*Track];
         trackCounter = trackCounter + 1;                                   % cumulative count of tracks in condition
@@ -117,22 +134,39 @@ for n = 31:40
         
         %   TIME
         %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
-        timeTrack = T{n}(3:lengthCurrentTrack+2)./(3600);                  % data format, if all ND2s were processed individually
+        timeTrack = T{n}(7:lengthCurrentTrack+6)./(3600);                  % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          % concat=enate timestamp
         
         
         
         %   lengths
-        lengthTrack = D7{n}(m).MajAx(3:lengthCurrentTrack+2);              % collect lengths (um)
+        lengthTrack = D7{n}(m).MajAx(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
         
+        %   widths
+        widthTrack = D7{n}(m).MinAx(7:lengthCurrentTrack+6);               % collect widths (um)
+        widthVals = [widthVals; widthTrack];                               % concatenate widths
         
-        %   GROWTH RATE
-        muTrack = M7{n}(m).Parameters(:,1);                                % collect elongation rates (1/hr)
+        
+        %   ELONGATION RATE
+        muTrack = M7{n}(m).Parameters_L(:,1);                                % collect elongation rates (1/hr)
         muVals = [muVals; muTrack];                                        % concatenate growth rates
         
         
+        %   VOLUME
+        v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder
+        v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2.^2);         % approx. volume as an ellipse
+        vcVals = [vcVals; v_cylinder];                                     % concatenate values
+        veVals = [veVals; v_ellipse];
+        
+        
+        %   GROWTH RATE (VOLUME)
+        mu_vcTrack = M7{n}(m).Parameters_VC(:,1);                          % as approximated by a cylinder
+        mu_vcVals = [mu_vcVals; mu_vcTrack];                               % see slidingFits
+        
+        mu_veTrack = M7{n}(m).Parameters_VE(:,1);                          % as approximated by an ellipse
+        mu_veVals = [mu_veVals; mu_veTrack];                               % see slidingFits
         
         %   DROP?
         dropTrack = diff(lengthTrack);
@@ -182,12 +216,16 @@ for n = 31:40
         % Part C.
         % preparing to collect duration and size at the end of each full cell cycle (curve)             
         durationsPerTrack = zeros(numberFullCurves,1);
-        sizesPerTrack = zeros(numberFullCurves,1);
+        lengthPerTrack = zeros(numberFullCurves,1);
+        vcPerTrack = zeros(numberFullCurves,1);
+        vePerTrack = zeros(numberFullCurves,1);
         
         % Part A & B.
         % preparing to collect incremental time and mass for all timesteps
         tsbPerTrack = zeros(lengthCurrentTrack,1);
-        msbPerTrack = zeros(lengthCurrentTrack,1);
+        lsbPerTrack = zeros(lengthCurrentTrack,1);
+        vcsbPerTrack = zeros(lengthCurrentTrack,1);
+        vesbPerTrack = zeros(lengthCurrentTrack,1);
         
         % per individual curve
         %       - identify current birth event and division event (i.e. next birth)
@@ -207,13 +245,24 @@ for n = 31:40
             tsbPerCurve = currentTimes - timeTrack(currentBirthRow);
             tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve;
                       
-            % incremental mass
-            msbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
-            msbPerTrack(currentBirthRow:nextBirthRow-1,1) = msbPerCurve;
+            % incremental length
+            lsbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
+            lsbPerTrack(currentBirthRow:nextBirthRow-1,1) = lsbPerCurve;
+            
+            % incremental volume (cylindrical)
+            vcsbPerCurve = v_cylinder(currentBirthRow:nextBirthRow-1) - v_cylinder(currentBirthRow);
+            vcsbPerTrack(currentBirthRow:nextBirthRow-1,1) = vcsbPerCurve;
+            
+            % incremental volume (ellipsoidal)
+            vesbPerCurve = v_ellipse(currentBirthRow:nextBirthRow-1) - v_ellipse(currentBirthRow);
+            vesbPerTrack(currentBirthRow:nextBirthRow-1,1) = vesbPerCurve;
             
             % final duration and mass
             durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
-            sizesPerTrack(currentCurve) = msbPerCurve(end);                % msb = mass added since birth
+            lengthPerTrack(currentCurve) = lsbPerCurve(end);               % lsb = length added since birth
+            vcPerTrack(currentCurve) = vcsbPerCurve(end);                  % vcsb = volume added since birth
+            vePerTrack(currentCurve) = vesbPerCurve(end);
+            
         end
         
         
@@ -233,8 +282,8 @@ for n = 31:40
         timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compiled values of time passed
         allDurations = [allDurations; durationsPerTrack]; % compiled final cell cycle durations
         
-        massAddedSinceBirth = [massAddedSinceBirth; msbPerTrack]; % compiled increments of added length
-        allDeltas = [allDeltas; sizesPerTrack]; % compiled final added mass per cell cycle
+        lengthAddedSinceBirth = [lengthAddedSinceBirth; lsbPerTrack]; % compiled increments of added length
+        allDeltas = [allDeltas; lengthPerTrack]; % compiled final added mass per cell cycle
         
         if length(eventTimes) > 1
             allTimestamps = [allTimestamps; eventTimes(2:end)]; % compiled timestamps for FULL cell cycles
@@ -251,14 +300,16 @@ for n = 31:40
         
 
         
-        %   CURVE DURATION & ADDED SIZE
+        %   CURVE DURATION & ADDED LENGTH
         
         %   for calculations of cell cycle fraction, etc, generate:
         %           1.  a vector of total cell cycle duration
-        %           2.  a vector of final mass added in that cell cycle
+        %           2.  a vector of final length added in that cell cycle
         %   compile individual curve durations in single vector
         perTrack_duration = zeros(lengthCurrentTrack,1);
-        perTrack_size = zeros(lengthCurrentTrack,1);
+        perTrack_length = zeros(lengthCurrentTrack,1);
+        perTrack_vc = zeros(lengthCurrentTrack,1);
+        perTrack_ve = zeros(lengthCurrentTrack,1);
         
         
         % for all timepoints in current track:           
@@ -270,11 +321,15 @@ for n = 31:40
                 continue
             else
                 perTrack_duration(j,1) = durationsPerTrack(curveTrack(j));
-                perTrack_size(j,1) = sizesPerTrack(curveTrack(j));
+                perTrack_length(j,1) = lengthPerTrack(curveTrack(j));
+                perTrack_vc(j,1) = vcPerTrack(curveTrack(j));
+                perTrack_ve(j,1) = vePerTrack(curveTrack(j));
             end
         end
         curveDurations = [curveDurations; perTrack_duration]; % collect all durations for analytical ease (ccStage)
-        addedSize = [addedSize; perTrack_size];
+        addedLength = [addedLength; perTrack_length];
+        addedVC = [addedVC; perTrack_vc];
+        addedVE = [addedVE; perTrack_ve];
         
         
         %    CELL CYCLE FRACTION
@@ -284,7 +339,29 @@ for n = 31:40
                                                                            % 0   =  start of full cycle
                                                                            % 1   =  end of full cycle
     
+                                                                           
+        %   CONDITION
+        if n >= 1 && n <= 10
+            condition = 1;
+        end
+        
+        if n >= 11 && n <= 20
+            condition = 2;
+        end
+        
+        if n >= 21 && n <= 30
+            condition = 3;
+        end
+        
+        if n >= 31 && n <= 40
+            condition = 4;
+        end
+        
+        condTrack = ones(lengthCurrentTrack,1)*condition;
+        condVals = [condVals; condTrack];
     end % for m
+    
+    disp(['Track ', num2str(m), ' of ', num2str(length(M7{n})), ' from xy ', num2str(n), ' complete!'])
     
     % to save data matrices for each xy position
     %indivDM = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction];
@@ -296,7 +373,7 @@ end % for n
 
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction massAddedSinceBirth addedSize];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAddedSinceBirth addedLength widthVals vcVals veVals mu_vcVals mu_veVals addedVC addedVE condVals];
 
 %%
 
@@ -312,7 +389,7 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 
 
 %dm1010_high = dataMatrix;
-save('dm2016-10-20-high.mat', 'dataMatrix');
+save('dm-t900-2016-10-20.mat', 'dataMatrix');
 
 
 %%
@@ -321,4 +398,4 @@ save('dm2016-10-20-high.mat', 'dataMatrix');
 
 spinOffs = struct('allDurations', allDurations, 'allDeltas', allDeltas, 'allTimestamps', allTimestamps, 'birthTimes', birthTimes, 'birthSizes', birthSizes);
 
-save('dH_2016-10-20.mat', 'spinOffs');
+save('dF_2017-01-18.mat', 'spinOffs');

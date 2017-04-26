@@ -7,7 +7,7 @@
 
 
 
-%  Last edit: Jen Nguyen, August 13th 2016
+%  Last edit: Jen Nguyen, April 5 2017
 
 
 %  Section contents:
@@ -236,3 +236,42 @@ for condition = 1:2   % 1 = constant, 2 = fluctuating
     hold on
 
 end
+
+%% testing distributionPlot.m
+
+% functions from distributionPlot.m files, as shared by Jonas Dorn on File
+% Exchange. 
+
+data1 = randn(500,5);
+data2 = bsxfun(@plus,randn(500,5),0:0.1:0.4);
+figure
+distributionPlot(data1,'widthDiv',[2 1],'histOri','left','color','b','showMM',4)
+distributionPlot(gca,data2,'widthDiv',[2 2],'histOri','right','color','k','showMM',4)
+
+% bsxfun(fun, A, B) : applies the function (fun) to arrays A and B
+%                       ex. C = bsxfun(@minus, A, mean(A))
+%                           subtracts the mean of A column-wise from each
+%                           element in corresponding columns of A
+
+% gca : helps return to previous plot
+
+% widthDiv : [numberOfDivisions,currentDivision], allows comparison of
+%              multiple distributions
+
+% histOri : orientation of histogram ('center','left', or 'right'), with 'center' as default
+%             'left' or 'right' only shows left or right half of violin plot
+
+% color : uniform coloring of histograms. Supply either a color
+%           string ('r'), or a truecolor vector ([1 0 0]). Use a
+%           cell array of length nData to specify one color per
+%           distribution. Default: 'k' 
+
+% showMM : if 1, mean and median are shown as red crosses and
+%                green squares, respectively. This is the default
+%                2: only mean
+%                3: only median
+%                4: mean +/- standard error of the mean (no median)
+%                5: mean +/- standard deviation (no median)
+%                6: draw lines at the 25,50,75 percentiles (no mean)
+%                0: plot neither mean nor median
+

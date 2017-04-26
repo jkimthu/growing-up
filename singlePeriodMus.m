@@ -21,16 +21,17 @@
 clear
 
 % 0. Load workspace from SlidingFits.m    
-load('t300_2017-01-06--Mus-area.mat');
+load('t300_2017-01-16-increasedWindow-Mus-LV.mat');
 load('meta.mat');
+meta = meta_2017jan16;
 
 %%
 % 0. Initialize period fractioning
-periodLength = 3600;                         % in seconds
+periodLength = 300;                         % in seconds
 binsPerPeriod = 20;
 
 %%
-for i = 1:2:3
+for i = 1%:2:3
     
     % initize vectors for data accumulation
     muTrack = [];
@@ -44,11 +45,11 @@ for i = 1:2:3
         for m = 1:length(M6{n})
             
             %  assemble all instantaneous growth rates into a single vector
-            muTrack = [muTrack; M6{n}(m).Parameters(:,1)];
+            muTrack = [muTrack; M6{n}(m).Parameters_VE(:,1)];
             
             %  assemble a corresponding timestamp vector
-            vectorLength = length(M6{n}(m).Parameters(:,1));
-            trackFrames = D6{n}(m).Frame(3:vectorLength+2);
+            vectorLength = length(M6{n}(m).Parameters_VE(:,1));
+            trackFrames = D6{n}(m).Frame(7:vectorLength+6);
             timeTrack = [timeTrack; T{n}(trackFrames)];
             
         end
@@ -105,7 +106,7 @@ for i = 1:2:3
     errorbar(muMeans,muSEMs)
     hold on
     grid on
-    axis([0.8,20.2,0.15,.35])
+    axis([-0.2,20.2,0.15,.35])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
 
