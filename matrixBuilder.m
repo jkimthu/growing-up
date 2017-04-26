@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, April 12 2017
+%  Last edit: Jen Nguyen, April 26 2017
 
 
 
@@ -106,7 +106,10 @@ dropThreshold = -0.75;                                                     % con
 curveFinder = [];                                                        
 
 timeSinceBirth = [];
-lengthAddedSinceBirth = [];
+lengthAdded_incremental = [];
+vcAdded_incremental = [];
+veAdded_incremental = [];
+vaAdded_incremental = [];
 
 allDurations = [];
 allDeltas = [];
@@ -241,6 +244,7 @@ for n = 1:40
         lsbPerTrack = zeros(lengthCurrentTrack,1);
         vcsbPerTrack = zeros(lengthCurrentTrack,1);
         vesbPerTrack = zeros(lengthCurrentTrack,1);
+        vasbPerTrack = zeros(lengthCurrentTrack,1);
         
         % per individual curve
         %       - identify current birth event and division event (i.e. next birth)
@@ -302,7 +306,11 @@ for n = 1:40
         timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compiled values of time passed
         allDurations = [allDurations; durationsPerTrack]; % compiled final cell cycle durations
         
-        lengthAddedSinceBirth = [lengthAddedSinceBirth; lsbPerTrack]; % compiled increments of added length
+        lengthAdded_incremental = [lengthAdded_incremental; lsbPerTrack]; % compiled increments of added length
+        vcAdded_incremental = [vcAdded_incremental; vcsbPerTrack];
+        veAdded_incremental = [veAdded_incremental; vesbPerTrack];
+        vaAdded_incremental = [vaAdded_incremental; vasbPerTrack];
+        
         allDeltas = [allDeltas; lengthPerTrack]; % compiled final added mass per cell cycle
         
         if length(eventTimes) > 1
@@ -396,7 +404,7 @@ end % for n
 %%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAddedSinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental veAdded_incremental vaAdded_incremental addedVC addedVE addedVA condVals];
 
 %%
 
