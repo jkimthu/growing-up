@@ -13,17 +13,17 @@
 
 % Envisioned data matrix:
 
-%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    lngthAdded    addedLngth    Width    V_cyl   V_elpse  mu_vc    mu_ve  Condition o
-%         1         1         t        x         u         0*         1              0                3              1           0            z-x          wx                                          1  
-%         2         1         t        y         u         0          1              1                3              2          y-x           z-x          wy      v                                   1
-%         3         1         t        z         u         0          1              2                3              3          z-x           z-x          wz      v                                   1
-%         4         1         t        a         u         1          2              0                3              1           0            c-a          wa      v                                   1 
-%         5         1         t        b         u         0          2              1                3              2          b-a           c-a          wb      v                                   1
-%         6         1         t        c         u         0          2              2                3              3          c-a           c-a          wc      v                                   1
-%         7         1         t        q         u         1          3              0                3              1           0            s-q          wq      v                                   1
-%         8         1         t        r         u         0          3              1                3              2          r-q           s-q          wr      v                                   1
-%         9         1         t        s         u         0          3              2                3              3          s-q           s-q          ws      v                                   1
-%         10        1         t        j         u         1          4              0                0              1           0             0           wj      v                                   1  
+%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    lngthAdded    addedLngth    Width    V_cyl   V_elpse  V_anu  mu_vc  mu_ve  mu_va  Condition o
+%         1         1         t        x         u         0*         1              0                3              1           0            z-x          wx                                                     1  
+%         2         1         t        y         u         0          1              1                3              2          y-x           z-x          wy      v                                              1
+%         3         1         t        z         u         0          1              2                3              3          z-x           z-x          wz      v                                              1
+%         4         1         t        a         u         1          2              0                3              1           0            c-a          wa      v                                              1 
+%         5         1         t        b         u         0          2              1                3              2          b-a           c-a          wb      v                                              1
+%         6         1         t        c         u         0          2              2                3              3          c-a           c-a          wc      v                                              1
+%         7         1         t        q         u         1          3              0                3              1           0            s-q          wq      v                                              1
+%         8         1         t        r         u         0          3              1                3              2          r-q           s-q          wr      v                                              1
+%         9         1         t        s         u         0          3              2                3              3          s-q           s-q          ws      v                                              1
+%         10        1         t        j         u         1          4              0                0              1           0             0           wj      v                                              1  
 
 
 
@@ -43,11 +43,14 @@
 %       12.        width     =   width values
 %       13.        v_cyl     =   volume approximated as a cylinder
 %       14.        v_elspe   =   volume approximated as an ellipse
-%       15.        mu_vc     =   rate of doubling vol as cylinder
-%       16.        mu_ve     =   rate of doubling vol as ellipse
-%       17.        addedVC   =   volume (cylindrical) added per cell cycle
-%       18.        addedVE   =   volume (ellipsoidal) added per cell cycle
-%       19.        condition =   1 fluc; 2 low; 3 ave; 4 high
+%       15.        v_anu     =   volume approximated as a cylinder with half sphere caps
+%       16.        mu_vc     =   rate of doubling vol as cylinder
+%       17.        mu_ve     =   rate of doubling vol as ellipse
+%       18.        mu_va     =   rate of doubling col as cylinder with half sphere caps
+%       19.        addedVC   =   volume (cylindrical) added per cell cycle
+%       20.        addedVE   =   volume (ellipsoidal) added per cell cycle
+%       21.        addedVA   =   volume (cyldrical with caps) added per cell cycle
+%       22.        condition =   1 fluc; 2 low; 3 ave; 4 high
 
 % Strategy (for determining cell cycle stage):
 %
@@ -64,7 +67,7 @@
 %%
 %   Initialize.
 
-load('t900_2016-10-20-increasedWindow-Mus-LV.mat');
+load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat');
 D7 = D6;
 M7 = M6;
 
@@ -90,10 +93,12 @@ lengthVals = [];
 widthVals = [];
 vcVals = [];
 veVals = [];
+vaVals = [];
 
 muVals = [];
 mu_vcVals = [];
 mu_veVals = [];
+mu_vaVals = [];
 
 isDrop = []; 
 dropThreshold = -0.75;                                                     % consider greater negatives a division event
@@ -114,6 +119,7 @@ curveDurations = [];
 addedLength = [];
 addedVC = [];
 addedVE = [];
+addedVA = [];
 
 %%
 % Select xy positions for analysis / concatenation
@@ -156,9 +162,15 @@ for n = 1:40
         
         %   VOLUME
         v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder
-        v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2.^2);         % approx. volume as an ellipse
+        v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
+        vol_smallCylinder = (pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack) );
+        vol_sphere = 4/3 * pi * (widthTrack/2).^3;
+        v_anupam = vol_smallCylinder + vol_sphere;                          % approx. volume as cylinder with spherical caps
+        
+        
         vcVals = [vcVals; v_cylinder];                                     % concatenate values
         veVals = [veVals; v_ellipse];
+        vaVals = [vaVals; v_anupam];
         
         
         %   GROWTH RATE (VOLUME)
@@ -167,6 +179,9 @@ for n = 1:40
         
         mu_veTrack = M7{n}(m).Parameters_VE(:,1);                          % as approximated by an ellipse
         mu_veVals = [mu_veVals; mu_veTrack];                               % see slidingFits
+        
+        mu_vaTrack = M7{n}(m).Parameters_VE(:,1);                          % as approximated by anupam's suggestion
+        mu_vaVals = [mu_vaVals; mu_vaTrack];       
         
         %   DROP?
         dropTrack = diff(lengthTrack);
@@ -257,11 +272,16 @@ for n = 1:40
             vesbPerCurve = v_ellipse(currentBirthRow:nextBirthRow-1) - v_ellipse(currentBirthRow);
             vesbPerTrack(currentBirthRow:nextBirthRow-1,1) = vesbPerCurve;
             
+            % incremental volume (anupam's method)
+            vasbPerCurve = v_anupam(currentBirthRow:nextBirthRow-1) - v_anupam(currentBirthRow);
+            vasbPerTrack(currentBirthRow:nextBirthRow-1,1) = vasbPerCurve;
+            
             % final duration and mass
             durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
             lengthPerTrack(currentCurve) = lsbPerCurve(end);               % lsb = length added since birth
             vcPerTrack(currentCurve) = vcsbPerCurve(end);                  % vcsb = volume added since birth
             vePerTrack(currentCurve) = vesbPerCurve(end);
+            vaPerTrack(currentCurve) = vasbPerCurve(end);
             
         end
         
@@ -310,6 +330,7 @@ for n = 1:40
         perTrack_length = zeros(lengthCurrentTrack,1);
         perTrack_vc = zeros(lengthCurrentTrack,1);
         perTrack_ve = zeros(lengthCurrentTrack,1);
+        perTrack_va = zeros(lengthCurrentTrack,1);
         
         
         % for all timepoints in current track:           
@@ -324,12 +345,14 @@ for n = 1:40
                 perTrack_length(j,1) = lengthPerTrack(curveTrack(j));
                 perTrack_vc(j,1) = vcPerTrack(curveTrack(j));
                 perTrack_ve(j,1) = vePerTrack(curveTrack(j));
+                perTrack_va(j,1) = vaPerTrack(curveTrack(j));
             end
         end
         curveDurations = [curveDurations; perTrack_duration]; % collect all durations for analytical ease (ccStage)
         addedLength = [addedLength; perTrack_length];
         addedVC = [addedVC; perTrack_vc];
         addedVE = [addedVE; perTrack_ve];
+        addedVA = [addedVA; perTrack_va];
         
         
         %    CELL CYCLE FRACTION
@@ -370,10 +393,10 @@ for n = 1:40
     
 end % for n
 
-
+%%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAddedSinceBirth addedLength widthVals vcVals veVals mu_vcVals mu_veVals addedVC addedVE condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAddedSinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA condVals];
 
 %%
 
@@ -389,7 +412,7 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 
 
 %dm1010_high = dataMatrix;
-save('dm-t900-2016-10-20.mat', 'dataMatrix');
+save('dm-t900-2017-01-10.mat', 'dataMatrix');
 
 
 %%

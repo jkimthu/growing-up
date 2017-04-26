@@ -82,7 +82,10 @@ for n = 1:length(D7)
         
         % Approximate volume
         vcTrack = pi * lengthTrack .* (widthTrack/2).^2;
-        veTrack = 4/3 * pi * lengthTrack/2 .* (widthTrack/2.^2);
+        veTrack = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;
+        vol_smallCylinder = (pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack) );
+        vol_sphere = 4/3 * pi * (widthTrack/2).^3;
+        vaTrack = vol_smallCylinder + vol_sphere;
         
         % Time data (hours)
         timeTrack = T{n}/3600;
@@ -136,15 +139,19 @@ for n = 1:length(D7)
                     % covert volume to log scale for linear fit
                     logVC = log(vcTrack(trimmedWindow));
                     logVE = log(veTrack(trimmedWindow));
+                    logVA = log(vaTrack(trimmedWindow));
                     
                     fitVC = polyfit(trimmedTime,logVC,1);
                     fitVE = polyfit(trimmedTime,logVE,1);
+                    fitVA = polyfit(trimmedTime,logVA,1);
                     
                     pFit_VC(w,:) = fitVC;
                     pFit_VE(w,:) = fitVE;
+                    pFit_VA(w,:) = fitVA;
                     
                     log_FitVC = polyval(fitVC,trimmedTime);
-                    log_FitVE = polyval(fitVC,trimmedTime);
+                    log_FitVE = polyval(fitVE,trimmedTime);
+                    log_FitVE = polyval(fitVA,trimmedTime);
                     
                  
                     % return to linear scale and generate exponential fit
@@ -156,8 +163,12 @@ for n = 1:length(D7)
                     interceptVE = fitVE(2);
                     ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
                     
+                    slopeVA = fitVA(1);
+                    interceptVA = fitVA(2);
+                    va_Fit(w,:) = exp(interceptVA)*exp(hr*slopeVA);
+                    
                     clear Fit Slope Intercept hr Fenster;
-                    clear fitVC fit VE slopeVC slopeVE interceptVC interceptVE;
+                    clear fitVC fitVA fitVE slopeVC slopeVE slopeVA interceptVC interceptVE interceptVA;
                 end
 
                 
@@ -185,15 +196,19 @@ for n = 1:length(D7)
                     % covert volume to log scale for linear fit
                     logVC = log(vcTrack(trimmedWindow));
                     logVE = log(veTrack(trimmedWindow));
+                    logVA = log(vaTrack(trimmedWindow));
                     
                     fitVC = polyfit(trimmedTime,logVC,1);
                     fitVE = polyfit(trimmedTime,logVE,1);
+                    fitVA = polyfit(trimmedTime,logVA,1);
                     
                     pFit_VC(w,:) = fitVC;
                     pFit_VE(w,:) = fitVE;
+                    pFit_VA(w,:) = fitVA;
                     
                     log_FitVC = polyval(fitVC,trimmedTime);
-                    log_FitVE = polyval(fitVC,trimmedTime);
+                    log_FitVE = polyval(fitVE,trimmedTime);
+                    log_FitVA = polyval(fitVA,trimmedTime);
                     
                  
                     % return to linear scale and generate exponential fit
@@ -205,8 +220,12 @@ for n = 1:length(D7)
                     interceptVE = fitVE(2);
                     ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
                     
+                    slopeVA = fitVA(1);
+                    interceptVA = fitVA(2);
+                    va_Fit(w,:) = exp(interceptVA)*exp(hr*slopeVA);
+                    
                     clear Fit Slope Intercept hr Fenster;
-                    clear fitVC fit VE slopeVC slopeVE interceptVC interceptVE;
+                    clear fitVC fitVE fitVA slopeVC slopeVE slopeVA interceptVC interceptVE interceptVA;
                 end
                   
                 
@@ -229,12 +248,15 @@ for n = 1:length(D7)
                 % covert volume to log scale for linear fit
                 logVC = log(vcTrack(currentWindow));
                 logVE = log(veTrack(currentWindow));
+                logVA = log(vaTrack(currentWindow));
                 
                 fitVC = polyfit(hr,logVC,1);
                 fitVE = polyfit(hr,logVE,1);
+                fitVA = polyfit(hr,logVA,1);
                 
                 pFit_VC(w,:) = fitVC;
                 pFit_VE(w,:) = fitVE;
+                pFit_VA(w,:) = fitVA;
                 
                 %log_FitVC = polyval(fitVC,trimmedTime);
                 %log_FitVE = polyval(fitVC,trimmedTime);
@@ -249,24 +271,28 @@ for n = 1:length(D7)
                 interceptVE = fitVE(2);
                 ve_Fit(w,:) = exp(interceptVE)*exp(hr*slopeVE);
                 
+                slopeVA = fitVA(1);
+                interceptVA = fitVA(2);
+                va_Fit(w,:) = exp(interceptVA)*exp(hr*slopeVA);
                 
-                clear fitVC fitVE slopeVC slopeVE interceptVC interceptVE;
+                
+                clear fitVC fitVE fitVA slopeVC slopeVE slopeVA interceptVC interceptVE interceptVA;
                 clear Fit Slope Intercept Fenster Wdiff hr Window;
 
             end
             
             clear Fenster Fenster_trim Wdiff hr hr_trim Slope Intercept log_Fit;
-            clear log_FitVC log_FitVE logVC logVE logLength;
+            clear log_FitVC log_FitVE log_FitVA logVC logVE logVA logLength;
              
             
         end
 
         % saving data
-        SlidingData = struct('Parameters_L',pFit,'Smoothed_length',L_Fit,'Parameters_VC',pFit_VC,'Smoothed_vc',vc_Fit,'Parameters_VE',pFit_VE,'Smoothed_ve',ve_Fit,'Windows',Wtrack);
+        SlidingData = struct('Parameters_L',pFit,'Smoothed_length',L_Fit,'Parameters_VC',pFit_VC,'Smoothed_vc',vc_Fit,'Parameters_VE',pFit_VE,'Smoothed_ve',ve_Fit,'Parameters_VA',pFit_VA,'Smoothed_va',va_Fit,'Windows',Wtrack);
         M6{n}(m) = SlidingData;
         
         clear SlidingData init_window lengthDiffs lengthTrack widthTrack Wtrack;
-        clear pFit L_Fit Fenster_track veTrack vcTrack vc_Fit ve_Fit pFit_VC pFit_VE;
+        clear pFit L_Fit Fenster_track veTrack vcTrack vaTrack vc_Fit ve_Fit va_Fit pFit_VC pFit_VE pFit_VA;
     
         disp(['Track ', num2str(m), ' from xy ', num2str(n), ' complete!'])
     
@@ -276,7 +302,7 @@ end
 
 
 %save('fluorctl_2017-01-24-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T')
-save('t900_2017-01-10-increasedWindow-Mus-LV.mat', 'D6', 'M6', 'T') %'D'
+save('t900_2017-01-10-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 %clear Fenster_track L_Fit Ltime pFit t_hr;
 
 %%

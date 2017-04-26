@@ -20,7 +20,7 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('t3600_2017-01-12-increasedWindow-Mus-LV.mat');
+load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat');
 
 counter =0;
 for n = 1:4%10:40
@@ -65,7 +65,7 @@ end
 
 % Initialize
 clear;
-load('t3600_2017-01-12-increasedWindow-Mus-LV.mat','D6','M6','T');
+load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40];
@@ -77,6 +77,7 @@ for i = 1%:4 %number of conditions
     mu_elongation = [];
     mu_vc = [];
     mu_ve =[];
+    mu_va =[];
     Time_cond = [];
     
     for n = conditions(i,1):conditions(i,2)
@@ -86,6 +87,7 @@ for i = 1%:4 %number of conditions
             mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
             mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
             mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
+            mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
             
             %  assemble a corresponding timestamp vector
             vectorLength = length(M6{n}(m).Parameters_L(:,1));
@@ -116,6 +118,9 @@ for i = 1%:4 %number of conditions
     mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
     mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
     
+    mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
+    mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
+    
     
     %   to calculate s.e.m.
     %   1. count number of total tracks in each bin
@@ -138,6 +143,8 @@ for i = 1%:4 %number of conditions
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
     mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
     mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
+    mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
+    
     
     figure(1)
     errorbar(mu_Elong_Means,mu_Elong_sems)
@@ -162,6 +169,14 @@ for i = 1%:4 %number of conditions
     axis([0,300,-0.1,.4])
     xlabel('Time')
     ylabel('Growth rate from V_ellipse (1/hr)')
+    
+    figure(4)
+    errorbar(mu_VA_Means,mu_VA_sems)
+    hold on
+    grid on
+    axis([0,300,-0.1,.4])
+    xlabel('Time')
+    ylabel('Growth rate from V_anupam (1/hr)')
     
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
