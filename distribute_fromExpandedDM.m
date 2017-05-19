@@ -7,7 +7,7 @@
 
 
 
-%  Last edit: Jen Nguyen, April 5 2017
+%  Last edit: Jen Nguyen, May 2 2017
 
 
 %  Section contents:
@@ -41,9 +41,9 @@
 
 % Initialize data.
 clear
-load('dm-t3600-2017-01-12.mat');
+load('dm-t900-2016-10-20.mat');
 load('meta.mat');
-meta = meta_2017jan12;
+meta = meta_2016oct20;
 
 
 %%
@@ -52,7 +52,7 @@ meta = meta_2017jan12;
 %   For all for conditions:
 %      0. designate time window of analysis
 %      1. isolate data of interest (length and drop)
-%      2. find length when drop == 1
+%      2. find length/volume when drop == 1
 %      3. plot!
 
 

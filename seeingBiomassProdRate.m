@@ -7,14 +7,13 @@
 
 
 
-%  Last edit: Jen Nguyen, April 5 2017
+%  Last edit: Jen Nguyen, April 26 2017
 
 
 %  Section contents:
 %  >> sections are separated based on input data formats
 %
 %       1. Cell cycle duration and added mass
-%       2. Size at birth
 
 
 % OK! Lez go!
@@ -41,9 +40,9 @@
 
 % Initialize data.
 clear
-load('dm-t900-2016-10-20.mat');
+load('dm-t900-2017-01-10.mat');
 load('meta.mat');
-meta = meta_2016oct20;
+meta = meta_2017jan10;
 
 
 %%
