@@ -29,17 +29,17 @@
 
 
 
-% last edit: Mar 22, 2017
+% last edit: May 8, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('t900_2016-10-20.mat');
+load('mopsvnc-2017-05-04.mat');
 
 % reject data matrix
-rejectD = cell(5,40);
+rejectD = cell(5,length(D));
 
 
 %% criteria 1: max particle size must be greater than 1.5um
@@ -287,14 +287,14 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('t900_2016-10-20-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('mopsvnc-2017-05-04-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
 
 % -- criteria five, check
 % select sample of tracks to visualize
-bottomTracks = find(allRatios < 0.9);
+bottomTracks = find(allRatios < 0.85);
 sampleTracks = find(allRatios < 1);
 
 c = ismember(sampleTracks, bottomTracks);
@@ -318,13 +318,18 @@ end
 %%
 % -- final pass, check
 
-for n = 1%:length(D6)
-    for i = 1:length(D6{n})
+%
+for n = 51 %:length(D6)
+    %counter = counter +1;
+    
+    for i = 1:20%length(D6{n})
         
         % designate subplot position
-        subplot(ceil(length(D6{n})/5), 5, i)
+        %subplot(ceil(length(D6{n})/5), 5, i)
+        subplot(ceil(20/5), 5, i)
         
         % plot
+        %figure(counter)
         plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
         
         % label

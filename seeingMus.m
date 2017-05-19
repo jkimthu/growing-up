@@ -20,7 +20,7 @@
 %
 
 % Load workspace from SlidingFits.m     (should be Year-Mon-Day-Mus-length.m)
-load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat');
+load('t900_2016-10-20-increasedWindow-Mus-LVVV.mat');
 
 counter =0;
 for n = 1:4%10:40
@@ -65,13 +65,13 @@ end
 
 % Initialize
 clear;
-load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+load('mopsvnc-2017-05-04-increasedWindow-Mus-LVVV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40];
+conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
-for i = 1%:4 %number of conditions
+for i = 1:6 %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -104,7 +104,7 @@ for i = 1%:4 %number of conditions
     %Mu_cond1(Mu_cond1<0)=NaN;
     
     %  determine size of time bins
-    BinsPerHour = 30;                              % multiplying by 10 gives bins of 0.1 hr
+    BinsPerHour = 2;                              % multiplying by 10 gives bins of 0.1 hr
     Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
@@ -150,7 +150,7 @@ for i = 1%:4 %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,300,-0.1,.4])
+    axis([0,19,-0.1,.6])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     
@@ -158,7 +158,7 @@ for i = 1%:4 %number of conditions
     errorbar(mu_VC_Means,mu_VC_sems)
     hold on
     grid on
-    axis([0,300,-0.1,.4])
+    axis([0,19,-0.1,.6])
     xlabel('Time')
     ylabel('Growth rate from V_cylinder (1/hr)')
     
@@ -166,7 +166,7 @@ for i = 1%:4 %number of conditions
     errorbar(mu_VE_Means,mu_VE_sems)
     hold on
     grid on
-    axis([0,300,-0.1,.4])
+    axis([0,19,-0.1,.6])
     xlabel('Time')
     ylabel('Growth rate from V_ellipse (1/hr)')
     
@@ -174,14 +174,14 @@ for i = 1%:4 %number of conditions
     errorbar(mu_VA_Means,mu_VA_sems)
     hold on
     grid on
-    axis([0,300,-0.1,.4])
+    axis([0,19,-0.1,.6])
     xlabel('Time')
     ylabel('Growth rate from V_anupam (1/hr)')
-    
+%     
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;
     
 end
-legend('fluc', 'low', 'ave', 'high');
+legend('1', '2', '3', '4', '5', '6');
 %%
