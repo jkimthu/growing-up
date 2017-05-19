@@ -30,7 +30,7 @@
 %     where,
 %                  row       =   row number, obvi
 %        1.        track     =   identifies track 
-%        2.        t         =   all timepoints associated with concatinated length trajectories
+%        2.        time      =   all timepoints associated with concatinated length trajectories
 %        3.        x         =   length values from concatentated length trajectories
 %        4.        mu        =   calculated growth rates from SlidingFits.m
 %        5.        drop?     =   finding where individual cell cycles start and end, a boolean
@@ -47,10 +47,16 @@
 %       16.        mu_vc     =   rate of doubling vol as cylinder
 %       17.        mu_ve     =   rate of doubling vol as ellipse
 %       18.        mu_va     =   rate of doubling col as cylinder with half sphere caps
-%       19.        addedVC   =   volume (cylindrical) added per cell cycle
-%       20.        addedVE   =   volume (ellipsoidal) added per cell cycle
-%       21.        addedVA   =   volume (cyldrical with caps) added per cell cycle
-%       22.        condition =   1 fluc; 2 low; 3 ave; 4 high
+%       19.        addedVC   =   volume (cylindrical) added since birth
+%       20.        addedVE   =   volume (ellipsoidal) added since birth
+%       21.        addedVA   =   volume (cylindrical with caps) added since birth
+%       22.        tot_addedVC  =  volume (cylindrical) added during cell cycle
+%       23.        tot_addedVE  =  volume (ellipsoidal) added during cell cycle
+%       24.        tot_addedVA  =  volume (capped cylinder) added during cell cycle
+%       25.        addedVC_incr  =  instantaneous added volume (cylindrical)    
+%       26.        addedVE_incr  =  instantaneous added volume (ellipsoidal)
+%       27.        addedVA_incr  =  instantaneous added volume (capped cylinder)
+%       28.        condition =   1 fluc; 2 low; 3 ave; 4 high
 
 % Strategy (for determining cell cycle stage):
 %
@@ -67,7 +73,7 @@
 %%
 %   Initialize.
 
-load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat');
+load('t900_2016-10-20-increasedWindow-Mus-LVVV.mat');
 D7 = D6;
 M7 = M6;
 
@@ -106,10 +112,10 @@ dropThreshold = -0.75;                                                     % con
 curveFinder = [];                                                        
 
 timeSinceBirth = [];
-lengthAdded_incremental = [];
-vcAdded_incremental = [];
-veAdded_incremental = [];
-vaAdded_incremental = [];
+lengthAdded_incremental_sinceBirth = [];
+vcAdded_incremental_sinceBirth = [];
+veAdded_incremental_sinceBirth = [];
+vaAdded_incremental_sinceBirth = [];
 
 allDurations = [];
 allDeltas = [];
@@ -123,6 +129,12 @@ addedLength = [];
 addedVC = [];
 addedVE = [];
 addedVA = [];
+
+addedLength_incremental = [];
+addedVC_incremental = [];
+addedVE_incremental = [];
+addedVA_incremental = [];
+
 
 %%
 % Select xy positions for analysis / concatenation
@@ -151,6 +163,9 @@ for n = 1:40
         %   lengths
         lengthTrack = D7{n}(m).MajAx(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
+        dLengths = diff(lengthTrack);
+        dLengths = [0; dLengths];
+        addedLength_incremental = [addedLength_incremental; dLengths];
         
         
         %   widths
@@ -174,6 +189,18 @@ for n = 1:40
         vcVals = [vcVals; v_cylinder];                                     % concatenate values
         veVals = [veVals; v_ellipse];
         vaVals = [vaVals; v_anupam];
+        
+        dVC = diff(v_cylinder);
+        dVC = [0; dVC];
+        addedVC_incremental = [addedVC_incremental; dVC];
+        
+        dVE = diff(v_ellipse);
+        dVE = [0; dVE];
+        addedVE_incremental = [addedVE_incremental; dVE];
+        
+        dVA = diff(v_anupam);
+        dVA = [0; dVA];
+        addedVA_incremental = [addedVA_incremental; dVA];
         
         
         %   GROWTH RATE (VOLUME)
@@ -306,10 +333,10 @@ for n = 1:40
         timeSinceBirth = [timeSinceBirth; tsbPerTrack]; % compiled values of time passed
         allDurations = [allDurations; durationsPerTrack]; % compiled final cell cycle durations
         
-        lengthAdded_incremental = [lengthAdded_incremental; lsbPerTrack]; % compiled increments of added length
-        vcAdded_incremental = [vcAdded_incremental; vcsbPerTrack];
-        veAdded_incremental = [veAdded_incremental; vesbPerTrack];
-        vaAdded_incremental = [vaAdded_incremental; vasbPerTrack];
+        lengthAdded_incremental_sinceBirth = [lengthAdded_incremental_sinceBirth; lsbPerTrack]; % compiled increments of added length
+        vcAdded_incremental_sinceBirth = [vcAdded_incremental_sinceBirth; vcsbPerTrack];
+        veAdded_incremental_sinceBirth = [veAdded_incremental_sinceBirth; vesbPerTrack];
+        vaAdded_incremental_sinceBirth = [vaAdded_incremental_sinceBirth; vasbPerTrack];
         
         allDeltas = [allDeltas; lengthPerTrack]; % compiled final added mass per cell cycle
         
@@ -404,7 +431,7 @@ end % for n
 %%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental veAdded_incremental vaAdded_incremental addedVC addedVE addedVA condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
 
 %%
 
@@ -420,7 +447,7 @@ dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBir
 
 
 %dm1010_high = dataMatrix;
-save('dm-t900-2017-01-10.mat', 'dataMatrix');
+save('dm-t900-2016-10-20.mat', 'dataMatrix');
 
 
 %%
