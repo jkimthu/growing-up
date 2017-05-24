@@ -92,7 +92,7 @@ for condition = 1%:2:3
     errorbar(bin_mean,bin_sem)
     hold on
     grid on
-    axis([-0.2,20.2,-0.05,.05])
+    axis([-0.2,20.2,-0.008,.012])
     xlabel('Time')
     ylabel('incremental added volume, VA')
 
