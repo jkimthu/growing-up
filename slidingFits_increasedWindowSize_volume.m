@@ -42,13 +42,13 @@
 %  OK! HERE WE GO!
 
 
-% last update: May 8, 2017
+% last update: May 20, 2017
 %              working to combine analysis for length, area, and volume
 
 %%
 
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('mopsvnc-2017-05-04-autoTrimmed.mat');
+load('mopsvnc-2017-05-19-autoTrimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -302,7 +302,7 @@ end
 
 
 %save('fluorctl_2017-01-24-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T')
-save('mopsvnc-2017-05-04-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
+save('mopsvnc-2017-05-19-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 %clear Fenster_track L_Fit Ltime pFit t_hr;
 
 %%
