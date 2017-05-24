@@ -29,14 +29,14 @@
 
 
 
-% last edit: May 20, 2017
+% last edit: May 24, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('mopsvnc-2017-05-19.mat');
+load('poly-challenge-2016-03-16.mat');
 
 % reject data matrix
 rejectD = cell(5,length(D));
@@ -61,19 +61,31 @@ for n = 1:length(D);
     X = ['Removing ', num2str(length(tooSmalls)), ' small particles from D2(', num2str(n), ')...'];
     disp(X)
     
-    % remove structures based on row # (in reverse order)
+    % so loop doesn't crash if nothing is too small
+    if isempty(tooSmalls) == 1
+        continue
+    end
+    
+    % remove too-small structures based on row # (in reverse order)
     countSmalls = 0;
-    for s = 1:length(tooSmalls)                                            
-        t = length(tooSmalls) - countSmalls;                              
-        D2{n}(tooSmalls(t)) = [];                                         
-        tracks_tooSmalls(t,1) = D{n}(tooSmalls(t));      %  recording to add into reject data matrix 
-        countSmalls = countSmalls + 1;     
+    for s = 1:length(tooSmalls)
+        t = length(tooSmalls) - countSmalls;
+        D2{n}(tooSmalls(t)) = [];
+        tracks_tooSmalls(t,1) = D{n}(tooSmalls(t));      %  recording to add into reject data matrix
+        countSmalls = countSmalls + 1;
     end
     
     % save tracks that are too small into reject data matrix
     rejectD{1,n} = tracks_tooSmalls;
-    
     clear lengthTrack lengthTrack_dbl i tooSmalls countSmalls s t X tracks_tooSmalls;
+    %
+%     else
+%         % jump to next xy if no tracks are too small
+%         clear lengthTrack lengthTrack_dbl i tooSmalls countSmalls s t X tracks_tooSmalls;
+%         continue
+%     end
+%     
+    
 end 
 
 clear SizeStrainer n;
@@ -103,21 +115,26 @@ for n = 1:length(D);
     X = ['Removing ', num2str(length(littleGrowth)), ' non-doublers from D3(', num2str(n), ')...']; 
     disp(X)                                                         
     
-    % remove structures based on row # (in reverse order)   
+    % so loop doesn't crash if nothing grows too little
+    if isempty(littleGrowth) == 1
+        continue
+    end
+    
+    % remove structures based on row # (in reverse order)
     counter = 0;
     for j = 1:length(littleGrowth)
-        k = length(littleGrowth) - counter;                                
+        k = length(littleGrowth) - counter;
         D3{n}(littleGrowth(k)) = [];
-        tracks_littleGrowth(k,1) = D2{n}(littleGrowth(k));   % recording to add into reject data matrix  
+        tracks_littleGrowth(k,1) = D2{n}(littleGrowth(k));   % recording to add into reject data matrix
         counter = counter + 1;
     end
     
-    % save tracks that are too small into reject data matrix
+    % save tracks that hardly increase into reject data matrix
     rejectD{2,n} = tracks_littleGrowth;
-    
-    clear maxLengths minLengths littleGrowth lengthRatio i j k X counter ToCut tracks_littleGrowth;        
+    clear maxLengths minLengths littleGrowth lengthRatio i j k X counter ToCut tracks_littleGrowth;
     
 end
+
 clear GoldenRatio n;
 
 %% criteria 3: clip tracks to remove >30% jumps in cell size
@@ -226,6 +243,7 @@ for n = 1:length(D);
     rejectD{4,n} = tracks_shortGlimpses;
     
     clear  cellLength cellLength_dbl i shortGlimpse fingers q r X tracks_shortGlimpses;
+    
 end
 
  clear Shortest n; 
@@ -267,6 +285,11 @@ for n = 1:length(D)
     X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D6(', num2str(n), ')...'];
     disp(X)
     
+    % so loop doesn't crash if nothing is too wiggly
+    if isempty(swigglyIDs) == 1
+        continue
+    end
+    
     % remove structures based on row # (in reverse order)
     counter = 0;
     for q = 1:length(swigglyIDs)
@@ -287,7 +310,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('mopsvnc-2017-05-19-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('poly-challenge-2016-03-16-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
