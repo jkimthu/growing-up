@@ -65,13 +65,13 @@ end
 
 % Initialize
 clear;
-load('mopsvnc-2017-05-19-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+load('poly-challenge-2016-03-16-increasedWindow-Mus-LVVV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
-for i = 1:6 %number of conditions
+for i = 3:3:6 %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -150,38 +150,41 @@ for i = 1:6 %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,19,-0.1,.8])
+    axis([0,23,0,.35])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
+    legend('no treatment', 'poly-lysine');  
     
-    figure(2)
-    errorbar(mu_VC_Means,mu_VC_sems)
-    hold on
-    grid on
-    axis([0,19,-0.1,.8])
-    xlabel('Time')
-    ylabel('Growth rate from V_cylinder (1/hr)')
-    
-    figure(3)
-    errorbar(mu_VE_Means,mu_VE_sems)
-    hold on
-    grid on
-    axis([0,19,-0.1,.8])
-    xlabel('Time')
-    ylabel('Growth rate from V_ellipse (1/hr)')
+%     figure(2)
+%     errorbar(mu_VC_Means,mu_VC_sems)
+%     hold on
+%     grid on
+%     axis([0,23,0,.30])
+%     xlabel('Time')
+%     ylabel('Growth rate from V_cylinder (1/hr)')
+%     legend('1', '2', '3', '4', '5', '6');  
+%     
+%     figure(3)
+%     errorbar(mu_VE_Means,mu_VE_sems)
+%     hold on
+%     grid on
+%     axis([0,23,-0.1,.4])
+%     xlabel('Time')
+%     ylabel('Growth rate from V_ellipse (1/hr)')
+%     legend('1', '2', '3', '4', '5', '6');  
     
     figure(4)
     errorbar(mu_VA_Means,mu_VA_sems)
     hold on
     grid on
-    axis([0,19,-0.1,.8])
+    axis([0,23,0,.35])
     xlabel('Time')
     ylabel('Growth rate from V_anupam (1/hr)')
-%     
+    legend('no treatment', 'poly-lysine');  
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;
     
 end
-legend('1', '2', '3', '4', '5', '6');
+
 %%
