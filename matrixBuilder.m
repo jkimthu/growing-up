@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, April 26 2017
+%  Last edit: Jen Nguyen, May 25 2017
 
 
 
@@ -73,7 +73,7 @@
 %%
 %   Initialize.
 
-load('t900_2016-10-20-increasedWindow-Mus-LVVV.mat');
+load('poly-challenge-2016-03-16-increasedWindow-Mus-LVVV.mat');
 D7 = D6;
 M7 = M6;
 
@@ -139,7 +139,7 @@ addedVA_incremental = [];
 %%
 % Select xy positions for analysis / concatenation
 
-for n = 1:40
+for n = 1:length(D7)
      
     for m = 1:length(M7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
@@ -399,32 +399,17 @@ for n = 1:40
     
                                                                            
         %   CONDITION
-        if n >= 1 && n <= 10
-            condition = 1;
-        end
+        % assign condition based on xy number
+        condition = ceil(n/10);
         
-        if n >= 11 && n <= 20
-            condition = 2;
-        end
-        
-        if n >= 21 && n <= 30
-            condition = 3;
-        end
-        
-        if n >= 31 && n <= 40
-            condition = 4;
-        end
-        
+        % label each row with a condition #
         condTrack = ones(lengthCurrentTrack,1)*condition;
         condVals = [condVals; condTrack];
+        
     end % for m
     
-    disp(['Track ', num2str(m), ' of ', num2str(length(M7{n})), ' from xy ', num2str(n), ' complete!'])
+    disp(['Tracks (', num2str(m), ') complete from xy ', num2str(n), ', condition ', num2str(condition), '!'])
     
-    % to save data matrices for each xy position
-    %indivDM = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction];
-    %xyName = strcat('dm', monthDay, '-xy', num2str(n), '.mat');
-    %save(xyName, 'indivDM');
     
 end % for n
 
@@ -433,21 +418,7 @@ end % for n
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
 
-%%
-
-% Naming convention for data matrices of HCF experiments:
-
-% dmMMDD-cond.mat
-
-%      where,
-%              dm  =  dataMatrix                  (see matrixBuilder.m)
-%              MM  =  month of experimental date
-%              DD  =  day of experimental date
-%       condition  =  experimental condition      (fluc or const)
-
-
-%dm1010_high = dataMatrix;
-save('dm-t900-2016-10-20.mat', 'dataMatrix');
+save('dm-2016-03-16.mat', 'dataMatrix');
 
 
 %%
