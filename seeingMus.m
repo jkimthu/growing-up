@@ -65,13 +65,13 @@ end
 
 % Initialize
 clear;
-load('poly-challenge-2016-03-16-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+load('mopsvsnc-2017-05-26-increasedWindow-Mus-LVVV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
-for i = 3:3:6 %number of conditions
+for i = 1:6 %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -139,6 +139,14 @@ for i = 3:3:6 %number of conditions
         clear i counter;
     end
     
+%      % 5. for s.e.m. per bin
+%     countsPerBin = zeros(binsPerPeriod,1);
+%     for j = 1:binsPerPeriod
+%         countsPerBin(j) = length(find(periodFractions_binned == j));
+%     end
+%     clear j
+%     
+%     
     %   2. divide standard dev by square root of tracks per bin
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
     mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
@@ -150,10 +158,11 @@ for i = 3:3:6 %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,23,0,.35])
+    axis([0,23,0,.9])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('no treatment', 'poly-lysine');  
+    legend('1', '2', '3', '4', '5', '6');  
+    %legend('no treatment', 'poly-lysine');  
     
 %     figure(2)
 %     errorbar(mu_VC_Means,mu_VC_sems)
@@ -177,10 +186,11 @@ for i = 3:3:6 %number of conditions
     errorbar(mu_VA_Means,mu_VA_sems)
     hold on
     grid on
-    axis([0,23,0,.35])
+    axis([0,23,0,.9])
     xlabel('Time')
     ylabel('Growth rate from V_anupam (1/hr)')
-    legend('no treatment', 'poly-lysine');  
+    legend('1', '2', '3', '4', '5', '6');  
+    %legend('no treatment', 'poly-lysine');  
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;
