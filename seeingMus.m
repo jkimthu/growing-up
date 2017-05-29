@@ -65,13 +65,14 @@ end
 
 % Initialize
 clear;
-load('mopsvsnc-2017-05-26-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30; 31 40; 41 50];
+%; 51 60];
 %%
 
-for i = 1:6 %number of conditions
+for i = 1:length(conditions) %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -104,7 +105,7 @@ for i = 1:6 %number of conditions
     %Mu_cond1(Mu_cond1<0)=NaN;
     
     %  determine size of time bins
-    BinsPerHour = 2;                              % multiplying by 10 gives bins of 0.1 hr
+    BinsPerHour = 1;                              % multiplying by 10 gives bins of 0.1 hr
     Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
@@ -158,10 +159,10 @@ for i = 1:6 %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,23,0,.9])
+    axis([0,12,-0.05,.5])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('1', '2', '3', '4', '5', '6');  
+    legend('1', '2', '3', '4', '5'); %, '6');  
     %legend('no treatment', 'poly-lysine');  
     
 %     figure(2)
@@ -186,10 +187,10 @@ for i = 1:6 %number of conditions
     errorbar(mu_VA_Means,mu_VA_sems)
     hold on
     grid on
-    axis([0,23,0,.9])
+    axis([0,12,-0.05,.5])
     xlabel('Time')
     ylabel('Growth rate from V_anupam (1/hr)')
-    legend('1', '2', '3', '4', '5', '6');  
+    legend('1', '2', '3', '4', '5'); %, '6');  
     %legend('no treatment', 'poly-lysine');  
     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;

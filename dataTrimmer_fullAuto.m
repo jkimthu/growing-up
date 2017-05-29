@@ -29,14 +29,14 @@
 
 
 
-% last edit: May 27, 2017
+% last edit: May 29, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('mopsvnc-2017-05-26.mat');
+load('monod-2016-05-25.mat');
 
 % reject data matrix
 rejectD = cell(5,length(D));
@@ -310,7 +310,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('mopsvsnc-2017-05-26-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('monod-2016-05-25-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
