@@ -48,7 +48,7 @@
 %%
 
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('monod-2016-05-25-autoTrimmed.mat');
+load('2016-05-25-trimmed.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -301,9 +301,8 @@ for n = 1:length(D7)
 end
 
 
-%save('fluorctl_2017-01-24-increasedWindow-Mus-length.mat', 'D6', 'M6', 'T')
-save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
-%clear Fenster_track L_Fit Ltime pFit t_hr;
+save('test-2016-05-25-oldTrimmed-newSliding-window13.mat', 'D6', 'M6', 'T')
+%save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 
 %%
 

@@ -310,7 +310,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('monod-2016-05-25-autoTrimmed.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('monod-2016-05-25-autoTrimmed_test20.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set

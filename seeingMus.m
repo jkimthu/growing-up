@@ -65,7 +65,8 @@ end
 
 % Initialize
 clear;
-load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+%load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
+load('test-2016-05-25-oldTrimmed-newSliding-window13.mat')
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40; 41 50];
@@ -85,14 +86,17 @@ for i = 1:length(conditions) %number of conditions
         for m = 1:length(M6{n})
             
             %  assemble all instantaneous growth rates into a single vector
+            %mu_elongation = [mu_elongation; M6{n}(m).Parameters(:,1)];
             mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
-            mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
-            mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
-            mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
+            %mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
+            %mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
+            %mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
             
             %  assemble a corresponding timestamp vector
+            %vectorLength = length(M6{n}(m).Parameters(:,1));
             vectorLength = length(M6{n}(m).Parameters_L(:,1));
-            trackFrames = D6{n}(m).Frame(7:vectorLength+6);
+            trackFrames = D6{n}(m).Frame(3:vectorLength+2);
+            %trackFrames = D6{n}(m).Frame(7:vectorLength+6);
             Time_cond = [Time_cond; T{n}(trackFrames)];
             
         end
@@ -113,15 +117,15 @@ for i = 1:length(conditions) %number of conditions
     mu_Elong_Means = accumarray(Bins,mu_elongation,[],@nanmean);
     mu_Elong_STDs = accumarray(Bins,mu_elongation,[],@nanstd);
     
-    mu_VC_Means = accumarray(Bins,mu_vc,[],@nanmean);
-    mu_VC_STDs = accumarray(Bins,mu_vc,[],@nanstd);
-    
-    mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
-    mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
-    
-    mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
-    mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
-    
+%     mu_VC_Means = accumarray(Bins,mu_vc,[],@nanmean);
+%     mu_VC_STDs = accumarray(Bins,mu_vc,[],@nanstd);
+%     
+%     mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
+%     mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
+%     
+%     mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
+%     mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
+%     
     
     %   to calculate s.e.m.
     %   1. count number of total tracks in each bin
@@ -150,16 +154,16 @@ for i = 1:length(conditions) %number of conditions
 %     
     %   2. divide standard dev by square root of tracks per bin
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
-    mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
-    mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
-    mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
+%     mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
+%     mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
+%     mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
     
     
     figure(1)
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,12,-0.05,.5])
+    axis([0,12,-0.1,.7])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     legend('1', '2', '3', '4', '5'); %, '6');  
@@ -183,16 +187,16 @@ for i = 1:length(conditions) %number of conditions
 %     ylabel('Growth rate from V_ellipse (1/hr)')
 %     legend('1', '2', '3', '4', '5', '6');  
     
-    figure(4)
-    errorbar(mu_VA_Means,mu_VA_sems)
-    hold on
-    grid on
-    axis([0,12,-0.05,.5])
-    xlabel('Time')
-    ylabel('Growth rate from V_anupam (1/hr)')
-    legend('1', '2', '3', '4', '5'); %, '6');  
-    %legend('no treatment', 'poly-lysine');  
-    
+%     figure(4)
+%     errorbar(mu_VA_Means,mu_VA_sems)
+%     hold on
+%     grid on
+%     axis([0,12,-0.05,.5])
+%     xlabel('Time')
+%     ylabel('Growth rate from V_anupam (1/hr)')
+%     legend('1', '2', '3', '4', '5'); %, '6');  
+%     %legend('no treatment', 'poly-lysine');  
+%     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;
     
