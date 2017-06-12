@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('mopsvnc-2017-05-26_xy*.nd2');
+xyDirectory = dir('poly-challenge-2017-06-05_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-59.3103, -1];       
+    Threshold =  [-25.8621, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('mopsvnc-2017-05-26.mat','D','T')
+save('poly-challenge-2017-06-05.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

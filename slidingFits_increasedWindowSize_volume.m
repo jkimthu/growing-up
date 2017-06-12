@@ -42,13 +42,13 @@
 %  OK! HERE WE GO!
 
 
-% last update: May 29, 2017
+% last update: June 6, 2017
 %              working to combine analysis for length, area, and volume
 
 %%
 
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('2016-05-25-trimmed.mat');
+load('poly-challenge-2017-06-05-autoTrimmed_trackLength20.mat');
 clear D2 D3 D4 D5;
 
 %%
@@ -301,7 +301,7 @@ for n = 1:length(D7)
 end
 
 
-save('test-2016-05-25-oldTrimmed-newSliding-window13.mat', 'D6', 'M6', 'T')
+save('poly-challenge-2017-06-05-increasedWindow-Mus-LVVV-trackLength20.mat', 'D6', 'M6', 'T')
 %save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 
 %%

@@ -29,14 +29,14 @@
 
 
 
-% last edit: May 29, 2017
+% last edit: June 6, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('monod-2016-05-25.mat');
+load('poly-challenge-2017-06-05.mat');
 
 % reject data matrix
 rejectD = cell(5,length(D));
@@ -208,7 +208,7 @@ clear Jumpers tracks_clipJump;
 %% criteria 4: total track length must be at least 30 mins
 
 D5 = D4;
-Shortest = 30;                                                             % each timepoint = 1:05 mins;
+Shortest = 20;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
 
@@ -310,7 +310,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('monod-2016-05-25-autoTrimmed_test20.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('poly-challenge-2017-06-05-autoTrimmed_trackLength20.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
