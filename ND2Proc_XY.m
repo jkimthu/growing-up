@@ -7,7 +7,7 @@
 %  each separately.
 
 
-%  Last modified (jen): May 27, 2017
+%  Last modified (jen): Jun 13, 2017
 
 %  Section contents:
 %
@@ -25,7 +25,7 @@
 %%   O N E.
 %    create series directory 
 
-xyDirectory = dir('poly-challenge-2017-06-05_xy*.nd2');
+xyDirectory = dir('letstry-2017-06-12_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -79,7 +79,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-25.8621, -1];       
+    Threshold =  [-13.1724, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -143,7 +143,7 @@ end
 
 
 
-save('poly-challenge-2017-06-05.mat','D','T')
+save('letstry-2017-06-12.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
