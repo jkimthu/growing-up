@@ -29,14 +29,15 @@
 
 
 
-% last edit: June 6, 2017
+% last edit: June 12, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('poly-challenge-2017-06-05.mat');
+load('letstry-2017-06-12-dSmash.mat');
+D = D_smash;
 
 % reject data matrix
 rejectD = cell(5,length(D));
@@ -310,7 +311,7 @@ clear n gainLossRatio;
 
 %% Saving results
 
-save('poly-challenge-2017-06-05-autoTrimmed_trackLength20.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-autoTrimmed_trackLength20.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
