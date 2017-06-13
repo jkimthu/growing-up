@@ -38,9 +38,8 @@ names = {xyDirectory.name};
 ConversionFactor = 6.5/60;
 
 %  use first image of first series
-reader = bfGetReader(names{1});
-ImageNumber=1;
-%ii=1;
+reader = bfGetReader(names{ii});
+
 
 %  refine the filter parameters
 %FilterTest_ND2(reader,ImageNumber,{[10,.8,40],'gaussian'})                 % Parameters for spatial filtering:
@@ -74,12 +73,12 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 1:NSeries
+for ii = 31:60
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-13.1724, -1];       
+    Threshold =  [-14.1379, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -99,7 +98,7 @@ for ii = 1:NSeries
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    UpperBound = 8;     % upper bound for restricted field, or Inf
+    UpperBound = 26;     % upper bound for restricted field, or Inf
     
     % to actually trim the set:
     P_Trim1 = ParticleTrim(P,TrimField,LowerBound,UpperBound);
@@ -111,7 +110,7 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 1.6;     % upper bound for restricted field, or Inf
+    UpperBound = 2.6;     % upper bound for restricted field, or Inf
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -143,7 +142,7 @@ end
 
 
 
-save('letstry-2017-06-12.mat','D','T')
+save('letstry-2017-06-12-largeDudes.mat','D','T')
 
    %% Section Three (E): clear section variables.
    
