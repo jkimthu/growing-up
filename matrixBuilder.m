@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, May 25 2017
+%  Last edit: Jen Nguyen, June 12 2017
 
 
 
@@ -73,7 +73,7 @@
 %%
 %   Initialize.
 
-load('mopsvsnc-2017-05-26-increasedWindow-Mus-LVVV.mat');
+load('poly-challenge-2017-06-05-increasedWindow-Mus-LVVV-trackLength20.mat');
 D7 = D6;
 M7 = M6;
 
@@ -418,7 +418,7 @@ end % for n
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
 
-save('dm-2017-05-26.mat', 'dataMatrix');
+save('dm-2017-06-05.mat', 'dataMatrix');
 
 
 %%
