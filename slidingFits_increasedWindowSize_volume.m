@@ -42,14 +42,15 @@
 %  OK! HERE WE GO!
 
 
-% last update: June 12, 2017
+% last update: June 14, 2017
 %              working to combine analysis for length, area, and volume
 
 %%
 
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('letstry-2017-06-12-autoTrimmed_trackLength20.mat');
+load('t300_2017-01-06-autoTrimmed.mat');
 clear D2 D3 D4 D5;
+D7=D6;
 
 %%
 
@@ -301,7 +302,7 @@ for n = 1:length(D7)
 end
 
 
-save('letstry-2017-06-12-increasedWindow-Mus-LVVV-trackLength20.mat', 'D6', 'M6', 'T')
+save('t300-2017-06-12-increasedWindow-Mus-LVVV-trackLength30.mat', 'D6', 'M6', 'T')
 %save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 
 %%
