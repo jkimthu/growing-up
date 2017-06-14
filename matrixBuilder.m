@@ -72,8 +72,8 @@
 
 %%
 %   Initialize.
-
-load('poly-challenge-2017-06-05-increasedWindow-Mus-LVVV-trackLength20.mat');
+clear
+load('t300-2017-01-06-increasedWindow-Mus-LVVV-trackLength30.mat');
 D7 = D6;
 M7 = M6;
 
@@ -418,7 +418,7 @@ end % for n
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
 
-save('dm-2017-06-05.mat', 'dataMatrix');
+save('dm-t300-2017-01-06.mat', 'dataMatrix');
 
 
 %%
