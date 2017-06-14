@@ -66,7 +66,7 @@ end
 % Initialize
 clear;
 %load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
-load('poly-challenge-2017-06-05-increasedWindow-Mus-LVVV-trackLength20.mat','D6','M6','T');
+load('letstry-2017-06-12-increasedWindow-Mus-LVVV-trackLength20.mat','D6','M6','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
@@ -162,7 +162,7 @@ for i = 1:length(conditions) %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,11,0,.6])
+    axis([0,11,-0.1,.8])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     legend('1', '2', '3', '4', '5', '6');  
@@ -190,7 +190,7 @@ for i = 1:length(conditions) %number of conditions
     errorbar(mu_VA_Means,mu_VA_sems)
     hold on
     grid on
-    axis([0,11,0,.7])
+    axis([0,11,-0.1,1.1])
     xlabel('Time')
     ylabel('Growth rate from V_anupam (1/hr)')
     legend('1', '2', '3', '4', '5', '6');  
