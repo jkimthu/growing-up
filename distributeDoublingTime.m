@@ -26,9 +26,19 @@
 %%
 % 0. initialize data matrix
 clear
-load('dm-2017-05-26.mat');
-conditions = [1,2,3,4,5,6];
-c = 4;
+experiments{1} = 'dm-t300-2017-01-06.mat';
+%cd('/Users/jen/Documents/StockerLab/Data/2017-01-06  (t300)');
+
+load('meta.mat');
+meta = meta_2017jan06;
+
+load(experiments{1});
+
+%%
+%clear dataMatrix;
+%load('dm-2017-05-26.mat');
+%conditions = [1,2,3,4,5,6];
+c = 3;
 
 
 
@@ -38,9 +48,9 @@ trimmedData = dataMatrix(dataMatrix(:,28) == c,:);
 
 
 % 2. isolate time period of interest
-minTime = 3; % based on where growth rate seems to stabilize
-maxTime = 10;
-
+minTime = meta(c,3); % based on where growth rate seems to stabilize
+maxTime = meta(c,4);
+%%
 % remove data from timepoints earlier than minTime
 trimmedData2 = trimmedData(trimmedData(:,2) >= minTime,:);
 
@@ -97,7 +107,9 @@ inMinutes = divisionTimes*60;
 
 figure()
 histogram(inMinutes,'Normalization','pdf','BinWidth',10);
-
+xlabel('Division Time (min)')
+ylabel('PDF')
+legend('0.5 uM glucose');  
 
 %%
 %           7. repeat for any other conditions of interest
