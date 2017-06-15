@@ -48,7 +48,7 @@
 %%
 
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('t300_2017-01-06-autoTrimmed.mat');
+load('t300_2017-02-10-trimmed.mat');
 clear D2 D3 D4 D5;
 D7=D6;
 
@@ -302,7 +302,7 @@ for n = 1:length(D7)
 end
 
 
-save('t300-2017-06-12-increasedWindow-Mus-LVVV-trackLength30.mat', 'D6', 'M6', 'T')
+save('t300-2017-02-10-increasedWindow-Mus-LVVV-trackLength30.mat', 'D6', 'M6', 'T')
 %save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 
 %%
