@@ -5,19 +5,19 @@
 
 % Strategy:
 %           0. for each experiment,
-%                 1. initialize data matrix
-%                 2. isolate condition of interest
-%                 3. isolate time period of interest
-%                 4. collect drop data and track ID
-%                 5. count number of drops per track
-%                       6. if at least two, there's a whole curve:
-%                               i. align drop and time data
-%                              ii. measure time between birth and division
-%                             iii. save in div time array
-%                          else, move onto next track
-%                 6. build PDF from completed div time array
-%             repeat for any other conditions of interest
-
+%                  1. initialize data matrix
+%                  2. isolate condition of interest
+%                  3. isolate time period of interest
+%                  4. collect drop data and track ID
+%                  5. count number of drops per track
+%                        6. if at least two, there's a whole curve:
+%                                i. align drop and time data
+%                               ii. measure time between birth and division
+%                              iii. save in div time array
+%                           else, move onto next track
+%                  7. build PDF from completed div time array
+%              repeat for any other conditions of interest
+%           8. compute mean and standard deviation, plot fitted gaussian on pdf
 
 
 % last edit: jen, 2017 Jun 16
@@ -37,11 +37,11 @@ experiments{6} = '2017-02-11';
 
 %%
 divisionTimes = [];
+numCellCycles = 0; % counter
 
 for i = 1:length(experiments)
     
-    i
-    clearvars -except i experiments divisionTimes;
+    clearvars -except i experiments divisionTimes numCellCycles;
     
     % 1. initialize data matrix
     newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiments{i},'  (t300)');
@@ -109,19 +109,45 @@ for i = 1:length(experiments)
         
         % concatenate array of all div times per condition
         divisionTimes = [divisionTimes; tr_divTimes]; %in hours
+   
     end
-    
+    numCellCycles = length(divisionTimes)
     
     
     % 7. build PDF from completed div time array
     inMinutes = divisionTimes*60;
     
     figure(i)
-    histogram(inMinutes,'Normalization','pdf','BinWidth',5);
+    histogram(inMinutes,'Normalization','pdf','BinWidth',10);
     xlabel('Division Time (min)')
     ylabel('PDF')
     legend('0.5 uM glucose');
     
 end
+
 %%
+% 8. compute mean and standard deviation for fitted plot on final PDF
+
+clearvars -except i experiments divisionTimes inMinutes numCellCycles;
+
+% trim values below 40 mins
+inMinutes_trimmed = inMinutes(inMinutes >= 40);
+
+% fit normal distribution to division time data
+normalFit = fitdist(inMinutes_trimmed,'Normal');
+
+% compute PDF from data, mean, and standard deviation
+theo_divTimes = linspace(0,300,301);
+computed_pdf = normpdf(theo_divTimes, normalFit.mu, normalFit.sigma);
+
+% plot measured and computed distribution
+figure()
+histogram(inMinutes_trimmed,'Normalization','pdf','BinWidth',10);
+xlabel('Division Time (min)')
+ylabel('PDF')
+hold on
+plot(computed_pdf,'r','linewidth',2)
+axis([0,300,0,0.015])
+legend('measured','normal fit');
+
 
