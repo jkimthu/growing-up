@@ -73,7 +73,7 @@
 %%
 %   Initialize.
 clear
-load('t300-2017-02-10-increasedWindow-Mus-LVVV-trackLength30.mat');
+load('t300-2017-02-11-increasedWindow-Mus-LVVV-trackLength30.mat');
 D7 = D6;
 M7 = M6;
 
@@ -418,7 +418,7 @@ end % for n
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
 
-save('dm-t300-2017-02-10.mat', 'dataMatrix');
+save('dm-t300-2017-02-11.mat', 'dataMatrix');
 
 
 %%
