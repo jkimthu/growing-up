@@ -31,7 +31,7 @@
 %                  row       =   row number, obvi
 %        1.        track     =   identifies track 
 %        2.        time      =   all timepoints associated with concatinated length trajectories
-%        3.        x         =   length values from concatentated length trajectories
+%        3.        majAx     =   length values from concatentated length trajectories
 %        4.        mu        =   calculated growth rates from SlidingFits.m
 %        5.        drop?     =   finding where individual cell cycles start and end, a boolean
 %        6.        curve     =   an id number for each individual cell cycle
@@ -56,7 +56,12 @@
 %       25.        addedVC_incr  =  instantaneous added volume (cylindrical)    
 %       26.        addedVE_incr  =  instantaneous added volume (ellipsoidal)
 %       27.        addedVA_incr  =  instantaneous added volume (capped cylinder)
-%       28.        condition =   1 fluc; 2 low; 3 ave; 4 high
+%       28.        x         =   x position in original image
+%       29.        y         =   y position in original image
+%       30.        frame     =   frame # in original image sequence
+%       31.        condition =   1 fluc; 2 low; 3 ave; 4 high
+
+
 
 % Strategy (for determining cell cycle stage):
 %
@@ -94,6 +99,10 @@ trackNumber = [];
 trackCounter = 1;                                                          
 
 Time = [];
+
+x_pos = [];
+y_pos = [];
+orig_frame = [];
 
 lengthVals = [];
 widthVals = [];
@@ -171,6 +180,22 @@ for n = 1:length(D7)
         %   widths
         widthTrack = D7{n}(m).MinAx(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
+        
+        
+        %   x positions in original image
+        xTrack = D7{n}(m).X(7:lengthCurrentTrack+6); 
+        x_pos = [x_pos; xTrack];
+        
+        
+        %   y positions in original image
+        yTrack = D7{n}(m).Y(7:lengthCurrentTrack+6);
+        y_pos = [y_pos; yTrack];
+        
+        
+        %   frame number in original image
+        frameTrack = D7{n}(m).Frame(7:lengthCurrentTrack+6);
+        orig_frame = [orig_frame; frameTrack];
+        
         
         
         %   ELONGATION RATE
@@ -416,7 +441,7 @@ end % for n
 %%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame condVals];
 
 save('dm-2017-06-12.mat', 'dataMatrix');
 
