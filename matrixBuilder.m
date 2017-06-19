@@ -59,7 +59,8 @@
 %       28.        x         =   x position in original image
 %       29.        y         =   y position in original image
 %       30.        frame     =   frame # in original image sequence
-%       31.        condition =   1 fluc; 2 low; 3 ave; 4 high
+%       31.        n         =   movie number in original ND file
+%       32.        condition =   1 fluc; 2 low; 3 ave; 4 high
 
 
 
@@ -103,6 +104,7 @@ Time = [];
 x_pos = [];
 y_pos = [];
 orig_frame = [];
+movie_num = [];
 
 lengthVals = [];
 widthVals = [];
@@ -195,6 +197,11 @@ for n = 1:length(D7)
         %   frame number in original image
         frameTrack = D7{n}(m).Frame(7:lengthCurrentTrack+6);
         orig_frame = [orig_frame; frameTrack];
+        
+        
+        %   movie number in original ND2
+        movieTrack = Track*n;
+        movie_num = [movie_num; movieTrack];
         
         
         
@@ -441,7 +448,7 @@ end % for n
 %%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num condVals];
 
 save('dm-2017-06-12.mat', 'dataMatrix');
 
