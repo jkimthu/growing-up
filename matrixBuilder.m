@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, June 19 2017
+%  Last edit: Jen Nguyen, June 21 2017
 
 
 
@@ -60,7 +60,11 @@
 %       29.        y         =   y position in original image
 %       30.        frame     =   frame # in original image sequence
 %       31.        n         =   movie number in original ND file
-%       32.        condition =   1 fluc; 2 low; 3 ave; 4 high
+%       32.        ecc       =   eccentricity of fitted ellipse
+%       33.        angle     =   as in matrix D
+%       34.        condition =   1 fluc; 2 low; 3 ave; 4 high, unless noted otherwise
+
+
 
 
 
@@ -105,6 +109,8 @@ x_pos = [];
 y_pos = [];
 orig_frame = [];
 movie_num = [];
+eccentricity = [];
+angle = [];
 
 lengthVals = [];
 widthVals = [];
@@ -204,6 +210,14 @@ for n = 1:length(D7)
         movie_num = [movie_num; movieTrack];
         
         
+        %   eccentricity of ellipses used in particle tracking
+        eccTrack = D7{n}(m).Ecc(7:lengthCurrentTrack+6);
+        eccentricity = [eccentricity; eccTrack];
+        
+        
+        %   angle of ellipses used in particle tracking
+        angTrack = D7{n}(m).Ang(7:lengthCurrentTrack+6);
+        angle = [angle; angTrack];
         
         %   ELONGATION RATE
         muTrack = M7{n}(m).Parameters_L(:,1);                                % collect elongation rates (1/hr)
@@ -448,7 +462,7 @@ end % for n
 %%
 
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num condVals];
+dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num eccentricity angle condVals];
 
 save('dm-2017-06-12.mat', 'dataMatrix');
 
