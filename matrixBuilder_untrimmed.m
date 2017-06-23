@@ -203,7 +203,7 @@ for n = 1:length(D7)
         
         
         %   movie number in original ND2
-        movieTrack = Track*n;
+        movieTrack = ones(length(Track),1)*n;
         movie_num = [movie_num; movieTrack];
         
         
