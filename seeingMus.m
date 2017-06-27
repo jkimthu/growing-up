@@ -66,8 +66,9 @@ end
 % Initialize
 clear;
 %load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
-load('letstry-2017-06-12-increasedWindow-Mus-LVVV-trackLength20.mat','D6','M6','T');
-
+load('letstry-2017-06-12-increasedWindow-Mus-LVVV-scrambled-edited.mat','D_smash','M_scrambled_edited','T');
+M6 = M_scrambled_edited;
+D6=D_smash;
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%

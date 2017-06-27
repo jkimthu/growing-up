@@ -42,15 +42,17 @@
 %  OK! HERE WE GO!
 
 
-% last update: June 14, 2017
+% last update: June 27, 2017
 %              working to combine analysis for length, area, and volume
 
 %%
-
+clear
 %load('fluorctl_2017-01-24-autoTrimmed.mat');
-load('t300_2017-02-11-trimmed.mat');
-clear D2 D3 D4 D5;
-D7=D6;
+load('letstry-2017-06-12-autoTrimmed-scrambledOrder-editedJumpTrack.mat');
+%clear D2 D3 D4 D5;
+%D7=D6;
+D7 = Scram6;
+clear Scram2 Scram3 Scram4 Scram5;
 
 %%
 
@@ -290,7 +292,8 @@ for n = 1:length(D7)
 
         % saving data
         SlidingData = struct('Parameters_L',pFit,'Smoothed_length',L_Fit,'Parameters_VC',pFit_VC,'Smoothed_vc',vc_Fit,'Parameters_VE',pFit_VE,'Smoothed_ve',ve_Fit,'Parameters_VA',pFit_VA,'Smoothed_va',va_Fit,'Windows',Wtrack);
-        M6{n}(m) = SlidingData;
+        %M6{n}(m) = SlidingData;
+        M_scrambled_edited{n}(m) = SlidingData;
         
         clear SlidingData init_window lengthDiffs lengthTrack widthTrack Wtrack;
         clear pFit L_Fit Fenster_track veTrack vcTrack vaTrack vc_Fit ve_Fit va_Fit pFit_VC pFit_VE pFit_VA;
@@ -302,7 +305,7 @@ for n = 1:length(D7)
 end
 
 
-save('t300-2017-02-11-increasedWindow-Mus-LVVV-trackLength30.mat', 'D6', 'M6', 'T')
+save('letstry-2017-06-12-increasedWindow-Mus-LVVV-scrambled-edited.mat', 'D_smash', 'M_scrambled_edited', 'T')
 %save('monod-2016-05-25-increasedWindow-Mus-LVVV.mat', 'D6', 'M6', 'T') %'D'
 
 %%
