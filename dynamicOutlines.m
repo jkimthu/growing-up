@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jun 23
+% last edit: jen, 2017 Jun 27
 
 % OK LEZ GO!
 %%
@@ -74,20 +74,21 @@ dm_currentMovie_untrimmed = dataMatrix_untrimmed(dataMatrix_untrimmed(:,31) == n
 dm_currentMovie_trimmed = dataMatrix_trimmed(dataMatrix_trimmed(:,31) == n,:);
 
 % 2. define IDs for tracked vs trimmed tracks
-survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
+%survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
+interestingTrack = 506;
 
 % build data matrix of rejected tracks
-rejects_currentMovie = rejectD(:,n);
-dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
-%%
-
-% sort by trim stage number
-for stage = 1:length(rejects_currentMovie)
-    
-    dm_currentRejects = dm_currentMovie_rejects(dm_currentMovie_rejects(:,31) == stage,:); %not in D2
-    lostTracks{stage} = unique(dm_currentRejects(:,1));
-
-end
+% rejects_currentMovie = rejectD(:,n);
+% dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
+% 
+% 
+% % sort by trim stage number
+% for stage = 1:length(rejects_currentMovie)
+%     
+%     dm_currentRejects = dm_currentMovie_rejects(dm_currentMovie_rejects(:,31) == stage,:); %not in D2
+%     lostTracks{stage} = unique(dm_currentRejects(:,1));
+% 
+% end
 %%
 
 % for each image
@@ -141,57 +142,58 @@ for img = 1:length(names)
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
             
             % i. if track number is a surviving track, plot green
-            if any(IDs(p)==survivorTracks) == 1
+            %if any(IDs(p)==survivorTracks) == 1
+            if any(IDs(p) == interestingTrack) == 1
                 
-                hold on
-                plot(x_rotated,y_rotated,'g','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            % ii. if track number was trimmed in first stage (size), plot blue
-            elseif any(IDs(p)== lostTracks{1}) == 1
-                hold on
-                plot(x_rotated,y_rotated,'m','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            % iii. if track number was trimmed in second stage (golden ratio), plot orange
-            elseif any(IDs(p)== lostTracks{2}) == 1
-                hold on
-                plot(x_rotated,y_rotated,'b','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            % iv. if track number was trimmed in third stage (jumpy), plot white
-            elseif any(IDs(p)== lostTracks{3}) == 1 && any(IDs(p)== lostTracks{4}) == 1
                 hold on
                 plot(x_rotated,y_rotated,'r','lineWidth',2)
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
-                
-            % iv. if track number was trimmed in fourth stage (too short), plot red
-            elseif any(IDs(p)== lostTracks{4}) == 1
-                hold on
-                plot(x_rotated,y_rotated,'w','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-                
-            % v. if track number was trimmed in fifth stage (too swiggly), plot yellow
-            elseif any(IDs(p)== lostTracks{5}) == 1
-                hold on
-                plot(x_rotated,y_rotated,'y','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
+%             % ii. if track number was trimmed in first stage (size), plot blue
+%             elseif any(IDs(p)== lostTracks{1}) == 1
+%                 hold on
+%                 plot(x_rotated,y_rotated,'m','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%             % iii. if track number was trimmed in second stage (golden ratio), plot orange
+%             elseif any(IDs(p)== lostTracks{2}) == 1
+%                 hold on
+%                 plot(x_rotated,y_rotated,'b','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%             % iv. if track number was trimmed in third stage (jumpy), plot white
+%             elseif any(IDs(p)== lostTracks{3}) == 1 && any(IDs(p)== lostTracks{4}) == 1
+%                 hold on
+%                 plot(x_rotated,y_rotated,'r','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%                 
+%             % iv. if track number was trimmed in fourth stage (too short), plot red
+%             elseif any(IDs(p)== lostTracks{4}) == 1
+%                 hold on
+%                 plot(x_rotated,y_rotated,'w','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%                 
+%             % v. if track number was trimmed in fifth stage (too swiggly), plot yellow
+%             elseif any(IDs(p)== lostTracks{5}) == 1
+%                 hold on
+%                 plot(x_rotated,y_rotated,'y','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
                 
             % vi. other
-            else
-                hold on
-                plot(x_rotated,y_rotated,'c','lineWidth',2)
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
+%             else
+%                 hold on
+%                 plot(x_rotated,y_rotated,'c','lineWidth',2)
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
             end
         end
         
