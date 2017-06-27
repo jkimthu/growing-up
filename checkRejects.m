@@ -37,7 +37,7 @@ newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
 cd(newFolder);
 
 % load data
-load('letstry-2017-06-12-autoTrimmed-scrambledOrder.mat');
+load('letstry-2017-06-12-autoTrimmed-scrambledOrder-editedJumpTrack.mat');
 
 
 
@@ -85,12 +85,12 @@ img(length(img),2) = numTracks;
 
 %%
 for row = 1:length(img)
-
+    %cla
     counter = 0;
     for i = img(row,1):img(row,2)%length(D6{n})
        
         counter = counter + 1;
-        filename = strcat('checkingRejects-xy52-scrambled-m',num2str(img(row,1)),'-',num2str(img(row,2)),'.tif');
+        filename = strcat('checkingRejects-xy52-scrambled-edited-m',num2str(img(row,1)),'-',num2str(img(row,2)),'.tif');
         
         % designate subplot position
         %subplot(ceil(length(D6{n})/5), 5, i)
