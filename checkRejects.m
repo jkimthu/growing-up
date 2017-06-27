@@ -18,7 +18,7 @@
 
 
 
-% last update: jen, 2017 Jun 26
+% last update: jen, 2017 Jun 27
 
 
 % OK lez go!!
@@ -37,7 +37,7 @@ newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
 cd(newFolder);
 
 % load data
-load('letstry-2017-06-12-autoTrimmed_trackLength20.mat');
+load('letstry-2017-06-12-autoTrimmed-scrambledOrder.mat');
 
 
 
@@ -46,32 +46,32 @@ n = 52; % movie (xy position) of interest
 
 
 % build data matrix of rejected tracks
-rejects_currentMovie = rejectD(:,n);
-dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
+%rejects_currentMovie = rejectD(:,n);
+%dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
 
 
 % sort by trim stage number
-for stage = 1:length(rejects_currentMovie)
+%for stage = 1:length(rejects_currentMovie)
     
-    dm_currentRejects = dm_currentMovie_rejects(dm_currentMovie_rejects(:,31) == stage,:); %not in D2
-    lostTracks{stage} = unique(dm_currentRejects(:,1));
+%    dm_currentRejects = dm_currentMovie_rejects(dm_currentMovie_rejects(:,31) == stage,:); %not in D2
+%    lostTracks{stage} = unique(dm_currentRejects(:,1));
 
-end
-clear stage;
+%end
+%clear stage;
 
 %%
 
 % save images of all tracks snipped  during specific stage of dataTrimmer
 
 n=52;
-stage = 3;
+stage = 2; % jumpTrack stage is stage 3 in original, 2 in scrambled
 
 % define suplot parameters
 total_subplots = 10;
 cols = 2;
 rz = total_subplots/cols;
 
-numTracks = length(rejectD{stage,n});
+numTracks = length(rejectD_scram{stage,n});
 img = ones(ceil(numTracks/total_subplots),2);
 
 for row = 1:length(img)
@@ -90,7 +90,7 @@ for row = 1:length(img)
     for i = img(row,1):img(row,2)%length(D6{n})
        
         counter = counter + 1;
-        filename = strcat('checkingRejects-xy52-m',num2str(img(row,1)),'-',num2str(img(row,2)),'.tif');
+        filename = strcat('checkingRejects-xy52-scrambled-m',num2str(img(row,1)),'-',num2str(img(row,2)),'.tif');
         
         % designate subplot position
         %subplot(ceil(length(D6{n})/5), 5, i)
@@ -98,7 +98,7 @@ for row = 1:length(img)
         
         % plot
         %figure(counter)
-        plot(T{n}(rejectD{stage,n}(i).Frame(1:end))/3600,(rejectD{stage,n}(i).MajAx),'Linewidth',2)
+        plot(T{n}(rejectD_scram{stage,n}(i).Frame(1:end))/3600,(rejectD_scram{stage,n}(i).MajAx),'Linewidth',2)
         
         % label
         title(i);
