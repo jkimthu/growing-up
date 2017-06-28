@@ -2,11 +2,14 @@ function [x_rotated, y_rotated] = drawEllipse(p, majorAxes, minorAxes, centroid_
 
 
 % 0. isolate data from particles in current image
-% 1. load major axes, min axes, centroids, angles
+% 1. load major axes, min axes, centroids, angles, conversion factor
 % 2. for all particles,
 %           3. calculate points on ellipse centered at centroid
-%           4. rotate ellipse
-%           5. plot rotated ellipse
+%           4. rotate ellipse origin, then bring back to centroid
+%                   i. define center of rotation
+%                  ii. create matrix by which to translate ellipse to and from origin
+%                 iii. rotate ellipse around origin with object centered at origin
+%                  iv. translate ellipse back to original centroid
 % 5. overlay onto current image
 
 a = majorAxes(p)/2; % horizontal radius
