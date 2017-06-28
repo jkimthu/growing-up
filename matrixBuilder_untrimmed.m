@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, June 22 2017
+%  Last edit: Jen Nguyen, June 28 2017
 
 
 
@@ -83,11 +83,11 @@
 %%
 %   Initialize.
 clear
-load('letstry-2017-06-12-autoTrimmed_trackLength20.mat');
-D7 = D;
+load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T','rejectD_scram');
+D7 = Scram6;
 %D7 = M6;
 
-clear D2 D3 D4 D5 D6 M6 rejectD;
+%clear D2 D3 D4 D5 D6 M6 rejectD;
 
 
 %%
@@ -501,4 +501,4 @@ ccFraction = NaN(length(angle),1);
 % Compile data into single matrix
 dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num eccentricity angle condVals];
 
-save('dm-2017-06-12_untrimmed.mat', 'dataMatrix');
+save('dm-2017-06-12_scrambled_proportional.mat', 'dataMatrix');

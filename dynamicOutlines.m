@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jun 27
+% last edit: jen, 2017 Jun 28
 
 % OK LEZ GO!
 %%
@@ -34,15 +34,17 @@ newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
 cd(newFolder);
 
 % import tracking data
-load('dm-2017-06-12_untrimmed.mat');
-dataMatrix_untrimmed = dataMatrix;
+load('dm-2017-06-12_scrambled_proportional.mat');
 
-load('dm-2017-06-12.mat');
-dataMatrix_trimmed = dataMatrix;
+%load('dm-2017-06-12_untrimmed.mat');
+%dataMatrix_untrimmed = dataMatrix;
+
+%load('dm-2017-06-12.mat');
+%dataMatrix_trimmed = dataMatrix;
 
 load('letstry-2017-06-12-dSmash.mat','T');
 
-clear dataMatrix;
+%clear dataMatrix;
 
 %%
 % IMAGE DATA
@@ -70,12 +72,13 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
 
 % 1. isolate ellipse data from movie (stage xy) of interest
-dm_currentMovie_untrimmed = dataMatrix_untrimmed(dataMatrix_untrimmed(:,31) == n,:); % col 31 is movie number (n)
-dm_currentMovie_trimmed = dataMatrix_trimmed(dataMatrix_trimmed(:,31) == n,:);
+%dm_currentMovie_untrimmed = dataMatrix_untrimmed(dataMatrix_untrimmed(:,31) == n,:); % col 31 is movie number (n)
+%dm_currentMovie_trimmed = dataMatrix_trimmed(dataMatrix_trimmed(:,31) == n,:);
+dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
 % 2. define IDs for tracked vs trimmed tracks
 %survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
-interestingTrack = 506;
+interestingTrack = 159;
 
 % build data matrix of rejected tracks
 % rejects_currentMovie = rejectD(:,n);
@@ -92,27 +95,27 @@ interestingTrack = 506;
 %%
 
 % for each image
-for img = 1:length(names)
+for img = 1:71%length(names)
     
     cla
     
     % 3. initialize current image
     I=imread(names{img});
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-trackedVtrimmed.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[3200 7400]);
     
     
     % 3. if no tracked cells, save and skip
-    if sum(dm_currentMovie_untrimmed(:,30) == img) == 0
+    if sum(dm_currentMovie(:,30) == img) == 0
         saveas(gcf,filename)
         
         continue
         
     else
         % 4. else, isolate data for each image
-        dm_currentImage = dm_currentMovie_untrimmed(dm_currentMovie_untrimmed(:,30) == img,:); % col 30 = frame #
+        dm_currentImage = dm_currentMovie(dm_currentMovie(:,30) == img,:); % col 30 = frame #
         
         % axes
         majorAxes = dm_currentImage(:,3); % lengths
