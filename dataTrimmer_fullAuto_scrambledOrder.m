@@ -29,7 +29,7 @@
 
 
 
-% last edit: June 26, 2017
+% last edit: June 27, 2017
 
 
 %% initialize
@@ -121,10 +121,14 @@ for n = 1:length(D);
     for i = 1:length(Scram3{n})                                            % error "undefined variable" if some cells have no tracks, []     
                                                                            
         % derivative of current length tracjetory                            
-        Rates = diff(Scram3{n}(i).MajAx);                                   
+        Rates = diff(Scram3{n}(i).MajAx);
+        Lengths = Scram3{n}(i).MajAx(1:length(Rates));
+        
+        % derivative of as a fraction of cell size in previous timestep
+        growthFrac = Rates./Lengths;
                                                                            
         % list rows in which Rate exceeds threshold
-        jumpPoints = find(Rates > JumpFrac);                        
+        jumpPoints = find(growthFrac > JumpFrac);                        
 
         
         % for tracks containing jumps...
@@ -327,7 +331,7 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-autoTrimmed-scrambledOrder-editedJumpTrack.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% visualizing samples of data set
