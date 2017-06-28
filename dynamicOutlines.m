@@ -78,7 +78,7 @@ dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
 % 2. define IDs for tracked vs trimmed tracks
 %survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
-interestingTrack = 159;
+interestingTrack = 550;
 
 % build data matrix of rejected tracks
 % rejects_currentMovie = rejectD(:,n);
@@ -95,7 +95,7 @@ interestingTrack = 159;
 %%
 
 % for each image
-for img = 1:71%length(names)
+for img = 1:25%length(names)
     
     cla
     
