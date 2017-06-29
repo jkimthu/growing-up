@@ -76,10 +76,25 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 %dm_currentMovie_trimmed = dataMatrix_trimmed(dataMatrix_trimmed(:,31) == n,:);
 dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
-% 2. define IDs for tracked vs trimmed tracks
-%survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
-interestingTrackIDs = [386, 788, 1190, 556, dm_currentMovie(1477,1), dm_currentMovie(1478,1), 836, 500, 923, 1346];
+% 2. define interesting IDs by pulling TracksIDs associated with each target m
+targetM = [2,7,15,26,32,39,40,45,49,52,56];
+load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T');
 
+n = 52;
+data = Scram6{52};
+
+interestingTrackIDs = [];
+maxFrames = [];
+for m = 1:length(targetM)
+    
+    trackIDs = data(targetM(m)).TrackID;
+    interestingTrackIDs = [interestingTrackIDs; unique(trackIDs)];
+    maxFrames = [maxFrames; max(data(targetM(m)).Frame)];
+end
+
+
+
+% survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
 % build data matrix of rejected tracks
 % rejects_currentMovie = rejectD(:,n);
 % dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
@@ -95,7 +110,7 @@ interestingTrackIDs = [386, 788, 1190, 556, dm_currentMovie(1477,1), dm_currentM
 %%
 
 % for each image
-for img = 1:35%length(names)
+for img = 1:max(maxFrames)%length(names)
     
     cla
     
@@ -176,7 +191,7 @@ for img = 1:35%length(names)
             
                 hold on
                 plot(x_rotated,y_rotated,'lineWidth',1)
-                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(targetIDs(p)),'Color','m','FontSize',14);
+                text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','m','FontSize',14);
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
