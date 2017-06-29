@@ -336,12 +336,30 @@ save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Sc
 
 %% testing for improper track linking
 % 
-% 0. it seems that any tracks with decimals are ones that are joined
+% 0. it seems that any tracks with decimals are ones that are joined 
 % 1. find all trackIDs containing number changes
 % 2. find all trackIDs containing decimals
 % 3. do these always coincide?
 % 4. are they always cases of poor track joining?
+clear
+load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T');
 
+n = 52;
+data = Scram6{52};
+
+multids = [];
+counter = 0;
+for m = 1:length(data)
+    trackIDs = data(m).TrackID;
+    isChange = diff(trackIDs);
+    
+    if sum(isChange) ~= 0 
+        disp(strcat('Track (', num2str(m),') has multiple IDs!'))
+        counter = counter + 1;
+        multids(counter,1) = m;
+    end
+    
+end
 
 %% visualizing samples of data set
 
