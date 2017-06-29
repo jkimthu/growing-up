@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jun 28
+% last edit: jen, 2017 Jun 29
 
 % OK LEZ GO!
 %%
@@ -78,7 +78,7 @@ dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
 % 2. define IDs for tracked vs trimmed tracks
 %survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
-interestingTrack = 550;
+interestingTrackIDs = [386, 788, 1190, 556, dm_currentMovie(1477,1), dm_currentMovie(1478,1), 836, 500, 923, 1346];
 
 % build data matrix of rejected tracks
 % rejects_currentMovie = rejectD(:,n);
@@ -95,20 +95,21 @@ interestingTrack = 550;
 %%
 
 % for each image
-for img = 1:25%length(names)
+for img = 1:35%length(names)
     
     cla
     
     % 3. initialize current image
     I=imread(names{img});
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
+    %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-m18-m46-m51.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[3200 7400]);
     
     
     % 3. if no tracked cells, save and skip
-    if sum(dm_currentMovie(:,30) == img) == 0
+    if sum(dm_currentMovie(:,30) == img) == 0 % tallies up # tracks in current img
         saveas(gcf,filename)
         
         continue
@@ -138,7 +139,31 @@ for img = 1:25%length(names)
         IDs = dm_currentImage(:,1);
         
         
-        % 5. for each particle in current image, draw ellipse
+        % 4. isolate specific trackIDs of interest from current image
+        targets = ismember(IDs, interestingTrackIDs);
+        targets = find(targets == 1);
+        targetIDs = IDs(targets);
+                % axes
+        majorAxes = dm_currentImage(targets,3); % lengths
+        minorAxes = dm_currentImage(targets,12); % widths
+        
+        % centroids
+        centroid_X = dm_currentImage(targets,28);
+        centroid_Y = dm_currentImage(targets,29);
+        
+        % angles
+        angles = dm_currentImage(targets,33);
+        
+        % growth rates (mu)
+        mus = dm_currentImage(targets,18); % mu calculated from Va
+        
+        % frames
+        frames = dm_currentImage(targets,30);
+        
+
+        
+        
+        % 5. for each particle of interest in current image, draw ellipse
         for p = 1:length(majorAxes)
             
             
@@ -146,10 +171,12 @@ for img = 1:25%length(names)
             
             % i. if track number is a surviving track, plot green
             %if any(IDs(p)==survivorTracks) == 1
-            if any(IDs(p) == interestingTrack) == 1
-                
+            %if any(IDs(p) == interestingTrack) == 1
+            if IDs(p)
+            
                 hold on
-                plot(x_rotated,y_rotated,'r','lineWidth',2)
+                plot(x_rotated,y_rotated,'lineWidth',1)
+                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(targetIDs(p)),'Color','m','FontSize',14);
                 xlim([0 2048]);
                 ylim([0 2048]);
                 

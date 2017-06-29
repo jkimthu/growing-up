@@ -29,7 +29,7 @@
 
 
 
-% last edit: June 27, 2017
+% last edit: June 29, 2017
 
 
 %% initialize
@@ -334,6 +334,15 @@ clear SizeStrainer n;
 save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
 
 
+%% testing for improper track linking
+% 
+% 0. it seems that any tracks with decimals are ones that are joined
+% 1. find all trackIDs containing number changes
+% 2. find all trackIDs containing decimals
+% 3. do these always coincide?
+% 4. are they always cases of poor track joining?
+
+
 %% visualizing samples of data set
 
 % -- criteria five, check
@@ -363,7 +372,7 @@ end
 % -- final pass, check
 
 %
-for n = 51 %:length(D6)
+for n = 52 %:length(D6)
     %counter = counter +1;
     
     for i = 1:20%length(D6{n})
