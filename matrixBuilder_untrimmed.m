@@ -6,7 +6,7 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, June 28 2017
+%  Last edit: Jen Nguyen, June 29 2017
 
 
 
@@ -62,7 +62,8 @@
 %       31.        n         =   movie number in original ND file
 %       32.        ecc       =   eccentricity of fitted ellipse
 %       33.        angle     =   as in matrix D
-%       34.        condition =   1 fluc; 2 low; 3 ave; 4 high, unless noted otherwise
+%       34.        track(m)  =   not based on ID, but rather linked entity
+%       35.        condition =   1 fluc; 2 low; 3 ave; 4 high, unless noted otherwise
 
 
 
@@ -100,7 +101,8 @@ D7 = Scram6;
 
 condVals = [];
 
-trackNumber = [];                                                      
+trackID = [];
+trackM = [];
 
 Time = [];
 
@@ -156,7 +158,8 @@ addedVA_incremental = [];
 % Select xy positions for analysis / concatenation
 
 for n = 1:length(D7)
-     
+    
+    
     for m = 1:length(D7{n})                                                % use length of growth rate data as it is
                                                                            % slightly truncated from full length track due
                                                                            % to sliding fit
@@ -164,7 +167,7 @@ for n = 1:length(D7)
         %   TRACK #                                                        
         lengthCurrentTrack = length(D7{n}(m).TrackID);
         Track = D7{n}(m).TrackID;
-        trackNumber = [trackNumber; Track];
+        trackID = [trackID; Track];
         
         
         %   frame number in original image
@@ -499,6 +502,6 @@ ccFraction = NaN(length(angle),1);
 
 %%
 % Compile data into single matrix
-dataMatrix = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num eccentricity angle condVals];
+dataMatrix = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame movie_num eccentricity angle trackM condVals];
 
 save('dm-2017-06-12_scrambled_proportional.mat', 'dataMatrix');
