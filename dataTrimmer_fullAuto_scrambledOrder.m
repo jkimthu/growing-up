@@ -1,35 +1,30 @@
-%% Automated quality control from particle tracking and its resulting data structure (D)
+%% dataTrimmer
 
 
-%  Goals: with defined selection criteria, kick out tracks that do not
-%  appear to be growing cells. of those that remain, smooth all data to
-%  reduce noise in future analyses.
-
-
-%  For each of selection criteria:
-
-%       a. find tracks that disobey
-%       b. remove from trimmed data structure
-%       c. place removed tracks into a "trash" data structure, for review
-
-
-%
-%  SELECTION CRITERIA:
-
-%   1) Tracks must be of reasonable size, SizeStrainer (1.5um)
- 
-%   2) Tracks that are at least 20 frames long
-
-%   3) Tracks must undergo at least 30% growth
-%           - note: 1.3 easily allows for  cells that are shrinking
-
-%   4) Tracks with losses of extended duration nor oscillate too quickly between gains and losses
-
-%   5) Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint) 
+%  Goal: automatedly, remove or snip tracks that are unlikely to be well-tracked cells.
+%         Removal or trimming is as specified by the selection criteria below.
 
 
 
-% last edit: June 29, 2017
+%  Selection Criteria:
+
+%   1. Track must have only one TrackID
+%           - tracks are snipped, such that data prior to change in TrackID number remain
+
+%   2. Tracks cannot oscillate too quickly between gains and losses
+
+%   3. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
+%           - tracks are snipped, such that data prior to jump remain
+
+%   4. Tracks must be at least the length of fitting window
+%           - note: currently, windowSize = 5 frames
+
+%   5. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
+
+
+
+
+% last edit: July 2, 2017
 
 
 %% initialize
@@ -42,18 +37,98 @@ D = D_smash;
 % reject data matrix
 rejectD_scram = cell(5,length(D));
 
+% criteria counter
+criteria_counter = 0;
 
-%% criteria five: tracks cannot oscillate too quickly between gains and losses
 
-Scram2 = D;
+%% Criteria ONE: tracks cannot contain multiple TrackIDs
+
+criteria_counter = criteria_counter + 1;
+
+% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
+%       but at least the first trackID is useable. Let's keep these first ones
+%       and reject data from subsequent IDs.
+
+% 0. for each track in current movie
+%       1. determine whether trackID contains number changes
+%               2. if so, trim track such that only first trackID remains
+%                  (all following are very likely error prone)
+%                         i. isolate entire data struct of current track,
+%                            in prep to clip all variables (MajAx, X, Y, etc.)
+%                        ii. isolate data corresponding to first TrackID
+%               3. replace data from original track (containing multiple IDs) with trimmed data
+%               4. add remainder of track to temporary (movie-specific) rejects collection
+%       5. if no changes, continue to next track
+% 6. when all tracks finished, save accmulated rejects.
+% 7. repeat for next movie
+
+for n = 1:length(D)
+    
+    
+    % 0. initialize
+    data = D{n};
+    currentRejects = [];
+    reject_counter = 0;
+    
+    for m = 1:length(data)
+        
+        % 1. determine whether trackID contains number changes
+        trackIDs = data(m).TrackID;
+        isChange = diff(trackIDs);
+        
+        % if so,
+        if sum(isChange) ~= 0
+            
+            % 2. trim track such that only first trackID remains
+            reject_counter = reject_counter +1;
+            disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
+            
+            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
+            originalTrack = data(m);
+            
+            % ii. isolate data corresponding to first TrackID
+            originalIDs = originalTrack.TrackID;
+            firstIDs = originalIDs == originalTrack.TrackID(1);
+            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
+            
+            
+            % 3. replace data from original track (containing multiple IDs) with trimmed data
+            data(m) = firstTrack;
+            
+            
+            % 4. add remainder of track to rejects collection
+            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
+            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
+            currentRejects{reject_counter} = rejectTrack;
+            
+            % 5. if no changes, continue to next track
+        end
+        
+    end
+    
+    % 6. when all tracks finished, save trimmed data and accmulated rejects
+    D2{n} = data;
+    rejectD{criteria_counter,n} = currentRejects;
+    
+    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
+    clear firstTrack firstIDs
+end
+
+
+%% Criteria Two: tracks cannot oscillate too quickly between gains and losses
+
+criteria_counter = criteria_counter + 1;
+
+D3 = D2;
 gainLossRatio = 0.85;
 
 
 for n = 1:length(D)
-    for i = 1:length(Scram2{n})
+    
+    for i = 1:length(D3{n})
         
         % determine derivative of each timestep in length
-        Signs = diff(Scram2{n}(i).MajAx);
+        Signs = diff(D3{n}(i).MajAx);
         
         % minute res is so noisy. use average change for every 10 steps.
         sampleLength = floor( length(Signs)/10 ) * 10;
@@ -76,7 +151,7 @@ for n = 1:length(D)
     swigglyIDs = find(allRatios < 0.85);
     
     % report!
-    X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from Scram2(', num2str(n), ')...'];
+    X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D3(', num2str(n), ')...'];
     disp(X)
     
     % so loop doesn't crash if nothing is too wiggly
@@ -88,7 +163,7 @@ for n = 1:length(D)
     counter = 0;
     for q = 1:length(swigglyIDs)
         r = length(swigglyIDs) - counter;                                
-        Scram2{n}(swigglyIDs(r)) = [];
+        D3{n}(swigglyIDs(r)) = [];
         swigglyTracks(r,1) = D{n}(swigglyIDs(r));   % recording to add into reject data matrix  
         counter = counter + 1;
     end
@@ -104,13 +179,13 @@ clear n gainLossRatio;
 
 
 
-%% criteria 3: clip tracks to remove >30% jumps in cell size
+%% Criteria Two: clip tracks to remove >30% jumps in cell size
 %          
 %              - if too positive (cells shouldn't double within three minutes)
 %              - in these cases, what causes these large jumps? check!
 %              - negatives are OK because cells have to divide!
 
-Scram3 = Scram2;  
+Scram3 = D3;  
 JumpFrac = 0.3;                                                            % JumpFrac = threshold parameter
                                                                            % tracks that increase by a cell size fraction greater than JumpFrac will be eliminated from final dataset
 for n = 1:length(D);                                                       
@@ -180,10 +255,10 @@ clear tf JumpFrac Target counter jumpTrack Rates Tpt clipTarget i n z X;
 clear Jumpers tracks_clipJump;
 
 
-%% criteria 4: total track length must be at least 30 mins
+%% Criteria Three: total track length must be at least size of fitting window
 
 Scram4 = Scram3;
-Shortest = 20;                                                             % each timepoint = 1:05 mins;
+windowSize = 5;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
 
@@ -194,7 +269,7 @@ for n = 1:length(D);
     
     % find tracks that are shorter than ___ mins
     cellLength_dbl = cell2mat(cellLength);
-    shortGlimpse = find(cellLength_dbl < Shortest);       
+    shortGlimpse = find(cellLength_dbl < windowSize);       
     
     % report!
     X = ['Removing ', num2str(length(shortGlimpse)), ' short tracks from Scram4(', num2str(n), ')...'];
@@ -223,7 +298,7 @@ end
 
  clear Shortest n; 
 
- %% criteria 2: tracks must increase in size by > 30%
+ %% Criteria Four: tracks must increase in size by > 30%
 
 
 Scram5 = Scram4;
@@ -278,7 +353,7 @@ end
 
 clear GoldenRatio n;
  
-%% criteria 1: max particle size must be greater than 1.5um
+%% Criteria Five: maximum particle size must be greater than 1.5um
 
 Scram6 = Scram5;
 SizeStrainer = 1.5;
@@ -325,7 +400,7 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'Scram7', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
