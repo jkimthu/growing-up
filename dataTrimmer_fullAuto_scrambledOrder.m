@@ -312,15 +312,9 @@ for n = 1:length(Scram5);
     end
     
     % save tracks that are too small into reject data matrix
-    rejectD_scram{1,n} = tracks_tooSmalls;
+    rejectD_scram{6,n} = tracks_tooSmalls;
     clear lengthTrack lengthTrack_dbl i tooSmalls countSmalls s t X tracks_tooSmalls;
-    %
-%     else
-%         % jump to next xy if no tracks are too small
-%         clear lengthTrack lengthTrack_dbl i tooSmalls countSmalls s t X tracks_tooSmalls;
-%         continue
-%     end
-%     
+
     
 end 
 
@@ -331,35 +325,89 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'Scram2', 'Scram3', 'Scram4', 'Scram5', 'Scram6', 'Scram7', 'rejectD_scram', 'T')%, 'reader', 'ConversionFactor')
 
 
-%% testing for improper track linking
+%% dealing with improper track linking
 % 
-% 0. it seems that any tracks with decimals are ones that are joined 
-% 1. find all trackIDs containing number changes
-% 2. find all trackIDs containing decimals
-% 3. do these always coincide?
-% 4. are they always cases of poor track joining?
-clear
-load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T');
+% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
+%       but at least the first trackID is useable. Let's keep these first ones
+%       and reject data from subsequent IDs.
 
-n = 52;
-data = Scram6{52};
+% 0. for each track in current movie
+%       1. determine whether trackID contains number changes
+%               2. if so, trim track such that only first trackID remains
+%                  (all following are very likely error prone)
+%                         i. isolate entire data struct of current track,
+%                            in prep to clip all variables (MajAx, X, Y, etc.)
+%                        ii. isolate data corresponding to first TrackID
+%               3. replace data from original track (containing multiple IDs) with trimmed data
+%               4. add remainder of track to temporary (movie-specific) rejects collection
+%       5. if no changes, continue to next track
+% 6. when all tracks finished, save accmulated rejects.
+% 7. repeat for next movie
 
-multids = [];
-counter = 0;
-for m = 1:length(data)
-    trackIDs = data(m).TrackID;
-    isChange = diff(trackIDs);
+
+load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat');
+
+for n = 1:length(Scram6)
     
-    if sum(isChange) ~= 0 
-        disp(strcat('Track (', num2str(m),') has multiple IDs!'))
-        counter = counter + 1;
-        multids(counter,1) = m;
+    
+    % 0. initialize
+    data = Scram6{n};
+    currentRejects = [];
+    reject_counter = 0;
+    
+    for m = 1:length(data)
+        
+        % 1. determine whether trackID contains number changes
+        trackIDs = data(m).TrackID;
+        isChange = diff(trackIDs);
+        
+        % if so,
+        if sum(isChange) ~= 0
+            
+            % 2. trim track such that only first trackID remains
+            reject_counter = reject_counter +1;
+            disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
+            
+            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
+            originalTrack = data(m);
+            
+            % ii. isolate data corresponding to first TrackID
+            originalIDs = originalTrack.TrackID;
+            firstIDs = originalIDs == originalTrack.TrackID(1);
+            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
+            
+            
+            % 3. replace data from original track (containing multiple IDs) with trimmed data
+            data(m) = firstTrack;
+            
+            
+            % 4. add remainder of track to rejects collection
+            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
+            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
+            currentRejects{reject_counter} = rejectTrack;
+            
+            % 5. if no changes, continue to next track
+        end
+        
     end
     
+    % 6. when all tracks finished, save trimmed data and accmulated rejects
+    Scram7{n} = data;
+    rejectD_scram{7,n} = currentRejects;
+    
+    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
+    clear firstTrack firstIDs
 end
+
+
+%%
+i=18;
+plot(tracks2Add{i}.Frame,tracks2Add{i}.MajAx,'o')
+title(tracks2Add{i}.TrackID(1));
+
 
 %% visualizing samples of data set
 
