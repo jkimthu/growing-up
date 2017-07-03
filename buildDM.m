@@ -134,7 +134,7 @@ for n = 1:length(D7)
         
     end % for m
     
-    disp(['Rejected tracks (', num2str(m), ') assembled from D', num2str(n)+1, ' stage !'])
+    disp(['Tracks (', num2str(m), ') assembled from movie (', num2str(n), ') !'])
     
     
 end % for n

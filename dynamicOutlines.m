@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jun 29
+% last edit: jen, 2017 Jul 3
 
 % OK LEZ GO!
 %%
@@ -33,23 +33,107 @@ experiment = '2017-06-12';
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
 cd(newFolder);
 
-% import tracking data
-load('dm-2017-06-12_scrambled_proportional.mat');
+% FROM DATA TRIMMER
+% particle tracking data
+clear
+load('letstry-2017-06-12-dSmash.mat');
+D = D_smash;
 
-%load('dm-2017-06-12_untrimmed.mat');
-%dataMatrix_untrimmed = dataMatrix;
+% reject data matrix
+rejectD = cell(5,length(D));
 
-%load('dm-2017-06-12.mat');
-%dataMatrix_trimmed = dataMatrix;
+% criteria counter
+criteria_counter = 0;
 
-load('letstry-2017-06-12-dSmash.mat','T');
 
-%clear dataMatrix;
+%% Criteria ONE: tracks cannot contain multiple TrackIDs
+
+criteria_counter = criteria_counter + 1;
+
+% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
+%       but at least the first trackID is useable. Let's keep these first ones
+%       and reject data from subsequent IDs.
+
+% 0. for each track in current movie
+%       1. determine whether trackID contains number changes
+%               2. if so, trim track such that only first trackID remains
+%                  (all following are very likely error prone)
+%                         i. isolate entire data struct of current track,
+%                            in prep to clip all variables (MajAx, X, Y, etc.)
+%                        ii. isolate data corresponding to first TrackID
+%               3. replace data from original track (containing multiple IDs) with trimmed data
+%               4. add remainder of track to temporary (movie-specific) rejects collection
+%       5. if no changes, continue to next track
+% 6. when all tracks finished, save accmulated rejects.
+% 7. repeat for next movie
+
+for n = 1:length(D)
+    
+    
+    % 0. initialize
+    data = D{n};
+    
+    % 0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
+    data = rmfield(data,'Conv'); 
+    
+    
+    currentRejects = [];
+    reject_counter = 0;
+    
+    for m = 1:length(data)
+        
+        % 1. determine whether trackID contains number changes
+        trackIDs = data(m).TrackID;
+        isChange = diff(trackIDs);
+        
+        % if so,
+        if sum(isChange) ~= 0
+            
+            % 2. trim track such that only first trackID remains
+            reject_counter = reject_counter +1;
+            disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
+            
+            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
+            originalTrack = data(m);
+            
+            % ii. isolate data corresponding to first TrackID
+            originalIDs = originalTrack.TrackID;
+            firstIDs = originalIDs == originalTrack.TrackID(1);
+            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
+            
+            
+            % 3. replace data from original track (containing multiple IDs) with trimmed data
+            data(m) = firstTrack;
+            
+            
+            % 4. add remainder of track to rejects collection
+            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
+            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
+            currentRejects{reject_counter} = rejectTrack;
+            
+            % 5. if no changes, continue to next track
+        end
+        
+    end
+    
+    % 6. when all tracks finished, save trimmed data and accmulated rejects
+    D2{n} = data;
+    rejectD{criteria_counter,n} = currentRejects;
+    
+    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
+    clear firstTrack firstIDs reject_counter isChange
+end
+
+
+%%
+% build data matrix from current data
+dataMatrix = buildDM(D2,T);
 
 %%
 % IMAGE DATA
 % movie (xy position) of interest
 n = 52;
+
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
@@ -70,47 +154,35 @@ finalFrame = length(imgDirectory);
 clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
 
-
+%%
 % 1. isolate ellipse data from movie (stage xy) of interest
-%dm_currentMovie_untrimmed = dataMatrix_untrimmed(dataMatrix_untrimmed(:,31) == n,:); % col 31 is movie number (n)
-%dm_currentMovie_trimmed = dataMatrix_trimmed(dataMatrix_trimmed(:,31) == n,:);
 dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
 % 2. define interesting IDs by pulling TracksIDs associated with each target m
-targetM = [2,7,15,26,32,39,40,45,49,52,56];
-load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T');
 
-n = 52;
-data = Scram6{52};
+% double-check:
+% how many TrackID(1)s are represented only with < 5 data points?
 
-interestingTrackIDs = [];
-maxFrames = [];
-for m = 1:length(targetM)
-    
-    trackIDs = data(targetM(m)).TrackID;
-    interestingTrackIDs = [interestingTrackIDs; unique(trackIDs)];
-    maxFrames = [maxFrames; max(data(targetM(m)).Frame)];
+% initialize data
+currentMovie = D2{n};
+
+% find tracks with < 5 frames in first ID
+for m = 1:length(currentMovie)
+    currentTrack = currentMovie(m);
+    trackLengths(m,1) = length(currentTrack.X);
+end
+shorties = find(trackLengths < 5);
+%%
+% gather IDs for those tracks
+for tr = 1:length(shorties)
+    interestingTrackIDs(tr,1) = currentMovie(shorties(tr)).TrackID(1);
+    interestingFrames(tr,1) = currentMovie(shorties(tr)).Frame(end);
 end
 
-
-
-% survivorTracks = unique(dm_currentMovie_trimmed(:,1)); % col 1 = track IDs
-% build data matrix of rejected tracks
-% rejects_currentMovie = rejectD(:,n);
-% dm_currentMovie_rejects = buildDM(rejects_currentMovie,T);
-% 
-% 
-% % sort by trim stage number
-% for stage = 1:length(rejects_currentMovie)
-%     
-%     dm_currentRejects = dm_currentMovie_rejects(dm_currentMovie_rejects(:,31) == stage,:); %not in D2
-%     lostTracks{stage} = unique(dm_currentRejects(:,1));
-% 
-% end
 %%
 
 % for each image
-for img = 1:max(maxFrames)%length(names)
+for img = 1:max(interestingFrames)%length(names)
     
     cla
     
