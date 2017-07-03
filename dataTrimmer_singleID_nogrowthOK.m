@@ -11,15 +11,19 @@
 %   1. Track must have only one TrackID
 %           - tracks are clipped, such that data prior to change in TrackID number remain
 
-%   2. Tracks cannot oscillate too quickly between gains and losses
-
-%   3. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
-%           - tracks are clipped, such that data prior to jump remain
-
-%   4. Tracks must be at least the length of fitting window
+%   2. Tracks must be at least the length of fitting window
 %           - note: currently, windowSize = 5 frames
 
-%   5. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
+%   3. Tracks cannot oscillate too quickly between gains and losses
+
+%   4. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
+%           - tracks are clipped, such that data prior to jump remain
+
+%   5. Tracks must be at least the length of fitting window
+%           - note: currently, windowSize = 5 frames
+%           -       this criteria is repeated to follow another clipping step
+
+%   6. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
 
 
 
@@ -35,15 +39,13 @@ load('letstry-2017-06-12-dSmash.mat');
 D = D_smash;
 
 % reject data matrix
-rejectD = cell(5,length(D));
+rejectD = cell(6,length(D));
 
 % criteria counter
 criteria_counter = 0;
 
 
 %% Criteria ONE: tracks cannot contain multiple TrackIDs
-
-criteria_counter = criteria_counter + 1;
 
 % Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
 %       but at least the first trackID is useable. Let's keep these first ones
@@ -59,8 +61,13 @@ criteria_counter = criteria_counter + 1;
 %               3. replace data from original track (containing multiple IDs) with trimmed data
 %               4. add remainder of track to temporary (movie-specific) rejects collection
 %       5. if no changes, continue to next track
-% 6. when all tracks finished, save accmulated rejects.
-% 7. repeat for next movie
+% 6. when all tracks finished, save accumulated rejects
+% 7. report!
+% 8. repeat for next movie
+
+
+% for easy reshuffling of criteria
+criteria_counter = criteria_counter + 1;
 
 for n = 1:length(D)
     
@@ -86,7 +93,6 @@ for n = 1:length(D)
             
             % 2. trim track such that only first trackID remains
             reject_counter = reject_counter +1;
-            disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
             
             % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
             originalTrack = data(m);
@@ -115,34 +121,109 @@ for n = 1:length(D)
     D2{n} = data;
     rejectD{criteria_counter,n} = currentRejects;
     
+    % 7. report !
+    disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from xy (', num2str(n),') !'))
+    
+    %8. repeat for all movies
     clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
     clear firstTrack firstIDs reject_counter
 end
 
+clear isChange trackIDs m n;
 
 %%
 % double-check:
 % how many TrackID(1)s are represented only with < 5 data points?
+% see dynamicOutlines commit 2017-07-03 for example movie with n=52
+% and movie: shortTracks-afterTrackID-clipping-5fps.avi
+% justifying the removal of these very short tracks
 
-for n = 1:length(D2)
-    
-    currentMovie = D2{n};
-    
-    for m = 1:length(currentMovie)
-        currentTrack = currentMovie(m);
-        trackLengths(m,1) = length(currentTrack.X);
-    end
-    shorties = find(trackLengths < 5);
-    allShorts{n} = shorties;
-end
+% for n = 1:length(D2)
+%     
+%     currentMovie = D2{n};
+%     
+%     for m = 1:length(currentMovie)
+%         currentTrack = currentMovie(m);
+%         trackLengths(m,1) = length(currentTrack.X);
+%     end
+%     shorties = find(trackLengths < 5);
+%     allShorts{n} = shorties;
+% end
 
 
-%% Criteria Two: tracks cannot oscillate too quickly between gains and losses
+%% Criteria Two: tracks must be at least window size in length (5 frames)
+
+
+% Goal: after clipping tracks by track ID, some are quite short and lead to problems in
+%       subsequent steps, i.e. those that require rates of change produce
+%       an error if tracks are only 1 frame long. Remove these.
+
+% 0. initiaize new dataset before trimming
+% 0. in current movie
+%           1. for each track, determine number of timepoints
+%           2. find tracks that are shorter than threshold number of frames
+%           3. report!
+%           4. if no sub-threshold tracks, continue to next movie
+%           5. else, remove structures based on row # (in reverse order)
+%           6. save sub-threshold tracks into reject data matrix
+% 7. repeat for next movie
+
+
 
 criteria_counter = criteria_counter + 1;
 
+
+% 0. initialize new dataset before trimming
+D3 = D2;
+windowSize = 5;                                                             % each timepoint = 1:05 mins;
+
+for n = 1:length(D);
+
+    % 1. determine number of timepoints in each track m 
+    for m = 1:length(D3{n})
+        numFrames(m) = length(D3{n}(m).MajAx);
+    end
+    
+    % 2. find tracks that are shorter than threshold number of frames
+    subThreshold = find(numFrames < windowSize);       
+    
+    % 3. report!
+    X = ['Removing ', num2str(length(subThreshold)), ' short tracks from D3(', num2str(n), ')...'];
+    disp(X)
+    
+    % 4. to that loop doesn't crash if nothing is too short
+    if isempty(subThreshold) == 1
+        continue
+    end
+    
+    % 5. remove structures based on row # (in reverse order)
+    fingers = 0;
+    for toRemove = 1:length(subThreshold)
+        
+        r = length(subThreshold) - fingers;                  % reverse order                  
+        D3{n}(subThreshold(r)) = [];                         % deletes data
+        tracks_shortGlimpses(r,1) = D{n}(subThreshold(r));   % store data for reject data matrix
+        fingers = fingers + 1;
+        
+    end
+    
+    % 6. save sub-threshold tracks into reject data matrix
+    rejectD{criteria_counter,n} = tracks_shortGlimpses;
+    
+    % 7. repeat for all movies
+    clear  numFrames m subThreshold fingers toRemove r X tracks_shortGlimpses;
+    
+end
+
+ clear windowSize n; 
+ 
+
+%% Criteria Three: tracks cannot oscillate too quickly between gains and losses
+
+
 % Goal: oscillating tracks correspond to.... thus, remove!
 
+%  0. initialize dataset
 %  0. for each track in current movie
 %        1. determine change in length between each timestep
 %        2. smooth this derivative over every 10 timesteps
@@ -156,10 +237,10 @@ criteria_counter = criteria_counter + 1;
 % 10. repeat for next movie
 
 
+criteria_counter = criteria_counter + 1;
 
 % 0. initiaize new dataset before trimming
-clear m n isChange trackIDs;
-D3 = D2;
+D4 = D3;
 
 % 0. initialize threshold ratio, below which tracks are removed
 gainLossRatio = 0.85;
@@ -167,10 +248,10 @@ gainLossRatio = 0.85;
 
 for n = 1:length(D)
     
-    for m = 1:length(D3{n})
+    for m = 1:length(D4{n})
         
         % 1. determine change in length between each timestep
-        Signs = diff(D3{n}(m).MajAx);
+        Signs = diff(D4{n}(m).MajAx);
         
         
         % 2. minute res is so noisy. average this derivative over every 10 timesteps
@@ -194,7 +275,7 @@ for n = 1:length(D)
     swigglyIDs = find(allRatios < 0.85);
     
     % 6. report!
-    X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D3(', num2str(n), ')...'];
+    X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D4(', num2str(n), ')...'];
     disp(X)
     
     % 7. skip to next movie if nothing is too wiggly
@@ -207,7 +288,7 @@ for n = 1:length(D)
     for q = 1:length(swigglyIDs)
         
         r = length(swigglyIDs) - swiggle_counter;   % reverse order                             
-        D3{n}(swigglyIDs(r)) = [];                  % deletes data
+        D4{n}(swigglyIDs(r)) = [];                  % deletes data
         swigglyTracks(r,1) = D{n}(swigglyIDs(r));   % store data for reject data matrix  
         swiggle_counter = swiggle_counter + 1;
         
@@ -224,12 +305,12 @@ clear n gainLossRatio;
 
 
 
-%% Criteria Three: clip tracks to remove >30% jumps in cell size
+%% Criteria Four: clip tracks to remove >30% jumps in cell size
 
-criteria_counter = criteria_counter + 1;
 
 % Goal: huge jumps in cell size correspond to.... thus, clip off!
 
+%  0. initialize threshold value
 %  0. isolate data for current movie
 %        0. for each track, search for large positive increases: > %30 jumps in size
 %               1. determine change in length between each timestep
@@ -247,15 +328,15 @@ criteria_counter = criteria_counter + 1;
 
 
 
-%Scram3 = D3;  
+criteria_counter = criteria_counter + 1;
 
 % 0. initialize
-JumpFrac = 0.3;                                                            % JumpFrac = threshold parameter
-                                                                           % tracks that increase by a cell size fraction greater than JumpFrac will be eliminated from final dataset
+jumpFrac = 0.3;                                                            
+                                                                           
 for n = 1:length(D);                                                       
     
-    % 0. initialize
-    data = D3{n};
+    % 0. isolate data for current movie
+    data = D4{n};
     
     jump_counter = 0;
     for m = 1:length(data)   
@@ -269,7 +350,7 @@ for n = 1:length(D);
         growthFrac = Rates./Lengths;
                                                                            
         % 3. list rows in which the change exceeds size jump threshold
-        jumpPoints = find(growthFrac > JumpFrac);                        
+        jumpPoints = find(growthFrac > jumpFrac);                        
 
         
         % 4. if the track contains jumps...
@@ -291,129 +372,98 @@ for n = 1:length(D);
             remainderTrack = structfun(@(M) M(clipPoint+1:end), originalTrack, 'Uniform', 0);
             
             jump_counter = jump_counter + 1;
-            tracks_clipJump(jump_counter,1) = remainderTrack;
+            trackScraps(jump_counter,1) = remainderTrack;
             
         end
         
     end
     
     % 5. when all tracks finished, save trimmed data and accmulated rejects
-    D4{n} = data;
-    rejectD{criteria_counter,n} = tracks_clipJump;
+    D5{n} = data;
+    rejectD{criteria_counter,n} = trackScraps;
     
     % 6. report!
-    X = ['Clipping ', num2str(jump_counter), ' jumps from D4(', num2str(n), ')...'];
+    X = ['Clipping ', num2str(jump_counter), ' jumps in D5(', num2str(n), ')...'];
     disp(X)
     
-    %if n < length(D)
-    %    clear Rates jumpTrack;  % erase data from current series, so they don't roll into next iteration
-    %end
     
 end
     
-clear growthFrac Lengths JumpFrac jump_counter Rates clippedTarget clipPoint m n;
-clear tracks_clipJump remainderTrack originalTrack jumpPoints;
+clear growthFrac Lengths jumpFrac jump_counter Rates clippedTarget clipPoint m n;
+clear trackScraps remainderTrack originalTrack jumpPoints X data;
 
 
-%% Criteria Three: total track length must be at least size of fitting window
 
-Scram4 = Scram3;
+
+%% Criteria Five: repeat - tracks must be at least window size in length (5 frames)
+
+
+% Goal: after clipping off large size jumps, some tracks can be quite short
+%       Remove tracks shorter than windowSize, such that mu calculations in
+%       slidingFits does not encounter complications
+
+% 0. initiaize new dataset before trimming
+% 0. in current movie
+%           1. for each track, determine number of timepoints
+%           2. find tracks that are shorter than threshold number of frames
+%           3. report!
+%           4. if no sub-threshold tracks, continue to next movie
+%           5. else, remove structures based on row # (in reverse order)
+%           6. save sub-threshold tracks into reject data matrix
+% 7. repeat for next movie
+
+
+
+criteria_counter = criteria_counter + 1;
+
+
+% 0. initialize new dataset before trimming
+D6 = D5;
 windowSize = 5;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
 
-    % determine number of timepoints in each track i 
-    for i = 1:length(Scram4{n})
-        cellLength{i} = length(Scram4{n}(i).MajAx);
+    % 1. determine number of timepoints in each track m 
+    for m = 1:length(D6{n})
+        numFrames(m) = length(D6{n}(m).MajAx);
     end
     
-    % find tracks that are shorter than ___ mins
-    cellLength_dbl = cell2mat(cellLength);
-    shortGlimpse = find(cellLength_dbl < windowSize);       
+    % 2. find tracks that are shorter than threshold number of frames
+    subThreshold = find(numFrames < windowSize);       
     
-    % report!
-    X = ['Removing ', num2str(length(shortGlimpse)), ' short tracks from Scram4(', num2str(n), ')...'];
+    % 3. report!
+    X = ['Removing ', num2str(length(subThreshold)), ' short tracks from D6(', num2str(n), ')...'];
     disp(X)
     
-    % to that loop doesn't crash if nothing is too short
-    if isempty(shortGlimpse) == 1
+    % 4. to that loop doesn't crash if nothing is too short
+    if isempty(subThreshold) == 1
         continue
     end
     
-    % remove structures based on row # (in reverse order)
+    % 5. remove structures based on row # (in reverse order)
     fingers = 0;
-    for q = 1:length(shortGlimpse)
-        r = length(shortGlimpse) - fingers;                                
-        Scram4{n}(shortGlimpse(r)) = [];
-        tracks_shortGlimpses(r,1) = D{n}(shortGlimpse(r));   % recording to add into reject data matrix  
+    for toRemove = 1:length(subThreshold)
+        
+        r = length(subThreshold) - fingers;                  % reverse order                  
+        D6{n}(subThreshold(r)) = [];                         % deletes data
+        rejectTracks(r,1) = D{n}(subThreshold(r));   % store data for reject data matrix
         fingers = fingers + 1;
+        
     end
     
-    % save tracks that are too small into reject data matrix
-    rejectD{3,n} = tracks_shortGlimpses;
+    % 6. save sub-threshold tracks into reject data matrix
+    rejectD{criteria_counter,n} = rejectTracks;
     
-    clear  cellLength cellLength_dbl i shortGlimpse fingers q r X tracks_shortGlimpses;
+    % 7. repeat for all movies
+    clear  numFrames m subThreshold fingers toRemove r X rejectTracks;
     
 end
 
- clear Shortest n; 
-
- %% Criteria Four: tracks must increase in size by > 30%
+clear n; 
 
 
-Scram5 = Scram4;
-GoldenRatio = 1.3;                  
-
-for n = 1:length(D);      
-    
-    if isempty(Scram5{n}) == 1
-        continue
-        
-    else
-        % determine difference percent change between min and max length for each track, i
-        for i = 1:length(Scram5{n})
-            
-            maxLengths(i) = arrayfun(@(Q) max(Q.MajAx), Scram5{n}(i));
-            minLengths(i) = arrayfun(@(Q) min(Q.MajAx), Scram5{n}(i));
-            
-        end
-           lengthRatio = maxLengths./minLengths;
-    end
-    
-
-    
-    % find tracks that show little growth                      
-    littleGrowth = find(lengthRatio < GoldenRatio); 
-    
-    % report!
-    X = ['Removing ', num2str(length(littleGrowth)), ' non-doublers from Scram5(', num2str(n), ')...']; 
-    disp(X)                                                         
-    
-    % so loop doesn't crash if nothing grows too little
-    if isempty(littleGrowth) == 1
-        continue
-    end
-    
-    % remove structures based on row # (in reverse order)
-    counter = 0;
-    for j = 1:length(littleGrowth)
-        
-        k = length(littleGrowth) - counter;
-        Scram5{n}(littleGrowth(k)) = [];
-        tracks_littleGrowth(k,1) = D{n}(littleGrowth(k));   % recording to add into reject data matrix
-        counter = counter + 1;
-        
-    end
-    
-    % save tracks that hardly increase into reject data matrix
-    rejectD{4,n} = tracks_littleGrowth;
-    clear maxLengths minLengths littleGrowth lengthRatio i j k X counter ToCut tracks_littleGrowth;
-    
-end
-
-clear GoldenRatio n;
  
-%% Criteria Five: maximum particle size must be greater than 1.5um
+%% Criteria Six: maximum particle size must be greater than 1.5um
 
 Scram6 = Scram5;
 SizeStrainer = 1.5;
