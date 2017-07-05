@@ -28,7 +28,7 @@
 
 
 
-% last edit: July 2, 2017
+% last edit: July 3, 2017
 
 
 %% initialize
@@ -240,7 +240,7 @@ end
 criteria_counter = criteria_counter + 1;
 
 % 0. initiaize new dataset before trimming
-D4 = D3;
+D4 = D;
 
 % 0. initialize threshold ratio, below which tracks are removed
 gainLossRatio = 0.85;
