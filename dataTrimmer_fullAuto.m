@@ -148,6 +148,7 @@ D4 = D3;
 JumpFrac = 0.3;                                                            % JumpFrac = threshold parameter
                                                                            % tracks that increase by a cell size fraction greater than JumpFrac will be eliminated from final dataset
 for n = 1:length(D);                                                       
+    
     counter = 0;                                                           
     D4{n} = rmfield(D4{n},'Conv');                                         % removes the 'Conversion' field, as it is only one element. it interferes with downstream clipping.
     

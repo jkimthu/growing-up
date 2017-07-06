@@ -28,7 +28,7 @@
 
 
 
-% last edit: July 3, 2017
+% last edit: July 5, 2017
 
 
 %% initialize
@@ -122,7 +122,7 @@ for n = 1:length(D)
     rejectD{criteria_counter,n} = currentRejects;
     
     % 7. report !
-    disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from xy (', num2str(n),') !'))
+    disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from D2 (', num2str(n),') !'))
     
     %8. repeat for all movies
     clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
@@ -257,10 +257,10 @@ for n = 1:length(D)
     % 1. for each track, collect % of non-drop negatives per track length (in frames)
     nonDropRatio = NaN(length(D{n}),1);
     
-    for m = 1:length(D{n})
+    for m = 1:length(D4{n})
         
         % 2. isolate length data from current track
-        lengthTrack = D{n}(m).MajAx;
+        lengthTrack = D4{n}(m).MajAx;
         
         % 3. find change in length between frames
         diffTrack = diff(lengthTrack);
@@ -304,10 +304,11 @@ for n = 1:length(D)
     
     % 14. repeat for all movies
     clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor belowThreshold
+    clear toRemove binaryTrack r X
   
 end
 
-clear n gainLossRatio;
+clear n gainLossRatio jiggleThreshold jigglers;
 
 
 
@@ -472,21 +473,22 @@ clear n;
  
 %% Criteria Six: maximum particle size must be greater than 1.5um
 
-Scram6 = Scram5;
+criteria_counter = criteria_counter + 1;
+
+D7 = D6;
 SizeStrainer = 1.5;
 
-for n = 1:length(Scram5);                           
+for n = 1:length(D);                           
     
-    for i = 1:length(Scram6{n})
-        lengthTrack{i} = max(Scram6{n}(i).MajAx);                          
+    for i = 1:length(D7{n})
+        lengthTrack(i) = max(D7{n}(i).MajAx);                          
     end          
     
     % finds tracks that don't exceed __ um
-    lengthTrack_dbl = cell2mat(lengthTrack);  
-    tooSmalls = find(lengthTrack_dbl < SizeStrainer);                          
+    tooSmalls = find(lengthTrack < SizeStrainer);                          
     
     % report!
-    X = ['Removing ', num2str(length(tooSmalls)), ' small particles from Scram6(', num2str(n), ')...'];
+    X = ['Removing ', num2str(length(tooSmalls)), ' small particles from D7(', num2str(n), ')...'];
     disp(X)
     
     % so loop doesn't crash if nothing is too small
@@ -498,13 +500,13 @@ for n = 1:length(Scram5);
     countSmalls = 0;
     for s = 1:length(tooSmalls)
         t = length(tooSmalls) - countSmalls;
-        Scram6{n}(tooSmalls(t)) = [];
+        D7{n}(tooSmalls(t)) = [];
         tracks_tooSmalls(t,1) = D{n}(tooSmalls(t));      %  recording to add into reject data matrix
         countSmalls = countSmalls + 1;
     end
     
     % save tracks that are too small into reject data matrix
-    rejectD{6,n} = tracks_tooSmalls;
+    rejectD{criteria_counter,n} = tracks_tooSmalls;
     clear lengthTrack lengthTrack_dbl i tooSmalls countSmalls s t X tracks_tooSmalls;
 
     
@@ -517,7 +519,7 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'D2', 'D3', 'D4', 'D5', 'D6', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-revisedTrimmer.mat', 'D_smash', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
@@ -542,11 +544,11 @@ save('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat', 'D_smash', 'D2
 
 load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat');
 
-for n = 1:length(Scram6)
+for n = 1:length(D7)
     
     
     % 0. initialize
-    data = Scram6{n};
+    data = D7{n};
     currentRejects = [];
     reject_counter = 0;
     
