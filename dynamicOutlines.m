@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-06-12';
+experiment = '2017-06-05';
 
 
 % TRACKING DATA
@@ -36,14 +36,8 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('letstry-2017-06-12-revisedTrimmer.mat','D7','D_smash','T','rejectD');
-D = D_smash;
-
-% reject data matrix
-%rejectD = cell(5,length(D));
-
-% criteria counter
-%criteria_counter = 0;
+load('poly-challenge-2017-06-05-revisedTrimmer.mat','D7','D','T','rejectD');
+%D = D_smash;
 
 
 
@@ -63,9 +57,9 @@ reject6_DM = buildDM(rejectD(6,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 1;
+n = 32;
 
-img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
+img_prefix = strcat('poly-challenge-2017-06-05_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -76,7 +70,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('letstry-2017-06-12_xy*.tif');
+imgDirectory = dir('poly-challenge-2017-06-05_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -143,7 +137,7 @@ for img = 1:length(names)%max(interestingFrames)
     filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'-D7.tif');
     
     figure(1)
-    imshow(I, 'DisplayRange',[3200 7400]);
+    imshow(I)%, 'DisplayRange',[3200 7400]);
     
     
     % 3. if no tracked cells (surivors NOR rejects), save and skip
