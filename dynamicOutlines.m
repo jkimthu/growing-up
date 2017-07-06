@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 5
+% last edit: jen, 2017 Jul 6
 
 % OK LEZ GO!
 %%
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('letstry-2017-06-12-dSmash.mat');
+load('letstry-2017-06-12-revisedTrimmer.mat','D7','D_smash','T','rejectD');
 D = D_smash;
 
 % reject data matrix
@@ -48,13 +48,22 @@ D = D_smash;
 
 
 %%
-% build data matrix from current data
-dataMatrix = buildDM(D,T);
+% build data matrix from fully trimmed data
+survivorDM = buildDM(D7,T);
+
+% build data matrix for each rejected tracks
+totalDM = buildDM(D,T);
+reject1_DM = buildDM(rejectD(1,:),T);
+reject2_DM = buildDM(rejectD(2,:),T);
+reject3_DM = buildDM(rejectD(3,:),T);
+reject4_DM = buildDM(rejectD(4,:),T);
+reject5_DM = buildDM(rejectD(5,:),T);
+reject6_DM = buildDM(rejectD(6,:),T);
 
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 1;
+n = 52;
 
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
@@ -78,145 +87,137 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
 %%
 % 1. isolate ellipse data from movie (stage xy) of interest
-dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
+dm_survivors = survivorDM(survivorDM(:,31) == n,:);
 
+dm_total = totalDM(totalDM(:,31) == n,:);
+dm_reject1 = reject1_DM(reject1_DM(:,31) == n,:);
+dm_reject2 = reject2_DM(reject2_DM(:,31) == n,:);
+dm_reject3 = reject3_DM(reject3_DM(:,31) == n,:);
+dm_reject4 = reject4_DM(reject4_DM(:,31) == n,:);
+dm_reject5 = reject5_DM(reject5_DM(:,31) == n,:);
+dm_reject6 = reject6_DM(reject6_DM(:,31) == n,:);
 
+clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM reject5_DM reject6_DM
 %%
-% 2. assemble SIGN data
-D4 = D;
+% 2. for all frames, assemble tracks present in each category
+allTracks = unique(dm_total(:,1));
 
-% i. initialize threshold ratio, below which tracks are removed
-gainLossRatio = 0.85;
+survivorTrackIDs = [];
+rejectGroup1 = [];
+rejectGroup3 = [];
+rejectGroup4 = [];
+rejectGroup6 = [];
+rejectGroup_shorts =[];
 
-for m = 1:length(D4{n})
+for fr = 1:finalFrame
     
-    % ii. determine change in length between each timestep
-    Signs = diff(D4{n}(m).MajAx);
+    % i. isolate data from each frame
+    survivors = dm_survivors(dm_survivors(:,30) == fr,:); % col 30 = frame #
+    reject1s = dm_reject1(dm_reject1(:,30) == fr,:);
+    reject2s = dm_reject2(dm_reject2(:,30) == fr,:);
+    reject3s = dm_reject3(dm_reject3(:,30) == fr,:);
+    reject4s = dm_reject4(dm_reject4(:,30) == fr,:);
+    reject5s = dm_reject5(dm_reject5(:,30) == fr,:);
+    reject6s = dm_reject6(dm_reject6(:,30) == fr,:);
     
-    
-    % iii. minute res is so noisy. average this derivative over every 10 timesteps
-    sampleLength = floor( length(Signs)/10 ) * 10;
-    Signs = mean(reshape(Signs(1:sampleLength),10,[]))';
-    
-    
-    % iv. determine ratio of negatives to positives
-    Signs(Signs<0) = 0;
-    Signs(Signs>0) = 1;
-    trackRatio = sum(Signs)/length(Signs);
-    
-    % v. store ratios from all tracks to reference during removal
-    allRatios(m,1) = trackRatio;
-    
-    clear Signs trackRatio sampleLength;
-end
-
-
-% vi. determine which tracks in current movie fall below threshold
-swigglyIDs = find(allRatios < 0.85);
-
-% vii. report!
-X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D4(', num2str(n), ')...'];
-disp(X)
-
-% viii. remove structures based on row # (in reverse order)
-swiggle_counter = 0;
-for q = 1:length(swigglyIDs)
-    
-    r = length(swigglyIDs) - swiggle_counter;   % reverse order
-    D4{n}(swigglyIDs(r)) = [];                  % deletes data
-    swigglyTracks(r,1) = D{n}(swigglyIDs(r));   % store data for reject data matrix
-    swiggle_counter = swiggle_counter + 1;
+    survivorTrackIDs{fr} = survivors(:,1); % col 1 = TrackID
+    rejectGroup1{fr} = reject1s(:,1);
+    rejectGroup3{fr} = reject3s(:,1);
+    rejectGroup4{fr} = reject4s(:,1);
+    rejectGroup6{fr} = reject6s(:,1);
+    rejectGroup_shorts{fr} = [reject2s(:,1); reject5s(:,1)];
     
 end
-
-% ix. save tracks that are too swiggly into reject data matrix
-rejectD = swigglyTracks;
-
-clear allRatios allTracks bottomTracks gainLossRatio swigglyIDs swigglyTracks q r m swiggle_counter X;
+clear fr;
 
 %%
-% 3. assemble nonDrop data
-nonDropRatio = NaN(length(D{n}),1);
-dropThreshold = -0.75;
-
-
-for m = 1:length(D{n})
-    
-    % 1. isolate length data from current track
-    lengthTrack = D{n}(m).MajAx;
-    
-    % 2. find change in length between frames
-    diffTrack = diff(lengthTrack);
-    
-    % 3. convert change into binary, where positives = 0 and negatives = 1
-    binaryTrack = logical(diffTrack < 0);
-    
-    % 4. find all drops (negatives that exceed drop threshold)
-    dropTrack = diffTrack < dropThreshold;
-    
-    % 5. find the ratio of non-drop negatives per track length
-    nonDropNegs = sum(dropTrack - binaryTrack);
-    squiggleFactor = nonDropNegs/length(lengthTrack);
-    
-    
-    nonDropRatio(m) = squiggleFactor;
-    
-end
-
-belowThreshold = find(nonDropRatio < -0.1);
-
-clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor binaryTrack
+% data = D7{n};
+% rejects = rejectD(:,n);
+% 
+% 
+% % 2. assemble trackIDs present in fully trimmed data matrix, D7
+% 
+% survivorTrackIDs = [];
+% for m = 1:length(data)
+%     
+%     % i. isolate TrackID from current track 
+%     currentID = data(m).TrackID(1); % tracks are of a single ID, thanks to trimmer
+%     survivorTrackIDs = [survivorTrackIDs; currentID];
+%     
+% end
+% 
+% clear m currentID;
+% 
+% 
+% % 3. assemble trackIDs in reject stages
+% 
+% % i. rejected by criteria 1 - multiple IDs
+% rejectGroup1 = [];
+% for r = 1:length(rejects{1})
+% 
+%     currentIDs = unique(rejects{1}(r).TrackID);
+%     rejectGroup1 = [rejectGroup1; currentIDs];
+%     
+% end
+% clear r currentIDs;
+% 
+% 
+% % ii. rejected by criteria 3 - jiggly
+% rejectGroup3 = [];
+% for r = 1:length(rejects{3})
+%     
+%     currentID = rejects{3}(r).TrackID(1); % tracks are of a single ID, thanks to stage 1
+%     rejectGroup3 = [rejectGroup3; currentID];
+%     
+% end
+% clear r currentID;
+% 
+% 
+% % iii. rejected by criteria 4 - post size jump IDs
+% rejectGroup4 = [];
+% for r = 1:length(rejects{4})
+%     
+%     currentID = rejects{4}(r).TrackID(1);
+%     rejectGroup4 = [rejectGroup4; currentID];
+%     
+% end
+% clear r currentID;
+% 
+% % iv. rejected by criteria 6 - too small in size
+% 
+% rejectGroup6 = [];
+% if isempty(rejects{6}) == 0
+%     
+%     for r = 1:length(rejects{6})
+%         
+%         currentID = rejects{6}(r).TrackID(1);
+%         rejectGroup6 = [rejectGroup6; currentID];
+%         
+%     end
+%     clear r currentID;
+%     
+% end
+% 
+% 
+% % v. rejected by criteria 2 or 5 - tracks less that window size
+% rejectGroup_shorts = [];
+% for r = 1:length(rejects{2})
+%     
+%     currentID = rejects{2}(r).TrackID(1);
+%     rejectGroup_shorts = [rejectGroup_shorts; currentID];
+%     
+% end
+% clear r currentID;
+% 
+% for r = 1:length(rejects{5})
+%     
+%     currentID = rejects{5}(r).TrackID(1);
+%     rejectGroup_shorts = [rejectGroup_shorts; currentID];
+%     
+% end
+% clear r currentID;
 
 %%
-% 3. define interesting TracksIDs associated with either method
-
-% i. sign method
-data = rejectD;
-sign_IDs = [];
-
-for i = 1:length(data)
-
-    trackIDs = unique(data(i).TrackID);
-    sign_IDs = [sign_IDs; trackIDs];
-
-end
-clear trackIDs i m data;
-
-% ii. nonDrop method
-
-data = D{n}(belowThreshold);
-nonDrop_IDs = [];
-
-for i = 1:length(data)
-    
-    trackIDs = unique(data(i).TrackID);
-    nonDrop_IDs = [nonDrop_IDs; trackIDs];
-    
-end
-clear trackIDs i data;
-%%
-% 4. seperate IDs into:
-%           i. only rejected in Signs
-%          ii. only rejected nonDrop
-%         iii. rejected by both
-%          iv. all tracks
-
-% iii. rejected by both
-overLap = intersect(sign_IDs, nonDrop_IDs);
-
-% i. only rejected in Signs
-onlySigns = setdiff(sign_IDs, overLap);
-
-% ii. only rejected nonDrop
-onlyNonDrops = setdiff(nonDrop_IDs, overLap);
-
-% iv. all tracks
-interestingTrackIDs = [overLap; onlySigns; onlyNonDrops];
-
-
-
-%%
-
 % for each image
 for img = 1:length(names)%max(interestingFrames)
     
@@ -225,21 +226,21 @@ for img = 1:length(names)%max(interestingFrames)
     % 3. initialize current image
     I=imread(names{img});
     %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-n52-signVsswiggle.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'-D7.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[3200 7400]);
     
     
-    % 3. if no tracked cells, save and skip
-    if sum(dm_currentMovie(:,30) == img) == 0 % tallies up # tracks in current img
+    % 3. if no tracked cells (surivors NOR rejects), save and skip
+    if sum(dm_total(:,30) == img) == 0 % tallies up # tracks in current img
         saveas(gcf,filename)
         
         continue
         
     else
         % 4. else, isolate data for each image
-        dm_currentImage = dm_currentMovie(dm_currentMovie(:,30) == img,:); % col 30 = frame #
+        dm_currentImage = dm_total(dm_total(:,30) == img,:); % col 30 = frame #
         
         % axes
         majorAxes = dm_currentImage(:,3); % lengths
@@ -262,26 +263,27 @@ for img = 1:length(names)%max(interestingFrames)
         IDs = dm_currentImage(:,1);
         
         
-        % 4. isolate specific trackIDs of interest from current image
-        targets = ismember(IDs, interestingTrackIDs);
-        targets = find(targets == 1);
-        targetIDs = IDs(targets);
-        % axes
-        majorAxes = dm_currentImage(targets,3); % lengths
-        minorAxes = dm_currentImage(targets,12); % widths
-        
-        % centroids
-        centroid_X = dm_currentImage(targets,28);
-        centroid_Y = dm_currentImage(targets,29);
-        
-        % angles
-        angles = dm_currentImage(targets,33);
-        
-        % growth rates (mu)
-        mus = dm_currentImage(targets,18); % mu calculated from Va
-        
-        % frames
-        frames = dm_currentImage(targets,30);
+%         % 4. isolate specific trackIDs of interest from current image
+%         targets = ismember(IDs, allTracks);
+%         targets = find(targets == 1);
+%         targetIDs = IDs(targets);
+%         
+%         % axes
+%         majorAxes = dm_currentImage(targets,3); % lengths
+%         minorAxes = dm_currentImage(targets,12); % widths
+%         
+%         % centroids
+%         centroid_X = dm_currentImage(targets,28);
+%         centroid_Y = dm_currentImage(targets,29);
+%         
+%         % angles
+%         angles = dm_currentImage(targets,33);
+%         
+%         % growth rates (mu)
+%         mus = dm_currentImage(targets,18); % mu calculated from Va
+%         
+%         % frames
+%         frames = dm_currentImage(targets,30);
         
         
         
@@ -293,56 +295,66 @@ for img = 1:length(names)%max(interestingFrames)
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
             
             % i. if track number is a reject of nonDrops method, plot green
-            if any(IDs(p) == onlyNonDrops) == 1
+            if any(IDs(p) == survivorTrackIDs{img}) == 1
                 
                 hold on
                 plot(x_rotated,y_rotated,'g','lineWidth',1)
-                text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',14);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-                % ii. if track number is a reject of both methods, plot red
-            elseif any(IDs(p)== overLap) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'r','lineWidth',1)
-                text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',14);
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',12);
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
             end
             
+            if any(IDs(p) == rejectGroup1{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'r','lineWidth',2)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
             
+            if any(IDs(p) == rejectGroup3{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'w','lineWidth',2)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','c','FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
             
-            %             % i. if track number is a reject of nonDrops method, plot green
-            %             if any(intersect(IDs(p),onlyNonDrops)) == 1
-            %
-            %                 hold on
-            %                 plot(x_rotated,y_rotated,'g','lineWidth',1)
-            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',14);
-            %                 xlim([0 2048]);
-            %                 ylim([0 2048]);
-            %
-            %             % ii. if track number is a reject of signs method, plot red
-            %             elseif any(intersect(IDs(p), onlySigns)) == 1
-            %
-            %                 hold on
-            %                 plot(x_rotated,y_rotated,'r','lineWidth',1)
-            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',14);
-            %                 xlim([0 2048]);
-            %                 ylim([0 2048]);
-            %
-            %             % iii. if track number is rejected in both methods, plot
-            %             elseif any(intersect(IDs(p), overLap)) == 1
-            %
-            %                 hold on
-            %                 plot(x_rotated,y_rotated,'o','lineWidth',1)
-            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','w','FontSize',14);
-            %                 xlim([0 2048]);
-            %                 ylim([0 2048]);
-            %
-            %             end
-            %
+            if any(IDs(p) == rejectGroup4{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'Color',[1 0.5 0],'lineWidth',2)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','w','FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+            
+            if any(IDs(p) == rejectGroup6{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'b','lineWidth',2)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','b','FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+
+            if any(IDs(p) == rejectGroup_shorts{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',2)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color',[0.5 0 0.5],'FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+            
         end
         
         % 6. save
