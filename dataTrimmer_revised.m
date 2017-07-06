@@ -28,7 +28,7 @@
 
 
 
-% last edit: July 5, 2017
+% last edit: July 6, 2017
 
 
 %% initialize
@@ -202,7 +202,7 @@ for n = 1:length(D);
         
         r = length(subThreshold) - fingers;                  % reverse order                  
         D3{n}(subThreshold(r)) = [];                         % deletes data
-        tracks_shortGlimpses(r,1) = D{n}(subThreshold(r));   % store data for reject data matrix
+        tracks_shortGlimpses(r,1) = D2{n}(subThreshold(r));   % store data for reject data matrix
         fingers = fingers + 1;
         
     end
@@ -294,7 +294,7 @@ for n = 1:length(D)
         
         r = length(belowThreshold) - counter;                  % reverse order
         D4{n}(belowThreshold(r)) = [];                         % deletes data
-        jigglers(r,1) = D{n}(belowThreshold(r));   % store data for reject data matrix
+        jigglers(r,1) = D3{n}(belowThreshold(r));   % store data for reject data matrix
         counter = counter + 1;
         
     end
@@ -308,7 +308,7 @@ for n = 1:length(D)
   
 end
 
-clear n gainLossRatio jiggleThreshold jigglers;
+clear n gainLossRatio jiggleThreshold jigglers counter;
 
 
 
@@ -398,7 +398,7 @@ for n = 1:length(D);
 end
     
 clear growthFrac Lengths jumpFrac jump_counter Rates clippedTarget clipPoint m n;
-clear trackScraps remainderTrack originalTrack jumpPoints X data;
+clear trackScraps remainderTrack originalTrack jumpPoints X data criteria_counter;
 
 
 
@@ -454,7 +454,7 @@ for n = 1:length(D);
         
         r = length(subThreshold) - fingers;                  % reverse order                  
         D6{n}(subThreshold(r)) = [];                         % deletes data
-        rejectTracks(r,1) = D{n}(subThreshold(r));   % store data for reject data matrix
+        rejectTracks(r,1) = D5{n}(subThreshold(r));   % store data for reject data matrix
         fingers = fingers + 1;
         
     end
@@ -467,7 +467,7 @@ for n = 1:length(D);
     
 end
 
-clear n; 
+clear n windowSize; 
 
 
  
@@ -501,7 +501,7 @@ for n = 1:length(D);
     for s = 1:length(tooSmalls)
         t = length(tooSmalls) - countSmalls;
         D7{n}(tooSmalls(t)) = [];
-        tracks_tooSmalls(t,1) = D{n}(tooSmalls(t));      %  recording to add into reject data matrix
+        tracks_tooSmalls(t,1) = D6{n}(tooSmalls(t));      %  recording to add into reject data matrix
         countSmalls = countSmalls + 1;
     end
     
