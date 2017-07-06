@@ -35,8 +35,8 @@
 
 % particle tracking data
 clear
-load('letstry-2017-06-12-dSmash.mat');
-D = D_smash;
+load('poly-challenge-2017-06-05.mat');
+%D = D_smash;
 
 % reject data matrix
 rejectD = cell(6,length(D));
@@ -305,7 +305,7 @@ for n = 1:length(D)
     
     % 14. repeat for all movies
     clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor belowThreshold
-    clear toRemove binaryTrack r X
+    clear toRemove binaryTrack r X jigglers
   
 end
 
@@ -413,13 +413,14 @@ clear trackScraps remainderTrack originalTrack jumpPoints X data;
 
 % 0. initiaize new dataset before trimming
 % 0. in current movie
-%           1. for each track, determine number of timepoints
-%           2. find tracks that are shorter than threshold number of frames
-%           3. report!
-%           4. if no sub-threshold tracks, continue to next movie
-%           5. else, remove structures based on row # (in reverse order)
-%           6. save sub-threshold tracks into reject data matrix
-% 7. repeat for next movie
+%           1. skip to next movie if no data remaining in n
+%           2. for each track, determine number of timepoints
+%           3. find tracks that are shorter than threshold number of frames
+%           4. report!
+%           5. if no sub-threshold tracks, continue to next movie
+%           6. else, remove structures based on row # (in reverse order)
+%           7. save sub-threshold tracks into reject data matrix
+% 8. repeat for next movie
 
 
 
@@ -431,25 +432,30 @@ D6 = D5;
 windowSize = 5;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
+    
+    % 1. so that loop doesn't crash if no data remaining in n
+    if isempty(D6{n}) == 1
+        continue
+    end
 
-    % 1. determine number of timepoints in each track m 
+    % 2. determine number of timepoints in each track m 
     for m = 1:length(D6{n})
         numFrames(m) = length(D6{n}(m).MajAx);
     end
     
-    % 2. find tracks that are shorter than threshold number of frames
+    % 3. find tracks that are shorter than threshold number of frames
     subThreshold = find(numFrames < windowSize);       
     
-    % 3. report!
+    % 4. report!
     X = ['Removing ', num2str(length(subThreshold)), ' short tracks from D6(', num2str(n), ')...'];
     disp(X)
     
-    % 4. to that loop doesn't crash if nothing is too short
+    % 5. continue if nothing is too short
     if isempty(subThreshold) == 1
         continue
     end
     
-    % 5. remove structures based on row # (in reverse order)
+    % 6. remove structures based on row # (in reverse order)
     fingers = 0;
     for toRemove = 1:length(subThreshold)
         
@@ -460,10 +466,10 @@ for n = 1:length(D);
         
     end
     
-    % 6. save sub-threshold tracks into reject data matrix
+    % 7. save sub-threshold tracks into reject data matrix
     rejectD{criteria_counter,n} = rejectTracks;
     
-    % 7. repeat for all movies
+    % 8. repeat for all movies
     clear  numFrames m subThreshold fingers toRemove r X rejectTracks;
     
 end
@@ -479,7 +485,12 @@ criteria_counter = criteria_counter + 1;
 D7 = D6;
 SizeStrainer = 1.5;
 
-for n = 1:length(D);                           
+for n = 1:length(D);   
+    
+    % 1. so that loop doesn't crash if no data remaining in n
+    if isempty(D7{n}) == 1
+        continue
+    end
     
     for i = 1:length(D7{n})
         lengthTrack(i) = max(D7{n}(i).MajAx);                          
@@ -520,7 +531,7 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-revisedTrimmer.mat', 'D_smash', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('poly-challenge-2017-06-05-revisedTrimmer.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
