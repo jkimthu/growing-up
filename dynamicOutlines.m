@@ -63,7 +63,7 @@ reject6_DM = buildDM(rejectD(6,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 52;
+n = 1;
 
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
@@ -130,92 +130,6 @@ for fr = 1:finalFrame
 end
 clear fr;
 
-%%
-% data = D7{n};
-% rejects = rejectD(:,n);
-% 
-% 
-% % 2. assemble trackIDs present in fully trimmed data matrix, D7
-% 
-% survivorTrackIDs = [];
-% for m = 1:length(data)
-%     
-%     % i. isolate TrackID from current track 
-%     currentID = data(m).TrackID(1); % tracks are of a single ID, thanks to trimmer
-%     survivorTrackIDs = [survivorTrackIDs; currentID];
-%     
-% end
-% 
-% clear m currentID;
-% 
-% 
-% % 3. assemble trackIDs in reject stages
-% 
-% % i. rejected by criteria 1 - multiple IDs
-% rejectGroup1 = [];
-% for r = 1:length(rejects{1})
-% 
-%     currentIDs = unique(rejects{1}(r).TrackID);
-%     rejectGroup1 = [rejectGroup1; currentIDs];
-%     
-% end
-% clear r currentIDs;
-% 
-% 
-% % ii. rejected by criteria 3 - jiggly
-% rejectGroup3 = [];
-% for r = 1:length(rejects{3})
-%     
-%     currentID = rejects{3}(r).TrackID(1); % tracks are of a single ID, thanks to stage 1
-%     rejectGroup3 = [rejectGroup3; currentID];
-%     
-% end
-% clear r currentID;
-% 
-% 
-% % iii. rejected by criteria 4 - post size jump IDs
-% rejectGroup4 = [];
-% for r = 1:length(rejects{4})
-%     
-%     currentID = rejects{4}(r).TrackID(1);
-%     rejectGroup4 = [rejectGroup4; currentID];
-%     
-% end
-% clear r currentID;
-% 
-% % iv. rejected by criteria 6 - too small in size
-% 
-% rejectGroup6 = [];
-% if isempty(rejects{6}) == 0
-%     
-%     for r = 1:length(rejects{6})
-%         
-%         currentID = rejects{6}(r).TrackID(1);
-%         rejectGroup6 = [rejectGroup6; currentID];
-%         
-%     end
-%     clear r currentID;
-%     
-% end
-% 
-% 
-% % v. rejected by criteria 2 or 5 - tracks less that window size
-% rejectGroup_shorts = [];
-% for r = 1:length(rejects{2})
-%     
-%     currentID = rejects{2}(r).TrackID(1);
-%     rejectGroup_shorts = [rejectGroup_shorts; currentID];
-%     
-% end
-% clear r currentID;
-% 
-% for r = 1:length(rejects{5})
-%     
-%     currentID = rejects{5}(r).TrackID(1);
-%     rejectGroup_shorts = [rejectGroup_shorts; currentID];
-%     
-% end
-% clear r currentID;
 
 %%
 % for each image
