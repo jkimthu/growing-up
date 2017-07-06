@@ -110,7 +110,8 @@ for n = 1:length(D)
             % 4. add remainder of track to rejects collection
             rejectIDs = originalIDs ~= originalTrack.TrackID(1);
             rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
-            currentRejects{reject_counter} = rejectTrack;
+            %currentRejects{reject_counter} = rejectTrack;
+            currentRejects = [currentRejects; rejectTrack];
             
             % 5. if no changes, continue to next track
         end
@@ -201,8 +202,8 @@ for n = 1:length(D);
     for toRemove = 1:length(subThreshold)
         
         r = length(subThreshold) - fingers;                  % reverse order                  
+        tracks_shortGlimpses(r,1) = D3{n}(subThreshold(r));   % store data for reject data matrix
         D3{n}(subThreshold(r)) = [];                         % deletes data
-        tracks_shortGlimpses(r,1) = D2{n}(subThreshold(r));   % store data for reject data matrix
         fingers = fingers + 1;
         
     end
@@ -292,9 +293,9 @@ for n = 1:length(D)
     counter = 0;
     for toRemove = 1:length(belowThreshold)
         
-        r = length(belowThreshold) - counter;                  % reverse order
-        D4{n}(belowThreshold(r)) = [];                         % deletes data
-        jigglers(r,1) = D3{n}(belowThreshold(r));   % store data for reject data matrix
+        r = length(belowThreshold) - counter;            % reverse order
+        jigglers(r,1) = D4{n}(belowThreshold(r));        % store data for reject data matrix
+        D4{n}(belowThreshold(r)) = [];                   % deletes data
         counter = counter + 1;
         
     end
@@ -308,7 +309,7 @@ for n = 1:length(D)
   
 end
 
-clear n gainLossRatio jiggleThreshold jigglers counter;
+clear n gainLossRatio jiggleThreshold jigglers counter dropThreshold;
 
 
 
@@ -398,7 +399,7 @@ for n = 1:length(D);
 end
     
 clear growthFrac Lengths jumpFrac jump_counter Rates clippedTarget clipPoint m n;
-clear trackScraps remainderTrack originalTrack jumpPoints X data criteria_counter;
+clear trackScraps remainderTrack originalTrack jumpPoints X data;
 
 
 
@@ -453,8 +454,8 @@ for n = 1:length(D);
     for toRemove = 1:length(subThreshold)
         
         r = length(subThreshold) - fingers;                  % reverse order                  
+        rejectTracks(r,1) = D6{n}(subThreshold(r));   % store data for reject data matrix
         D6{n}(subThreshold(r)) = [];                         % deletes data
-        rejectTracks(r,1) = D5{n}(subThreshold(r));   % store data for reject data matrix
         fingers = fingers + 1;
         
     end
@@ -500,8 +501,8 @@ for n = 1:length(D);
     countSmalls = 0;
     for s = 1:length(tooSmalls)
         t = length(tooSmalls) - countSmalls;
+        tracks_tooSmalls(t,1) = D7{n}(tooSmalls(t));      %  recording to add into reject data matrix
         D7{n}(tooSmalls(t)) = [];
-        tracks_tooSmalls(t,1) = D6{n}(tooSmalls(t));      %  recording to add into reject data matrix
         countSmalls = countSmalls + 1;
     end
     
