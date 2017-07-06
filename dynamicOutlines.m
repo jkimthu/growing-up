@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 3
+% last edit: jen, 2017 Jul 5
 
 % OK LEZ GO!
 %%
@@ -40,89 +40,11 @@ load('letstry-2017-06-12-dSmash.mat');
 D = D_smash;
 
 % reject data matrix
-rejectD = cell(5,length(D));
+%rejectD = cell(5,length(D));
 
 % criteria counter
-criteria_counter = 0;
+%criteria_counter = 0;
 
-
-%% Criteria ONE: tracks cannot contain multiple TrackIDs
-
-criteria_counter = criteria_counter + 1;
-
-% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
-%       but at least the first trackID is useable. Let's keep these first ones
-%       and reject data from subsequent IDs.
-
-% 0. for each track in current movie
-%       1. determine whether trackID contains number changes
-%               2. if so, trim track such that only first trackID remains
-%                  (all following are very likely error prone)
-%                         i. isolate entire data struct of current track,
-%                            in prep to clip all variables (MajAx, X, Y, etc.)
-%                        ii. isolate data corresponding to first TrackID
-%               3. replace data from original track (containing multiple IDs) with trimmed data
-%               4. add remainder of track to temporary (movie-specific) rejects collection
-%       5. if no changes, continue to next track
-% 6. when all tracks finished, save accmulated rejects.
-% 7. repeat for next movie
-
-% for n = 1:length(D)
-%     
-%     
-%     % 0. initialize
-%     data = D{n};
-%     
-%     % 0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
-%     data = rmfield(data,'Conv'); 
-%     
-%     
-%     currentRejects = [];
-%     reject_counter = 0;
-%     
-%     for m = 1:length(data)
-%         
-%         % 1. determine whether trackID contains number changes
-%         trackIDs = data(m).TrackID;
-%         isChange = diff(trackIDs);
-%         
-%         % if so,
-%         if sum(isChange) ~= 0
-%             
-%             % 2. trim track such that only first trackID remains
-%             reject_counter = reject_counter +1;
-%             disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
-%             
-%             % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
-%             originalTrack = data(m);
-%             
-%             % ii. isolate data corresponding to first TrackID
-%             originalIDs = originalTrack.TrackID;
-%             firstIDs = originalIDs == originalTrack.TrackID(1);
-%             firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
-%             
-%             
-%             % 3. replace data from original track (containing multiple IDs) with trimmed data
-%             data(m) = firstTrack;
-%             
-%             
-%             % 4. add remainder of track to rejects collection
-%             rejectIDs = originalIDs ~= originalTrack.TrackID(1);
-%             rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
-%             currentRejects{reject_counter} = rejectTrack;
-%             
-%             % 5. if no changes, continue to next track
-%         end
-%         
-%     end
-%     
-%     % 6. when all tracks finished, save trimmed data and accmulated rejects
-%     D2{n} = data;
-%     rejectD{criteria_counter,n} = currentRejects;
-%     
-%     clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
-%     clear firstTrack firstIDs reject_counter isChange
-% end
 
 
 %%
@@ -132,7 +54,7 @@ dataMatrix = buildDM(D,T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 52;
+n = 1;
 
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
@@ -158,39 +80,141 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 % 1. isolate ellipse data from movie (stage xy) of interest
 dm_currentMovie = dataMatrix(dataMatrix(:,31) == n,:);
 
-% 2. define interesting IDs by pulling TracksIDs associated with each target m
 
-% double-check:
-% how many TrackID(1)s are represented only with < 5 data points?
-
-% initialize data
-% currentMovie = D2{n};
-
-% find tracks with < 5 frames in first ID
-% for m = 1:length(currentMovie)
-%     currentTrack = currentMovie(m);
-%     trackLengths(m,1) = length(currentTrack.X);
-% end
-% shorties = find(trackLengths < 5);
 %%
-% gather IDs for those tracks
+% 2. assemble SIGN data
+D4 = D;
 
-greenTracks = [1, 5, 6, 8, 10, 18, 19, 20];
-redTracks = [2, 3, 4, 7, 9, 11, 12, 13, 14, 15, 16, 17];
+% i. initialize threshold ratio, below which tracks are removed
+gainLossRatio = 0.85;
 
-greenIDs = [];
-for m = 1:length(greenTracks)
-    currentIDs = D{n}(greenTracks(m)).TrackID;
-    greenIDs = [greenIDs; unique(currentIDs)];
+for m = 1:length(D4{n})
+    
+    % ii. determine change in length between each timestep
+    Signs = diff(D4{n}(m).MajAx);
+    
+    
+    % iii. minute res is so noisy. average this derivative over every 10 timesteps
+    sampleLength = floor( length(Signs)/10 ) * 10;
+    Signs = mean(reshape(Signs(1:sampleLength),10,[]))';
+    
+    
+    % iv. determine ratio of negatives to positives
+    Signs(Signs<0) = 0;
+    Signs(Signs>0) = 1;
+    trackRatio = sum(Signs)/length(Signs);
+    
+    % v. store ratios from all tracks to reference during removal
+    allRatios(m,1) = trackRatio;
+    
+    clear Signs trackRatio sampleLength;
 end
 
-redIDs = [];
-for m = 1:length(redTracks)
-    currentIDs = D{n}(redTracks(m)).TrackID;
-    redIDs = [redIDs; unique(currentIDs)];
+
+% vi. determine which tracks in current movie fall below threshold
+swigglyIDs = find(allRatios < 0.85);
+
+% vii. report!
+X = ['Removing ', num2str(length(swigglyIDs)), ' swiggly tracks from D4(', num2str(n), ')...'];
+disp(X)
+
+% viii. remove structures based on row # (in reverse order)
+swiggle_counter = 0;
+for q = 1:length(swigglyIDs)
+    
+    r = length(swigglyIDs) - swiggle_counter;   % reverse order
+    D4{n}(swigglyIDs(r)) = [];                  % deletes data
+    swigglyTracks(r,1) = D{n}(swigglyIDs(r));   % store data for reject data matrix
+    swiggle_counter = swiggle_counter + 1;
+    
 end
 
-interestingTrackIDs = [redIDs; greenIDs];
+% ix. save tracks that are too swiggly into reject data matrix
+rejectD = swigglyTracks;
+
+clear allRatios allTracks bottomTracks gainLossRatio swigglyIDs swigglyTracks q r m swiggle_counter X;
+
+%%
+% 3. assemble nonDrop data
+nonDropRatio = NaN(length(D{n}),1);
+dropThreshold = -0.75;
+
+
+for m = 1:length(D{n})
+    
+    % 1. isolate length data from current track
+    lengthTrack = D{n}(m).MajAx;
+    
+    % 2. find change in length between frames
+    diffTrack = diff(lengthTrack);
+    
+    % 3. convert change into binary, where positives = 0 and negatives = 1
+    binaryTrack = logical(diffTrack < 0);
+    
+    % 4. find all drops (negatives that exceed drop threshold)
+    dropTrack = diffTrack < dropThreshold;
+    
+    % 5. find the ratio of non-drop negatives per track length
+    nonDropNegs = sum(dropTrack - binaryTrack);
+    squiggleFactor = nonDropNegs/length(lengthTrack);
+    
+    
+    nonDropRatio(m) = squiggleFactor;
+    
+end
+
+belowThreshold = find(nonDropRatio < -0.1);
+
+clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor binaryTrack
+
+%%
+% 3. define interesting TracksIDs associated with either method
+
+% i. sign method
+data = rejectD;
+sign_IDs = [];
+
+for i = 1:length(data)
+
+    trackIDs = unique(data(i).TrackID);
+    sign_IDs = [sign_IDs; trackIDs];
+
+end
+clear trackIDs i m data;
+
+% ii. nonDrop method
+
+data = D{n}(belowThreshold);
+nonDrop_IDs = [];
+
+for i = 1:length(data)
+    
+    trackIDs = unique(data(i).TrackID);
+    nonDrop_IDs = [nonDrop_IDs; trackIDs];
+    
+end
+clear trackIDs i data;
+%%
+% 4. seperate IDs into:
+%           i. only rejected in Signs
+%          ii. only rejected nonDrop
+%         iii. rejected by both
+%          iv. all tracks
+
+% iii. rejected by both
+overLap = intersect(sign_IDs, nonDrop_IDs);
+
+% i. only rejected in Signs
+onlySigns = setdiff(sign_IDs, overLap);
+
+% ii. only rejected nonDrop
+onlyNonDrops = setdiff(nonDrop_IDs, overLap);
+
+% iv. all tracks
+interestingTrackIDs = [overLap; onlySigns; onlyNonDrops];
+
+
+
 %%
 
 % for each image
@@ -201,7 +225,7 @@ for img = 1:length(names)%max(interestingFrames)
     % 3. initialize current image
     I=imread(names{img});
     %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-n52-redvsgreen.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-n52-signVsswiggle.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[3200 7400]);
@@ -242,7 +266,7 @@ for img = 1:length(names)%max(interestingFrames)
         targets = ismember(IDs, interestingTrackIDs);
         targets = find(targets == 1);
         targetIDs = IDs(targets);
-                % axes
+        % axes
         majorAxes = dm_currentImage(targets,3); % lengths
         minorAxes = dm_currentImage(targets,12); % widths
         
@@ -259,7 +283,7 @@ for img = 1:length(names)%max(interestingFrames)
         % frames
         frames = dm_currentImage(targets,30);
         
-
+        
         
         
         % 5. for each particle of interest in current image, draw ellipse
@@ -268,63 +292,57 @@ for img = 1:length(names)%max(interestingFrames)
             
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
             
-            % i. if track number is a surviving track, plot green
-            %if any(IDs(p)==survivorTracks) == 1
-            if any(IDs(p) == greenIDs) == 1
-            %if IDs(p)
-            
+            % i. if track number is a reject of nonDrops method, plot green
+            if any(IDs(p) == onlyNonDrops) == 1
+                
                 hold on
                 plot(x_rotated,y_rotated,'g','lineWidth',1)
                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',14);
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
-%             % ii. if track number was trimmed in first stage (size), plot blue
-            elseif any(IDs(p)== redIDs) == 1
+                % ii. if track number is a reject of both methods, plot red
+            elseif any(IDs(p)== overLap) == 1
+                
                 hold on
                 plot(x_rotated,y_rotated,'r','lineWidth',1)
                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',14);
                 xlim([0 2048]);
                 ylim([0 2048]);
-%                 
-%             % iii. if track number was trimmed in second stage (golden ratio), plot orange
-%             elseif any(IDs(p)== lostTracks{2}) == 1
-%                 hold on
-%                 plot(x_rotated,y_rotated,'b','lineWidth',2)
-%                 xlim([0 2048]);
-%                 ylim([0 2048]);
-%                 
-%             % iv. if track number was trimmed in third stage (jumpy), plot white
-%             elseif any(IDs(p)== lostTracks{3}) == 1 && any(IDs(p)== lostTracks{4}) == 1
-%                 hold on
-%                 plot(x_rotated,y_rotated,'r','lineWidth',2)
-%                 xlim([0 2048]);
-%                 ylim([0 2048]);
-%                 
-%                 
-%             % iv. if track number was trimmed in fourth stage (too short), plot red
-%             elseif any(IDs(p)== lostTracks{4}) == 1
-%                 hold on
-%                 plot(x_rotated,y_rotated,'w','lineWidth',2)
-%                 xlim([0 2048]);
-%                 ylim([0 2048]);
-%                 
-%                 
-%             % v. if track number was trimmed in fifth stage (too swiggly), plot yellow
-%             elseif any(IDs(p)== lostTracks{5}) == 1
-%                 hold on
-%                 plot(x_rotated,y_rotated,'y','lineWidth',2)
-%                 xlim([0 2048]);
-%                 ylim([0 2048]);
                 
-            % vi. other
-%             else
-%                 hold on
-%                 plot(x_rotated,y_rotated,'c','lineWidth',2)
-%                 xlim([0 2048]);
-%                 ylim([0 2048]);
-%                 
             end
+            
+            
+            
+            %             % i. if track number is a reject of nonDrops method, plot green
+            %             if any(intersect(IDs(p),onlyNonDrops)) == 1
+            %
+            %                 hold on
+            %                 plot(x_rotated,y_rotated,'g','lineWidth',1)
+            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',14);
+            %                 xlim([0 2048]);
+            %                 ylim([0 2048]);
+            %
+            %             % ii. if track number is a reject of signs method, plot red
+            %             elseif any(intersect(IDs(p), onlySigns)) == 1
+            %
+            %                 hold on
+            %                 plot(x_rotated,y_rotated,'r','lineWidth',1)
+            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',14);
+            %                 xlim([0 2048]);
+            %                 ylim([0 2048]);
+            %
+            %             % iii. if track number is rejected in both methods, plot
+            %             elseif any(intersect(IDs(p), overLap)) == 1
+            %
+            %                 hold on
+            %                 plot(x_rotated,y_rotated,'o','lineWidth',1)
+            %                 text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','w','FontSize',14);
+            %                 xlim([0 2048]);
+            %                 ylim([0 2048]);
+            %
+            %             end
+            %
         end
         
         % 6. save
@@ -351,130 +369,4 @@ end
 
 %set(gca,'Ydir','Normal')
 
-
-%%
-
-% 
-% FilterParameters = {[10,.8,40],'gaussian'};
-% Threshold =  [-14.1379, -1];
-% Background = [];
-% PlotFlag = 0;
-% ImType = {'Single'};
-% 
-% 
-% %test=Particle_Centroid(FileStruct,FilterParam,Threshold,FIndex,Backgrnd,DiffInfo,ConvFactor,Fps,PlotFlag);
-% %test=Particle_Centroid(I,FilterParameters,Threshold,[],Background,ImType,conversionFactor,PlotFlag);
-% %%
-% 
-% FN=1;
-% FileStruct = FileFind;
-% FIndex = FileStruct.File.Num;
-% 
-% 
-% Im=double(imread([FileStruct.Path.Root,sprintf(sprintf([FileStruct.Path.Base,'%%0%gg'],FileStruct.Path.Length),FileStruct.Path.Num)...
-%     ,filesep,sprintf(sprintf([FileStruct.File.Base,'%%0%gg',FileStruct.File.Appnd],FileStruct.File.Length),FIndex(FN))]));
-% 
-% Im=Im(:,:,1);
-% 
-% Im0 = Im;
-% Im1 = Im;
-% ImM = Im;
-% 
-% Backgrnd = zeros(size(Im));
-% Im=Im - Backgrnd;
-% 
-% 
-% [h_obj, h_noise] = FilterGen_V(FilterParameters{1}(1), FilterParameters{1}(2), FilterParameters{1}(3), FilterParameters{2});
-% %Preperations to do outside of loop
-% Im_Filt=imfilter(Im,h_noise-h_obj,'replicate');
-% Im0F=Im_Filt;
-% Im1F=Im_Filt;
-% ImMF=Im_Filt;
-% 
-% % Threshold
-% ThreshDir = Threshold(2);
-% Threshold = Threshold(1);
-% 
-% %%
-% 
-% ParticleOut = [];
-% h = waitbar(0,['Finding Particles...']);
-% 
-% %for FN = 1:length(FIndex)
-% %%
-% try
-%     switch ImType
-%         case 'Single'
-% Im=double(imread([FileStruct.Path.Root,sprintf(sprintf([FileStruct.Path.Base,'%%0%gg'],FileStruct.Path.Length),FileStruct.Path.Num)...
-%     ,filesep,sprintf(sprintf([FileStruct.File.Base,'%%0%gg',FileStruct.File.Appnd],FileStruct.File.Length),FIndex(FN))]));
-% Im=Im(:,:,1);
-%     end
-% catch err
-%     disp('Early Termination Reading Images!')
-%     disp(sprintf('Failed File Number: %g', FIndex(FN)))
-%     %break  %(if in loop)
-% end
-% %%
-% 
-% Im0=max(cat(3,Im,Im0),[],3);
-% Im1=min(cat(3,Im,Im1),[],3);
-% ImM=ImM+Im;
-% 
-% 
-% Im=Im-Backgrnd;
-% %%
-% if ~isempty(FilterParameters);
-%     Im_Filt=imfilter(Im,h_noise-h_obj,'replicate');
-%     if ~strcmp(ImType,'Single')
-%         ImR_Filt=imfilter(ImR,h_noise-h_obj,'replicate');
-%     end
-% else
-%     Im_Filt=Im;
-% end
-% %%
-% 
-% waitbar(FN/length(FIndex), h)
-% 
-% %%
-% 
-% Im0F=max(cat(3,Im_Filt,Im0F),[],3);
-% Im1F=min(cat(3,Im_Filt,Im1F),[],3);
-% ImMF=ImMF+Im_Filt;
-% 
-% %%
-% 
-% if ThreshDir < 0
-%     Im_BW = Im_Filt <= Threshold;
-% else
-%     Im_Bw = ImFilt >= Threshold;
-% end
-% 
-% imshow(Im_BW)
-% %%
-% Im_CC = bwconncomp(Im_BW);
-% tempXY = regionprops(Im_CC, 'PixelList', 'PixelIdxList', 'Area');
-% %%
-%     ParticleOut(FN).X=arrayfun(@(x) sum(x.PixelList(:,1).*Im_Filt(x.PixelIdxList))/sum(Im_Filt(x.PixelIdxList)),tempXY).*conversionFactor;
-%     ParticleOut(FN).Y=arrayfun(@(x) sum(x.PixelList(:,2).*Im_Filt(x.PixelIdxList))/sum(Im_Filt(x.PixelIdxList)),tempXY).*conversionFactor;
-%     ParticleOut(FN).A=arrayfun(@(x) x.Area,tempXY).*conversionFactor^2;
-%     ParticleOut(FN).AvgInt=arrayfun(@(x) sum(Im_Filt(x.PixelIdxList)),tempXY);
-%     ParticleOut(FN).MaxInt=arrayfun(@(x) max(Im_Filt(x.PixelIdxList)),tempXY);
-%     if ~strcmp(ImType,'Single')
-%         ParticleOut(FN).AvgIntRaw=arrayfun(@(x) sum(ImR_Filt(x.PixelIdxList)),tempXY);
-%         ParticleOut(FN).MaxIntRaw=arrayfun(@(x) max(ImR_Filt(x.PixelIdxList)),tempXY);
-%     end
-%     ParticleOut(FN).Frame=FIndex(FN);
-%     ParticleOut(FN).Conv=conversionFactor;
-%    % ParticleOut(FN).FPS=Fps;
-% %%
-%     %if PlotFlag
-%         figure(2); imagesc(Im); daspect([1 1 1]); colormap('gray'); title('Raw Image')
-%         figure(3); imagesc(Im_Filt); daspect([1 1 1]); colormap('gray'); title('Filtered Image')
-%         figure(4); imagesc(Im_BW); daspect([1 1 1]); colormap('gray'); title('Thresholded Image')
-%         figure(2); hold on; plot(ParticleOut(FN).X,ParticleOut(FN).Y,'go');hold off
-%         figure(3); hold on; plot(ParticleOut(FN).X,ParticleOut(FN).Y,'go');hold off
-%         figure(4); hold on; plot(ParticleOut(FN).X,ParticleOut(FN).Y,'go');hold off
-%         drawnow
-%    % end
-% 
 

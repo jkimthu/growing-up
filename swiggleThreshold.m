@@ -173,7 +173,7 @@ end
 overLap_slow = intersect(signs_IDs_slow, nonDrop_IDs_slow);
 overLap_fast = intersect(signs_IDs_fast, nonDrop_IDs_fast);
 
-% find all unque
+% find all unique
 unique_rejectIDs_slow = unique([signs_IDs_slow; nonDrop_IDs_slow]);
 unique_rejectIDs_fast = unique([signs_IDs_fast; nonDrop_IDs_fast]);
 
