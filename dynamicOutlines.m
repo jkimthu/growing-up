@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-06-05';
+experiment = '2017-06-12';
 
 
 % TRACKING DATA
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('poly-challenge-2017-06-05-revisedTrimmer.mat','D7','D','T','rejectD');
+load('letstry-2017-06-12-revisedTrimmer-xy1-xy52-noLinker.mat','D7','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,9 +57,9 @@ reject6_DM = buildDM(rejectD(6,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 32;
+n = 52;
 
-img_prefix = strcat('poly-challenge-2017-06-05_xy', num2str(n), 'T'); 
+img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -70,7 +70,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('poly-challenge-2017-06-05_xy*.tif');
+imgDirectory = dir('letstry-2017-06-12_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -84,12 +84,12 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 dm_survivors = survivorDM(survivorDM(:,31) == n,:);
 
 dm_total = totalDM(totalDM(:,31) == n,:);
-dm_reject1 = reject1_DM(reject1_DM(:,31) == n,:);
+%dm_reject1 = reject1_DM(reject1_DM(:,31) == n,:);
 dm_reject2 = reject2_DM(reject2_DM(:,31) == n,:);
 dm_reject3 = reject3_DM(reject3_DM(:,31) == n,:);
 dm_reject4 = reject4_DM(reject4_DM(:,31) == n,:);
 dm_reject5 = reject5_DM(reject5_DM(:,31) == n,:);
-dm_reject6 = reject6_DM(reject6_DM(:,31) == n,:);
+%dm_reject6 = reject6_DM(reject6_DM(:,31) == n,:);
 
 clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM reject5_DM reject6_DM
 %%
@@ -97,28 +97,28 @@ clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM reject5_DM 
 allTracks = unique(dm_total(:,1));
 
 survivorTrackIDs = [];
-rejectGroup1 = [];
+%rejectGroup1 = [];
 rejectGroup3 = [];
 rejectGroup4 = [];
-rejectGroup6 = [];
+%rejectGroup6 = [];
 rejectGroup_shorts =[];
 
 for fr = 1:finalFrame
     
     % i. isolate data from each frame
     survivors = dm_survivors(dm_survivors(:,30) == fr,:); % col 30 = frame #
-    reject1s = dm_reject1(dm_reject1(:,30) == fr,:);
+    %reject1s = dm_reject1(dm_reject1(:,30) == fr,:);
     reject2s = dm_reject2(dm_reject2(:,30) == fr,:);
     reject3s = dm_reject3(dm_reject3(:,30) == fr,:);
     reject4s = dm_reject4(dm_reject4(:,30) == fr,:);
     reject5s = dm_reject5(dm_reject5(:,30) == fr,:);
-    reject6s = dm_reject6(dm_reject6(:,30) == fr,:);
+    %reject6s = dm_reject6(dm_reject6(:,30) == fr,:);
     
     survivorTrackIDs{fr} = survivors(:,1); % col 1 = TrackID
-    rejectGroup1{fr} = reject1s(:,1);
+    %rejectGroup1{fr} = reject1s(:,1);
     rejectGroup3{fr} = reject3s(:,1);
     rejectGroup4{fr} = reject4s(:,1);
-    rejectGroup6{fr} = reject6s(:,1);
+    %rejectGroup6{fr} = reject6s(:,1);
     rejectGroup_shorts{fr} = [reject2s(:,1); reject5s(:,1)];
     
 end
@@ -134,10 +134,10 @@ for img = 1:length(names)%max(interestingFrames)
     % 3. initialize current image
     I=imread(names{img});
     %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'-D7.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'-noLinker.tif');
     
     figure(1)
-    imshow(I)%, 'DisplayRange',[3200 7400]);
+    imshow(I, 'DisplayRange',[3200 7400]);
     
     
     % 3. if no tracked cells (surivors NOR rejects), save and skip
@@ -213,15 +213,15 @@ for img = 1:length(names)%max(interestingFrames)
                 
             end
             
-            if any(IDs(p) == rejectGroup1{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'r','lineWidth',2)
-                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',12);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
+%             if any(IDs(p) == rejectGroup1{img}) == 1
+%                 
+%                 hold on
+%                 plot(x_rotated,y_rotated,'r','lineWidth',2)
+%                 %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','r','FontSize',12);
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%             end
             
             if any(IDs(p) == rejectGroup3{img}) == 1
                 
@@ -243,15 +243,15 @@ for img = 1:length(names)%max(interestingFrames)
                 
             end
             
-            if any(IDs(p) == rejectGroup6{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'b','lineWidth',2)
-                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','b','FontSize',12);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
+%             if any(IDs(p) == rejectGroup6{img}) == 1
+%                 
+%                 hold on
+%                 plot(x_rotated,y_rotated,'b','lineWidth',2)
+%                 %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','b','FontSize',12);
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%             end
 
             if any(IDs(p) == rejectGroup_shorts{img}) == 1
                 

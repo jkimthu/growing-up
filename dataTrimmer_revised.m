@@ -28,14 +28,14 @@
 
 
 
-% last edit: July 6, 2017
+% last edit: July 7, 2017
 
 
 %% initialize
 
 % particle tracking data
 clear
-load('poly-challenge-2017-06-05.mat');
+load('letstry-2017-06-12-xy1-xy52-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -47,90 +47,98 @@ criteria_counter = 0;
 
 %% Criteria ONE: tracks cannot contain multiple TrackIDs
 
-% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
-%       but at least the first trackID is useable. Let's keep these first ones
-%       and reject data from subsequent IDs.
+% REDUNDANT WITH NO LINKER
 
-% 0. for each track in current movie
-%       1. determine whether trackID contains number changes
-%               2. if so, trim track such that only first trackID remains
-%                  (all following are very likely error prone)
-%                         i. isolate entire data struct of current track,
-%                            in prep to clip all variables (MajAx, X, Y, etc.)
-%                        ii. isolate data corresponding to first TrackID
-%               3. replace data from original track (containing multiple IDs) with trimmed data
-%               4. add remainder of track to temporary (movie-specific) rejects collection
-%       5. if no changes, continue to next track
-% 6. when all tracks finished, save accumulated rejects
-% 7. report!
-% 8. repeat for next movie
-
-
-% for easy reshuffling of criteria
-criteria_counter = criteria_counter + 1;
-
-for n = 1:length(D)
-    
-    
-    % 0. initialize
-    data = D{n};
-    
-    % 0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
-    data = rmfield(data,'Conv'); 
-    
-    
-    currentRejects = [];
-    reject_counter = 0;
-    
-    for m = 1:length(data)
-        
-        % 1. determine whether trackID contains number changes
-        trackIDs = data(m).TrackID;
-        isChange = diff(trackIDs);
-        
-        % if so,
-        if sum(isChange) ~= 0
-            
-            % 2. trim track such that only first trackID remains
-            reject_counter = reject_counter +1;
-            
-            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
-            originalTrack = data(m);
-            
-            % ii. isolate data corresponding to first TrackID
-            originalIDs = originalTrack.TrackID;
-            firstIDs = originalIDs == originalTrack.TrackID(1);
-            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
-            
-            
-            % 3. replace data from original track (containing multiple IDs) with trimmed data
-            data(m) = firstTrack;
-            
-            
-            % 4. add remainder of track to rejects collection
-            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
-            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
-            %currentRejects{reject_counter} = rejectTrack;
-            currentRejects = [currentRejects; rejectTrack];
-            
-            % 5. if no changes, continue to next track
-        end
-        
-    end
-    
-    % 6. when all tracks finished, save trimmed data and accmulated rejects
-    D2{n} = data;
-    rejectD{criteria_counter,n} = currentRejects;
-    
-    % 7. report !
-    disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from D2 (', num2str(n),') !'))
-    
-    %8. repeat for all movies
-    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
-    clear firstTrack firstIDs reject_counter
-end
-
-clear isChange trackIDs m n;
+% % Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
+% %       but at least the first trackID is useable. Let's keep these first ones
+% %       and reject data from subsequent IDs.
+% 
+% % 0. for each track in current movie
+% %       1. determine whether trackID contains number changes
+% %               2. if so, trim track such that only first trackID remains
+% %                  (all following are very likely error prone)
+% %                         i. isolate entire data struct of current track,
+% %                            in prep to clip all variables (MajAx, X, Y, etc.)
+% %                        ii. isolate data corresponding to first TrackID
+% %               3. replace data from original track (containing multiple IDs) with trimmed data
+% %               4. add remainder of track to temporary (movie-specific) rejects collection
+% %       5. if no changes, continue to next track
+% % 6. when all tracks finished, save accumulated rejects
+% % 7. report!
+% % 8. repeat for next movie
+% 
+% 
+% % for easy reshuffling of criteria
+% criteria_counter = criteria_counter + 1;
+% 
+% for n = 1:length(D)
+%     
+%     
+%     % 0. initialize
+%     data = D{n};
+%     
+%     % 0. if no data in n, continue to next movie
+%     if isempty(data) == 1
+%         disp(strcat('Clipping (0) tracks with multiple IDs from D2 (', num2str(n),') !'))
+%         continue
+%     end
+% 
+%     % 0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
+%     data = rmfield(data,'Conv'); 
+%     
+%     
+%     currentRejects = [];
+%     reject_counter = 0;
+%     
+%     for m = 1:length(data)
+%         
+%         % 1. determine whether trackID contains number changes
+%         trackIDs = data(m).TrackID;
+%         isChange = diff(trackIDs);
+%         
+%         % if so,
+%         if sum(isChange) ~= 0
+%             
+%             % 2. trim track such that only first trackID remains
+%             reject_counter = reject_counter +1;
+%             
+%             % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
+%             originalTrack = data(m);
+%             
+%             % ii. isolate data corresponding to first TrackID
+%             originalIDs = originalTrack.TrackID;
+%             firstIDs = originalIDs == originalTrack.TrackID(1);
+%             firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
+%             
+%             
+%             % 3. replace data from original track (containing multiple IDs) with trimmed data
+%             data(m) = firstTrack;
+%             
+%             
+%             % 4. add remainder of track to rejects collection
+%             rejectIDs = originalIDs ~= originalTrack.TrackID(1);
+%             rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
+%             %currentRejects{reject_counter} = rejectTrack;
+%             currentRejects = [currentRejects; rejectTrack];
+%             
+%             % 5. if no changes, continue to next track
+%         end
+%         
+%     end
+%     
+%     % 6. when all tracks finished, save trimmed data and accmulated rejects
+%     D2{n} = data;
+%     rejectD{criteria_counter,n} = currentRejects;
+%     
+%     % 7. report !
+%     disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from D2 (', num2str(n),') !'))
+%     
+%     %8. repeat for all movies
+%     clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
+%     clear firstTrack firstIDs reject_counter
+% end
+% 
+% clear isChange trackIDs m n;
 
 %%
 % double-check:
@@ -179,7 +187,13 @@ D3 = D2;
 windowSize = 5;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
-
+    
+    % 0. if no data in n, continue to next movie
+    if isempty(D3{n}) == 1
+        disp(strcat('Clipping (0) tracks with multiple IDs from D3 (', num2str(n),') !'))
+        continue
+    end
+    
     % 1. determine number of timepoints in each track m 
     for m = 1:length(D3{n})
         numFrames(m) = length(D3{n}(m).MajAx);
@@ -254,6 +268,12 @@ dropThreshold = -0.75;
 jiggleThreshold = -0.1;
 
 for n = 1:length(D)
+    
+    % 0. if no data in n, continue to next movie
+    if isempty(D4{n}) == 1
+        disp(strcat('Removing (0) jiggly tracks from D4 (', num2str(n),') !'))
+        continue
+    end
     
     % 1. for each track, collect % of non-drop negatives per track length (in frames)
     nonDropRatio = NaN(length(D{n}),1);
@@ -347,6 +367,12 @@ for n = 1:length(D);
     % 0. isolate data for current movie
     data = D4{n};
     
+    % 0. if no data in n, continue to next movie
+    if isempty(data) == 1
+        disp(strcat('Clipping 0 jumps in D5 (', num2str(n),') !'))
+        continue
+    end
+    
     jump_counter = 0;
     for m = 1:length(data)   
                                                                            
@@ -435,6 +461,8 @@ for n = 1:length(D);
     
     % 1. so that loop doesn't crash if no data remaining in n
     if isempty(D6{n}) == 1
+        X = ['Removing 0 short tracks from D6(', num2str(n), ')...'];
+        disp(X)
         continue
     end
 
@@ -489,6 +517,8 @@ for n = 1:length(D);
     
     % 1. so that loop doesn't crash if no data remaining in n
     if isempty(D7{n}) == 1
+        X = ['Removing 0 small particles from D7(', num2str(n), ')...'];
+        disp(X)
         continue
     end
     
@@ -531,7 +561,7 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('poly-challenge-2017-06-05-revisedTrimmer.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-revisedTrimmer-xy1-xy52-noLinkerc.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
