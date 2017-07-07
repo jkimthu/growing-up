@@ -1,45 +1,59 @@
 %% .nd2 Proc for individually saved xy series
 
-%  Purpose: exported multi-series from Elements on scope 5 computer are not
-%  compatible with previous version of this script. (The NSeries line would
-%  read the entire file as a single series.) Until resolved, by-pass this
-%  error by exporting individual series and running tracking analysis on
-%  each separately.
+%  Goal: from ND2 files, track particles from images. Geneate
 
 
-%  Last modified (jen): Jun 13, 2017
+%  Changes from original script from Vicente:
+%
+%       1. Original ND2 is imported here as invididual movies. 
+%          Something about ND2's must have changed such that the NSeries
+%          line would ready the entire files as a single series.
+%          Solution: export individual series and run tracking on each
+%          separately.
+%
+%       2. Commented out Track Linker step. (2017 July 7)
+%          This was originally meant to create tracks of swimming cells.
+%          In these experiments, linked tracks often meld different cell
+%          tracks together (say, when collisions occur) and result in
+%          tracking errors.
+
 
 %  Section contents:
 %
-%    1. Create series directory  
+%    1. Create directory of movie 
 %    2. Initialize tracking paramenters
-%    3. Track cells, looping through all series
-%    4. Compile data into single workspace, D
+%    3. Manually adjust thresholding
+%           - this step permits testing all parameters on a single movie
+%             before running the entire script to track particles in all movies
+%    3. id, trim, and track particles, looping through all series
+%           i. track all particles using adjusted parameters
+%          ii. view all particles identified
+%         iii. trim particles by area
+%          iv. trim particles by width
+%           v. track remaining particles based on coordinate distance
+%    4. Store tracked data into single workspace, D
 
-%   USER NOTES:
-%   once particles are found in test series, manually proceed through
-%         i.  trimming steps (three total)
-%        ii.  tracking steps (two total)
-%       iii.  quality control
 
-%%   O N E.
-%    create series directory 
+
+%  Last modified (jen): 2017 July 7
+%  Original script by the wondrous Vicente Fernandez
+
+%  OK lez go!
+
+%% 1. create directory of movies
 
 xyDirectory = dir('letstry-2017-06-12_xy*.nd2');
 names = {xyDirectory.name};
 
 
-%%   T W O.
-%    initialize tracking parameters
-
-
+%% 2. initialize tracking parameters
+   
 %  set pixels to um conversion based on camera used
 %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 ConversionFactor = 6.5/60;
 
 %  use first image of first series
 reader = bfGetReader(names{ii});
-
 
 %  refine the filter parameters
 %FilterTest_ND2(reader,ImageNumber,{[10,.8,40],'gaussian'})                 % Parameters for spatial filtering:
@@ -51,7 +65,9 @@ reader = bfGetReader(names{ii});
 %  if happy, use these values for FilterParameters
 FilterParameters = {[10,.8,40],'gaussian'};
 
-%%
+
+%% 3. Manually adjust thresholding
+
 Threshold =  [];%[-147.904, -1];         % [] for GUI, make array with second value +/- 1 to indicate direction of threshold, default positive.
                                      % The second number gives the separation between images
                                      
@@ -67,13 +83,14 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 [P,Im] = Particle_Centroid_ND2(reader,FilterParameters,Threshold,[],Background,ImType,ConversionFactor,PlotFlag);  %Actual Processing
 
 
-%%  T H R E E.
-%   track the particles from all series
+%% 4. track particles in each series, looping through all
 
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 31:60
+for ii = 52
+    %% i. track all particles using adjusted parameters
+    
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
@@ -86,15 +103,14 @@ for ii = 31:60
     [P,Im] = Particle_Centroid_ND2(reader,FilterParameters,Threshold,[],Background,ImType,ConversionFactor,PlotFlag);  %Actual Processing
 
  
-    %%
-    %   trimming step one -- view particles as identified
+    %% ii. view all particles identified
     
     AnalysisNumber = 40;  %Note that if Difference or Rolling image approaches are used, 
+    
     %make sure that the file associated with AnalysisNumber also exists (eg AnalysisNumber + 2 for ['Diff+',2])
     figure(6); clf; ParticlePropOverlay_ND2(reader,P,AnalysisNumber,ImType,'MinAx',FilterParameters,[])
 
-    %%
-    %   trimming step two -- trim by area
+    %% iii. trim particles by area
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
@@ -105,36 +121,35 @@ for ii = 31:60
     figure(7); clf; ParticlePropOverlay_ND2(reader,P_Trim1,AnalysisNumber,ImType,'A',FilterParameters,[])
 
     
-    %%
-    %   trimming step three -- trim by particle width
+    %% iv. trim particles by width
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 2.6;     % upper bound for restricted field, or Inf
+    UpperBound = 2.0;     % upper bound for restricted field, or Inf
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
     figure(8); clf; ParticlePropOverlay_ND2(reader,P_Trim2,AnalysisNumber,ImType,'MinAx',FilterParameters,[])
 
 
-    %%
-    %   tracking step one -- track particles based on coordinate distance
+    %% v. track remaining particles based on coordinate distance
     
     TrackMode = 'position';       % Choice of {position, velocity, acceleration} to predict position based on previous behavior
     DistanceLimit = 5;            % Limit of distance a particle can travel between frames, in units defined by ConversionFactor
     MatchMethod = 'best';         % Choice of {best, single}
     P_Tracks = Particle_Track(P_Trim2,TrackMode,DistanceLimit,MatchMethod);
     
-    %%
-    %   tracking step two -- link tracks together and store in data matrix!
+    %% 4. Store tracked data into single workspace, D
     
-    PT = TrackLinker(P_Tracks, 'acceleration', 'acceleration', 3, 3, 2);
-    TL=TrackLength(PT);
-    PT(TL<8)=[];
+    % change 2: commented out track linker for non-swimming cells
+    
+    %PT = TrackLinker(P_Tracks, 'acceleration', 'acceleration', 3, 3, 2);
+    %TL=TrackLength(PT);
+    %PT(TL<8)=[];
 
-    A=arrayfun(@(Q) max(Q.Area),PT);
+    %A=arrayfun(@(Q) max(Q.Area),PT);
 
-    D{ii} = PT;
+    D{ii} = P_Tracks;
     T{ii} = ND2ReaderT(reader);
 
     
