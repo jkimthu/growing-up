@@ -88,7 +88,7 @@ dropThreshold = -0.75;
 
 
 %  1. for each movie, identify the number of tracks
-n = 52;
+n = 1;
 numTracks = length(D7{n});
 
 
@@ -244,9 +244,9 @@ title(track);
 
 
 hold on
-plot(trackFrames(2:end),slidingData(:,1)*2,'Color',[1 0.5 0],'Marker','o'); 
+plot(trackFrames(2:end),slidingData(:,1)*4,'Color',[1 0.5 0],'Marker','o'); 
 hold on
-plot(trackFrames(2:end),slidingData(:,1)*2,'Color',[0.5 0 0.5]); 
+plot(trackFrames(2:end),slidingData(:,1)*4,'Color',[0.5 0 0.5]); 
 hold on
 plot(trackFrames(2:end),slidingData(:,1),'Color','k'); 
 xlim([0 202])
