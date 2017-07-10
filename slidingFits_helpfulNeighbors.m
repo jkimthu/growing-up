@@ -76,7 +76,7 @@ dropThreshold = -0.75;
 
 
 %  1. for each movie, identify the number of tracks
-n = 52;
+n = 1;
 numTracks = length(D7{n});
 
 
@@ -242,18 +242,18 @@ end
 % plot mu over time (like length) 
                       
 figure(2)
-plot(trackFrames, trackLengths)
+plot(trackFrames, trackLengths,'o')
 hold on
-plot(trackFrames, v_anupam,'r')
+plot(trackFrames, trackLengths,'r')
 grid on
 xlim([0 202])
 title(track);
 
-%%
+
 hold on
-plot(trackFrames(3:end-2),slidingData(:,1)*2,'Color',[1 0.5 0],'Marker','o'); 
+plot(trackFrames(3:end-2),slidingData(:,1)*4,'Color',[1 0.5 0],'Marker','o'); 
 hold on
-plot(trackFrames(3:end-2),slidingData(:,1)*2,'Color',[0.5 0 0.5]); 
+plot(trackFrames(3:end-2),slidingData(:,1)*4,'Color',[0.5 0 0.5]); 
 hold on
 plot(trackFrames(3:end-2),slidingData(:,1),'Color','k'); 
 xlim([0 202])
