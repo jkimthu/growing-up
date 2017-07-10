@@ -11,21 +11,24 @@
 %       1. for each movie, identify the number of tracks
 %                2. per track, isolate length and time data
 %                        3. build an array with length(track) that identifies curve #
-%                                i. identify all changes in size > threshold (30% loss of previous size)
+%                                i. identify all changes in size > threshold (-0.75 um)
 %                               ii. starting with zero, list curve # for each frame
-%                        4. identify all windows for that track
-%                        5. per window, build an array of "effective length"
-%                                6. use "effective length" to calculate mu
-%                                      i. ln(effective length) vs time
-%                                     ii. fit linear slope to ln(eL) vs time
-%                                    iii. mu = slope / ln(2)
-%                                7. save mu and y-intercept
-%                        8. repeat for all windows
-%                9. repeat for all tracks
-%       10. repeat for all movies
+%                        4. initialize windows for current track
+%                        5. per window, isolate effective length and curve #
+%                        6. if curve # changes,
+%                                i. double length values after change
+%                               ii. use effective length to calculate mu
+%                        7. if no change in curve #, use effective length to calculate mu
+%                                i. ln(effective length) vs time
+%                               ii. fit linear slope to ln(eL) vs time
+%                              iii. mu = slope / ln(2)
+%                        8. save mu and y-intercept
+%                        9. repeat for all windows
+%                10. repeat for all tracks
+%       11. repeat for all movies
 
 
-% last update: jen, 2017 Jun 28
+% last update: jen, 2017 Jul 7
 
 % OK lez go!
 
@@ -35,12 +38,12 @@ doublingRate = 1.0000;
 t = [0,1,2,3,4];
 data = 1 * 2.^(doublingRate*t);  % gives: data = [1,2,4,8,16]
 
-ln_data = log(data);  % gives: ln_data = [0, 0.6931, 1.3863, 2.0794, 2.7726]
+ln_length = log(data);  % gives: ln_data = [0, 0.6931, 1.3863, 2.0794, 2.7726]
 
 plot(t,data) % exponential
-plot(t,ln_data) % linear
+plot(t,ln_length) % linear
 
-fitLine = polyfit(t,ln_data,1); % gives: fitLine = [0.6931, -0.0000]
+fitLine = polyfit(t,ln_length,1); % gives: fitLine = [0.6931, -0.0000]
                                 % where: slope = fitLine(1)
                                 %        y-int = fitLine(2)
                                 
@@ -48,11 +51,19 @@ mu = fitLine(1)/log(2);         % gives: mu = 1
                                 % woot! we found the doublingRate from the data!
                          
 %%
+% 0. initialize 
+clear
+clc
+experiment = '2017-06-12';
+
+% 0. open folder for experiment of interest
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
+cd(newFolder);
+
 
 % 0. initialize trimmed track data
-load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat','Scram6','T');
-D6 = Scram6;
-numMovies = length(D6);
+load('letstry-2017-06-12-revisedTrimmer-xy1-xy52-noLinker.mat','D7','T');
+numMovies = length(D7);
 
 
 % 0. initialize window parameters
@@ -60,33 +71,34 @@ windowSize = 5;
 
 
 % 0. initialize division parameters
-dropThreshold = -0.3;
+dropThreshold = -0.75;
 
 
 %  1. for each movie, identify the number of tracks
 n = 52;
-numTracks = length(D6{n});
+numTracks = length(D7{n});
 
-
-
-%  2. per track, isolate length and time data
-track = 2;
-trackLength = D6{n}(track).MajAx;
-trackFrames = D6{n}(track).Frame;
-trackTimes = T{n}(trackFrames);
-trackID = D6{n}(track).TrackID;
 
 %%
+%  2. per track, isolate length and time data
+track = 1;
+trackLength = D7{n}(track).MajAx;
+trackFrames = D7{n}(track).Frame;
+trackTimes = T{n}(trackFrames)/3600;
+trackID = D7{n}(track).TrackID;
+
+
+
 %  3. build an array that identifies curve #
 
-% testing notes: n=52, m=1: has no divisions (trackID = 159, visualized and confirmed)
+% 0. initalize array, curveNum
 curveNum = zeros(length(trackFrames),1);
 
-% i. identify all changes in size > threshold (30% loss of previous size)
+% i. identify all changes in size > threshold
 sizeChange = diff(trackLength);
-changeFraction = sizeChange./trackLength(1:end-1);
-dropTrack = find(changeFraction <= dropThreshold);
+dropTrack = find(sizeChange <= dropThreshold);
 
+% ii. starting with zero, list curve # for each frame
 currentCurve = 0;
 nextCurve = 1;
 if ~isempty(dropTrack)
@@ -104,20 +116,153 @@ if ~isempty(dropTrack)
         end
     end
 end
-% ii. starting with zero, list curve # for each frame
+clear currentCurve nextCurve i sizeChange;
+
 %%
-%                
-%                       
-%                        4. identify all windows for that track
-%                        5. per window, build an array of "effective length"
-%                                6. use "effective length" to calculate mu
-%                                      i. ln(effective length) vs time
-%                                     ii. fit linear slope to ln(eL) vs time
-%                                    iii. mu = slope / ln(2)
-%                                7. save mu and y-intercept
-%                        8. repeat for all windows
-%                9. repeat for all tracks
-%       10. repeat for all movies
+% 4. initialize windows for current track
+
+% i. define row numbers for first window
+firstWindow = 1:windowSize; 
+
+% ii. calculate number of windows in current track
+numWindows = length(trackLength) - windowSize +1;
+
+% iii. initialize current window to begin calculations
+currentWindow = firstWindow; % will slide by +1 for each iternation
+
+
+%  5. per window
+for w = 1:numWindows
+    
+    % 5. isolate current window's time, length, and curve #
+    wLength = trackLength(currentWindow);
+    wCurves = curveNum(currentWindow);
+    wTime = trackTimes(currentWindow);
+    
+    % 6. if curve # changes, adjust window Lengths by one of two means:
+    isDrop = diff(wCurves);
+    if sum(isDrop) ~= 0
+        
+        % i. find point of drop
+        dropPoint = find(isDrop ~= 0);
+        
+        %         % if drop is in latter half of curve...
+        %         if dropPoint > 2
+        
+        % ii. double length values after change
+        multiplier = NaN(windowSize,1);
+        minCurve = min(wCurves);
+        maxCurve = max(wCurves);
+        multiplier(wCurves == minCurve) = 1;
+        multiplier(wCurves == maxCurve) = 2;
+        
+        wLength_adjusted = wLength.*multiplier;
+        
+        %         else
+        %
+        %             % if drop is in latter half of curve...
+        %             % ii. double length values after change
+        %             multiplier = NaN(windowSize,1);
+        %             minCurve = min(wCurves);
+        %             maxCurve = max(wCurves);
+        %             multiplier(wCurves == minCurve) = 0.5;
+        %             multiplier(wCurves == maxCurve) = 1;
+        %
+        %             wLength_adjusted = wLength.*multiplier;
+        %
+        %         end
+        
+        % iii. use effective length to calculate mu (see below for comments)
+        ln_length = log(wLength_adjusted);
+        fitLine = polyfit(wTime,ln_length,1);
+        mu = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+        
+        
+    %  7. if no change in curve #, use effective length to calculate mu
+    else
+        % i. ln(effective length) vs time
+        ln_length = log(wLength);
+        
+        % ii. fit linear slope to ln(eL) vs time
+        fitLine = polyfit(wTime,ln_length,1); % gives: fitLine = [0.6931, -0.0000]
+                                        % where:   slope = fitLine(1)
+                                        %          y-int = fitLine(2)
+        
+        % iii. mu = slope / ln(2)
+        mu = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+                                 
+    end
+    
+    % 8. save mu and y-intercept
+    slidingData(w,1) = mu;
+    slidingData(w,2) = fitLine(2); % log(initial length), y-int
+    
+    % 9. repeat for all windows
+    currentWindow = currentWindow + 1;
+    
+    clear wLength wCurves mu fitLine ln_length dropPoint isDrop maxCurve minCurve;
+    clear wLength_adjusted multiplier experiment newFolder wTime;
+end
+
+
+%%
+% plot mu over time (like length) 
+                      
+figure(2)
+plot(trackFrames, trackLength,'o')
+hold on
+plot(trackFrames, trackLength,'r')
+grid on
+xlim([0 202])
+title(track);
+
+
+hold on
+plot(trackFrames(3:end-2),slidingData(:,1)*2,'Color',[1 0.5 0],'Marker','o'); 
+hold on
+plot(trackFrames(3:end-2),slidingData(:,1)*2,'Color',[0.5 0 0.5]); 
+hold on
+plot(trackFrames(3:end-2),slidingData(:,1),'Color','k'); 
+xlim([0 202])
+title(track);
+
+
+%%
+% re-create length track with y-int
+firstWindow = 1:windowSize; 
+currentWindow = firstWindow;
+
+for i = 1:length(slidingData)
+    
+    wTime = trackTimes(i+2);
+    %timestep = max(wTime) - min(wTime);
+    
+    mu = slidingData(i,1);
+    yInt = slidingData(i,2);
+    ln_length = yInt + mu*wTime *log(2);
+    
+    fit_Length(i,1) = exp(ln_length);
+    
+    currentWindow = currentWindow +1;
+end
+
+
+plot(trackFrames, trackLength,'o')
+hold on
+plot(trackFrames, trackLength,'r')
+hold on
+plot(trackFrames(3:end-2), fit_Length, 'ko')
+
+xlim([0 202])
+title(track);
+
+%fitTrack(w,:) = exp( pFit(w,1)*timeTrack(Wtrack(w,:)) + pFit(w,2) );
+
+% log(exp(1)) = 1
+%%
+%                        
+%                10. repeat for all tracks
+%       11. repeat for all movies
 
 
 
