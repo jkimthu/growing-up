@@ -156,7 +156,7 @@ firstWindow = 1:windowSize;
 
 % ii. calculate number of windows in current track
 numWindows = length(trackLengths) - windowSize +1;
-
+ 
 % iii. initialize current window to begin calculations
 currentWindow = firstWindow; % will slide by +1 for each iternation
 
