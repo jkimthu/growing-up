@@ -9,26 +9,27 @@
 %       0. initialize window parameters (number of frames)
 %       0. initialize division parameters (drop threshold)
 %       1. for each movie, identify the number of tracks
-%                2. per track, isolate length and time data
-%                        3. build an array with length(track) that identifies curve #
+%                2. per track, isolate length, width, frame and time data
+%                3. calculate volume data
+%                        4. build an array with length(track) that identifies curve #
 %                                i. identify all changes in size > threshold (-0.75 um)
 %                               ii. starting with zero, list curve # for each frame
-%                        4. initialize windows for current track
-%                        5. per window, isolate effective length and curve #
-%                        6. if curve # changes,
+%                        5. initialize windows for current track
+%                        6. per window, isolate effective length and curve #
+%                        7. if curve # changes,
 %                                i. double length values after change
 %                               ii. use effective length to calculate mu
-%                        7. if no change in curve #, use effective length to calculate mu
+%                        8. if no change in curve #, use effective length to calculate mu
 %                                i. ln(effective length) vs time
 %                               ii. fit linear slope to ln(eL) vs time
 %                              iii. mu = slope / ln(2)
-%                        8. save mu and y-intercept
-%                        9. repeat for all windows
-%                10. repeat for all tracks
-%       11. repeat for all movies
+%                        9. save mu and y-intercept
+%                       10. repeat for all windows
+%                11. repeat for all tracks
+%       12. repeat for all movies
 
 
-% last update: jen, 2017 Jul 7
+% last update: jen, 2017 Jul 10
 
 % OK lez go!
 
@@ -80,22 +81,51 @@ numTracks = length(D7{n});
 
 
 %%
-%  2. per track, isolate length and time data
+%  2. per track, isolate length, width, frame and time data
 track = 1;
-trackLength = D7{n}(track).MajAx;
+trackLengths = D7{n}(track).MajAx;
+trackWidths = D7{n}(track).MinAx;
 trackFrames = D7{n}(track).Frame;
 trackTimes = T{n}(trackFrames)/3600;
-trackID = D7{n}(track).TrackID;
+%trackID = D7{n}(track).TrackID;
+
+%%
+% 3. calculate volume data
+
+% i. approximate volume as a cylinder = pi * r_squared * height
+r = trackWidths/2;
+r_squared = r.^2; 
+v_cylinder = pi * trackLengths .* r_squared;               
 
 
+% ii. approximate volume as an ellipsoid = 4/3 * pi * a * b * c
+% for us, b = c = radius of circular cross-section
+a = trackLengths/2;
+v_ellipse = 4/3 * pi * a .* r_squared;         
 
-%  3. build an array that identifies curve #
+
+% iii. approximate volume as a cylinder with half-sphere caps
+% cylinder = pi * r_squared * height
+shortenedHeight = trackLengths - trackWidths;
+vol_smallCylinder = pi * r_squared .* shortenedHeight;
+
+% sphere = 4/3 * pi * r_cubed
+r_cubed = r.^3;
+vol_sphere = 4/3 * pi * r_cubed;
+
+% v = cylinder + sphere
+v_anupam = vol_smallCylinder + vol_sphere;
+
+clear r r_squared r_cubed a shortenedHeight
+
+%%
+%  4. build an array that identifies curve #
 
 % 0. initalize array, curveNum
 curveNum = zeros(length(trackFrames),1);
 
 % i. identify all changes in size > threshold
-sizeChange = diff(trackLength);
+sizeChange = diff(trackLengths);
 dropTrack = find(sizeChange <= dropThreshold);
 
 % ii. starting with zero, list curve # for each frame
@@ -119,27 +149,28 @@ end
 clear currentCurve nextCurve i sizeChange;
 
 %%
-% 4. initialize windows for current track
+% 5. initialize windows for current track
 
 % i. define row numbers for first window
 firstWindow = 1:windowSize; 
 
 % ii. calculate number of windows in current track
-numWindows = length(trackLength) - windowSize +1;
+numWindows = length(trackLengths) - windowSize +1;
 
 % iii. initialize current window to begin calculations
 currentWindow = firstWindow; % will slide by +1 for each iternation
 
 
-%  5. per window
+%  6. per window
 for w = 1:numWindows
     
-    % 5. isolate current window's time, length, and curve #
-    wLength = trackLength(currentWindow);
+    % 6. isolate current window's time, length, and curve #
+    wLength = trackLengths(currentWindow);
+    wVolume = v_anupam(currentWindow);
     wCurves = curveNum(currentWindow);
     wTime = trackTimes(currentWindow);
     
-    % 6. if curve # changes, adjust window Lengths by one of two means:
+    % 7. if curve # changes, adjust window Lengths by one of two means:
     isDrop = diff(wCurves);
     if sum(isDrop) ~= 0
         
@@ -178,7 +209,7 @@ for w = 1:numWindows
         mu = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
         
         
-    %  7. if no change in curve #, use effective length to calculate mu
+    %  8. if no change in curve #, use effective length to calculate mu
     else
         % i. ln(effective length) vs time
         ln_length = log(wLength);
@@ -193,30 +224,32 @@ for w = 1:numWindows
                                  
     end
     
-    % 8. save mu and y-intercept
+    % 9. save mu and y-intercept
     slidingData(w,1) = mu;
     slidingData(w,2) = fitLine(2); % log(initial length), y-int
     
-    % 9. repeat for all windows
+    % 10. repeat for all windows
     currentWindow = currentWindow + 1;
     
     clear wLength wCurves mu fitLine ln_length dropPoint isDrop maxCurve minCurve;
     clear wLength_adjusted multiplier experiment newFolder wTime;
 end
 
+%                11. repeat for all tracks
+%       12. repeat for all movies
 
-%%
+%% checks
 % plot mu over time (like length) 
                       
 figure(2)
-plot(trackFrames, trackLength,'o')
+plot(trackFrames, trackLengths)
 hold on
-plot(trackFrames, trackLength,'r')
+plot(trackFrames, v_anupam,'r')
 grid on
 xlim([0 202])
 title(track);
 
-
+%%
 hold on
 plot(trackFrames(3:end-2),slidingData(:,1)*2,'Color',[1 0.5 0],'Marker','o'); 
 hold on
@@ -247,9 +280,9 @@ for i = 1:length(slidingData)
 end
 
 
-plot(trackFrames, trackLength,'o')
+plot(trackFrames, trackLengths,'o')
 hold on
-plot(trackFrames, trackLength,'r')
+plot(trackFrames, trackLengths,'r')
 hold on
 plot(trackFrames(3:end-2), fit_Length, 'ko')
 
