@@ -92,7 +92,7 @@ n = 52;
 numTracks = length(D7{n});
 
 
-%%
+
 %  2. per track, isolate length, width, frame and time data
 track = 1;
 trackLengths = D7{n}(track).MajAx;
@@ -101,7 +101,7 @@ trackFrames = D7{n}(track).Frame;
 trackTimes = T{n}(trackFrames)/3600;
 %trackID = D7{n}(track).TrackID;
 
-%%
+
 % 3. calculate volume data
 
 % i. approximate volume as a cylinder = pi * r_squared * height
@@ -130,7 +130,7 @@ v_anupam = vol_smallCylinder + vol_sphere;
 
 clear r r_squared r_cubed a shortenedHeight
 
-%%
+
 %  4. build an array that identifies curve #
 
 % 0. initalize array, curveNum
@@ -172,12 +172,12 @@ numWindows = length(trackLengths) - windowSize +1;
 % iii. initialize current window to begin calculations
 currentWindow = firstWindow; % will slide by +1 for each iternation
 
-%%
+
 %  6. per window
 for w = 1:numWindows
     
     % 6. isolate current window's time, length, and curve #
-    wLength = trackLengths(currentWindow) - 1.3179;
+    wLength = trackLengths(currentWindow) - .6;
     %wVolume = v_anupam(currentWindow);
     wCurves = curveNum(currentWindow);
     wTime = trackTimes(currentWindow);
