@@ -26,13 +26,13 @@
 % 0. initialize mu, size at birth, and time
 clear
 
-mu = 2; % 1/hr
-birthSize = 3; % um
+mu = .5; % 1/hr
+birthSize = 1.5; % um
 doublingSize = 2 * birthSize;
 
 time = linspace(0,300,101)/60; % every 3 min for 10 hours (in hours)
 timestep = time(2) - time(1);
-tolerance = 0.2;
+tolerance = 0.01;
 
 % 0. initialize array of different added proportions
 addedProps = -25:25:25;
@@ -70,8 +70,8 @@ for i = 1:length(time)
     
 end
 
-%figure(1)
-%plot(time,lengthTrack)
+figure(1)
+plot(time,lengthTrack)
 %axis([0 5.1 2 9])
 
 clear i Li timestep
@@ -89,7 +89,7 @@ for a = 1:length(addedProps)
     plot(time,lengthTrack)
     hold on
     plot(time,errLengthTrack,'r')
-    axis([0 5.1 2 9])
+    axis([0 5.1 -1 5])
     
     
     windowSize = 5;
@@ -237,7 +237,7 @@ for a = 1:length(addedProps)
     text(4.5, aveMu_smoothed(a) + 0.2, num2str(aveMu_smoothed(a)),'Color','k','FontSize',12);
     %xlim([0 202])
     title(track);
-    axis([0 5.1 0 9])
+    axis([0 5.1 -1 5])
     
     
     
@@ -323,7 +323,7 @@ for a = 1:length(addedProps)
     hold on
     plot(trackTimes(2:end),slidingData_nonSmoothed,'Color',[0.5 0 0.5]);
     text(4.5, aveMu_unsmoothed(a) + 0.2, num2str(aveMu_unsmoothed(a)),'Color','k','FontSize',12);
-    axis([0 5.1 0 9])
+    axis([0 5.1 -1 5])
     
     title(track);
     
