@@ -35,7 +35,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Jul 10
+% last update: jen, 2017 Jul 11
 
 % OK lez go!
 
@@ -88,7 +88,7 @@ dropThreshold = -0.75;
 
 
 %  1. for each movie, identify the number of tracks
-n = 1;
+n = 52;
 numTracks = length(D7{n});
 
 
@@ -177,7 +177,7 @@ currentWindow = firstWindow; % will slide by +1 for each iternation
 for w = 1:numWindows
     
     % 6. isolate current window's time, length, and curve #
-    wLength = trackLengths(currentWindow);
+    wLength = trackLengths(currentWindow) - 1.3179;
     %wVolume = v_anupam(currentWindow);
     wCurves = curveNum(currentWindow);
     wTime = trackTimes(currentWindow);
@@ -244,9 +244,9 @@ title(track);
 
 
 hold on
-plot(trackFrames(2:end),slidingData(:,1)*4,'Color',[1 0.5 0],'Marker','o'); 
+plot(trackFrames(2:end),slidingData(:,1)*2,'Color',[1 0.5 0],'Marker','o'); 
 hold on
-plot(trackFrames(2:end),slidingData(:,1)*4,'Color',[0.5 0 0.5]); 
+plot(trackFrames(2:end),slidingData(:,1)*2,'Color',[0.5 0 0.5]); 
 hold on
 plot(trackFrames(2:end),slidingData(:,1),'Color','k'); 
 xlim([0 202])
