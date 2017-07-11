@@ -177,7 +177,7 @@ currentWindow = firstWindow; % will slide by +1 for each iternation
 for w = 1:numWindows
     
     % 6. isolate current window's time, length, and curve #
-    wLength = trackLengths(currentWindow) - .6;
+    wLength = trackLengths(currentWindow);
     %wVolume = v_anupam(currentWindow);
     wCurves = curveNum(currentWindow);
     wTime = trackTimes(currentWindow);
