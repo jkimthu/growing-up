@@ -53,6 +53,7 @@ names = {xyDirectory.name};
 ConversionFactor = 6.5/60;
 
 %  use first image of first series
+ii=1;
 reader = bfGetReader(names{ii});
 
 %  refine the filter parameters
@@ -88,7 +89,7 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 1
+for ii = 51:60
     %% i. track all particles using adjusted parameters
     
     %reader.setSeries(ii);
@@ -114,8 +115,8 @@ for ii = 1
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    %UpperBound = 26;     % upper bound for restricted field, or Inf
-    UpperBound = 8; % xy1-30 2017-0612, UpperBound = 26 used in xy31-60
+    UpperBound = 26;     % upper bound for restricted field, or Inf
+    %UpperBound = 8; % xy1-30 2017-0612, UpperBound = 26 used in xy31-60
     
     % to actually trim the set:
     P_Trim1 = ParticleTrim(P,TrimField,LowerBound,UpperBound);
@@ -126,8 +127,8 @@ for ii = 1
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    %UpperBound = 2.0;     % upper bound for restricted field, or Inf
-    UpperBound = 1.6; % xy1-30 2017-0612, UpperBound = 2.0 used in xy31-60
+    UpperBound = 2.0;     % upper bound for restricted field, or Inf
+    %UpperBound = 1.6; % xy1-30 2017-0612, UpperBound = 2.0 used in xy31-60
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -158,7 +159,7 @@ for ii = 1
 end
 
 
-
+%%
 save('letstry-2017-06-12-xy1-xy52-noLinker.mat','D','T')
 
    %% Section Three (E): clear section variables.
