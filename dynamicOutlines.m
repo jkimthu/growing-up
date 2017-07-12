@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinkerc.mat','D7','D','T','rejectD');
+load('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinker-jiggle0p3.mat','D7','D','T','rejectD');
 %D = D_smash;
 
 
@@ -197,21 +197,12 @@ for img = 1:length(names)%max(interestingFrames)
         
         
         % 5. for each particle of interest in current image, draw ellipse
-        for p = 1:length(majorAxes)
+        for p = 1:length(IDs)
             
             
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
             
-            % i. if track number is a reject of nonDrops method, plot green
-            if any(IDs(p) == survivorTrackIDs{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'g','lineWidth',1)
-                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',12);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
+
             
 %             if any(IDs(p) == rejectGroup1{img}) == 1
 %                 
@@ -226,7 +217,7 @@ for img = 1:length(names)%max(interestingFrames)
             if any(IDs(p) == rejectGroup3{img}) == 1
                 
                 hold on
-                plot(x_rotated,y_rotated,'r','lineWidth',2)
+                plot(x_rotated,y_rotated,'r','lineWidth',1)
                 %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','c','FontSize',12);
                 xlim([0 2048]);
                 ylim([0 2048]);
@@ -258,6 +249,16 @@ for img = 1:length(names)%max(interestingFrames)
                 hold on
                 plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',2)
                 %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color',[0.5 0 0.5],'FontSize',12);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+                        % i. if track number is a reject of nonDrops method, plot green
+            if any(IDs(p) == survivorTrackIDs{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'g','lineWidth',1)
+                %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','g','FontSize',12);
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
