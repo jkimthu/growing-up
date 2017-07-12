@@ -66,20 +66,15 @@ end
 % Initialize
 clear;
 %load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
-<<<<<<< HEAD
-load('letstry-2017-06-12-neighbors-window5-cond1-cont6.mat','D7','M','T');
-D6=D7;
-M6 = M;
-=======
-load('t300_2017-01-16-neighbors-window5-cond1-cond3.mat','D7','M','T');
+load('t300_2017-01-16-neighbors-window5-cond1-cond3-jiggle0p3.mat','D7','M','T');
 M6 = M;
 D6 = D7;
->>>>>>> in-progress
+
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20];%; 21 30; 31 40; 41 50; 51 60];
 %%
 
-for i = 1:5:6%length(conditions) %number of conditions
+for i = 1:length(conditions) %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -94,16 +89,7 @@ for i = 1:5:6%length(conditions) %number of conditions
             %  assemble all instantaneous growth rates into a single vector
             %mu_elongation = [mu_elongation; M6{n}(m).Parameters(:,1)];
             %mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
-<<<<<<< HEAD
-            mu_elongation = [mu_elongation; M6{n}(m).mu(:,1)];
-            %mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
-            %mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
-%             mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
-            
-            %  assemble a corresponding timestamp vector
-            %vectorLength = length(M6{n}(m).Parameters(:,1));
-            vectorLength = length(M6{n}(m).mu(:,1));
-=======
+
             mu_elongation = [mu_elongation; M6{n}(m).mu];
             %mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
             %mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
@@ -112,7 +98,7 @@ for i = 1:5:6%length(conditions) %number of conditions
             %  assemble a corresponding timestamp vector
             %vectorLength = length(M6{n}(m).Parameters(:,1));
             vectorLength = length(M6{n}(m).mu);
->>>>>>> in-progress
+
             trackFrames = D6{n}(m).Frame(3:vectorLength+2);
             %trackFrames = D6{n}(m).Frame(7:vectorLength+6);
             Time_cond = [Time_cond; T{n}(trackFrames)];
@@ -127,7 +113,7 @@ for i = 1:5:6%length(conditions) %number of conditions
     %Mu_cond1(Mu_cond1<0)=NaN;
     
     %  determine size of time bins
-    BinsPerHour = 4;                              % multiplying by 10 gives bins of 0.1 hr
+    BinsPerHour = 1;                              % multiplying by 10 gives bins of 0.1 hr
     Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
@@ -141,15 +127,9 @@ for i = 1:5:6%length(conditions) %number of conditions
 %     mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
 %     mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
 %     
-<<<<<<< HEAD
-%     mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
-%     mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
-% %     
-=======
     %mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
     %mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
-%     
->>>>>>> in-progress
+
     
     %   to calculate s.e.m.
     %   1. count number of total tracks in each bin
@@ -180,19 +160,15 @@ for i = 1:5:6%length(conditions) %number of conditions
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
 %     mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
 %     mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
-<<<<<<< HEAD
-%     mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
-=======
     %mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
->>>>>>> in-progress
-    
+
     
     figure(1)
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
 
-    axis([0,41,0,.9])
+    %axis([0,41,0,.9])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
     legend('fluc','const');  

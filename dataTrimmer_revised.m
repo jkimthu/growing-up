@@ -28,7 +28,7 @@
 
 
 
-% last edit: July 11, 2017
+% last edit: July 12, 2017
 
 
 %% initialize
@@ -267,7 +267,7 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.1;
+jiggleThreshold = -0.2;
 
 for n = 1:length(D)
     
@@ -305,7 +305,7 @@ for n = 1:length(D)
     end
     
     % 9. determine which tracks fall under jiggle threshold
-    belowThreshold = find(nonDropRatio < -0.1);
+    belowThreshold = find(nonDropRatio < jiggleThreshold);
     
     % 10. report!
     X = ['Removing ', num2str(length(belowThreshold)), ' jiggly tracks from D4(', num2str(n), ')...'];
@@ -564,7 +564,7 @@ clear SizeStrainer n;
 %% Saving results
 
 
-save('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinkerc.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinker-jiggle0p2.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
