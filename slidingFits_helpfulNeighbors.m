@@ -55,15 +55,19 @@ mu = fitLine(1)/log(2);         % gives: mu = 1
 % 0. initialize 
 clear
 clc
-experiment = '2017-06-12';
+experiment = '2017-01-16';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment,'  (t300)');
 cd(newFolder);
 
 
 % 0. initialize trimmed track data
+<<<<<<< HEAD
 load('letstry-2017-06-12-revisedTrimmer-cond1-cond6-noLinker.mat','D7','T');
+=======
+load('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinkerc.mat','D7','T');
+>>>>>>> in-progress
 numMovies = length(D7);
 
 
@@ -76,6 +80,7 @@ dropThreshold = -0.75;
 
 %%
 %  1. for each movie, identify the number of tracks
+<<<<<<< HEAD
 for n = 51:60
     numTracks = length(D7{n});
     
@@ -149,10 +154,95 @@ for n = 51:60
         
         
         % 5. initialize windows for current track
+=======
+for n = 1:length(D7)
+    numTracks = length(D7{n});
+    
+    
+    
+    %  2. per track, isolate length, width, frame and time data
+    for track = 1: numTracks
+        trackLengths = D7{n}(track).MajAx;
+        %trackWidths = D7{n}(track).MinAx;
+        trackFrames = D7{n}(track).Frame;
+        trackTimes = T{n}(trackFrames)/3600;
+
+        
+%         % 3. calculate volume data
+%         
+%         % i. approximate volume as a cylinder = pi * r_squared * height
+%         r = trackWidths/2;
+%         r_squared = r.^2;
+%         v_cylinder = pi * trackLengths .* r_squared;
+%         
+%         
+%         % ii. approximate volume as an ellipsoid = 4/3 * pi * a * b * c
+%         % for us, b = c = radius of circular cross-section
+%         a = trackLengths/2;
+%         v_ellipse = 4/3 * pi * a .* r_squared;
+%         
+%         
+%         % iii. approximate volume as a cylinder with half-sphere caps
+%         % cylinder = pi * r_squared * height
+%         shortenedHeight = trackLengths - trackWidths;
+%         vol_smallCylinder = pi * r_squared .* shortenedHeight;
+%         
+%         % sphere = 4/3 * pi * r_cubed
+%         r_cubed = r.^3;
+%         vol_sphere = 4/3 * pi * r_cubed;
+%         
+%         % v = cylinder + sphere
+%         v_anupam = vol_smallCylinder + vol_sphere;
+%         
+%         clear r r_squared r_cubed a shortenedHeight
+%         
+%         
+        %  4. build an array that identifies curve #
+        
+        % 0. initalize array, curveNum
+        curveNum = zeros(length(trackFrames),1);
+        
+        % i. identify all changes in size > threshold
+        sizeChange = diff(trackLengths);
+        dropTrack = find(sizeChange <= dropThreshold);
+        
+        % ii. starting with zero, list curve # for each frame
+        currentCurve = 0;
+        nextCurve = 1;
+        if ~isempty(dropTrack)
+            for i = 1:length(curveNum)
+                if nextCurve <= length(dropTrack)
+                    curveNum(i) = currentCurve;
+                    
+                    if i == dropTrack(nextCurve)
+                        currentCurve = currentCurve+1;
+                        nextCurve = nextCurve+1;
+                    end
+                    
+                else
+                    curveNum(i) = currentCurve;
+                end
+            end
+        end
+        clear currentCurve nextCurve i sizeChange;
+        
+        
+        % 5. initialize windows for current track
         
         % i. define row numbers for first window
         firstWindow = 1:windowSize;
         
+        % ii. calculate number of windows in current track
+        numWindows = length(trackLengths) - windowSize +1;
+        
+        % iii. initialize current window to begin calculations
+        currentWindow = firstWindow; % will slide by +1 for each iternation
+>>>>>>> in-progress
+        
+        % i. define row numbers for first window
+        firstWindow = 1:windowSize;
+        
+<<<<<<< HEAD
         % ii. calculate number of windows in current track
         numWindows = length(trackLengths) - windowSize +1;
         
@@ -251,6 +341,86 @@ end
 
 %%
 save('letstry-2017-06-12-neighbors-window5-cond1-cont6.mat', 'D7', 'M', 'T') %'D'
+=======
+        %  6. per window
+        for w = 1:numWindows
+            
+            % 6. isolate current window's time, length, and curve #
+            wLength = trackLengths(currentWindow);
+            %wVolume = v_anupam(currentWindow);
+            wCurves = curveNum(currentWindow);
+            wTime = trackTimes(currentWindow);
+            
+            % 7. if curve # changes, adjust window Lengths by one of two means:
+            isDrop = diff(wCurves);
+            if sum(isDrop) ~= 0
+                
+                % i. find point of drop
+                dropPoint = find(isDrop ~= 0);
+                
+                
+                % ii. double length values after change
+                multiplier = NaN(windowSize,1);
+                minCurve = min(wCurves);
+                maxCurve = max(wCurves);
+                multiplier(wCurves == minCurve) = 1;
+                multiplier(wCurves == maxCurve) = 2;
+                
+                wLength_adjusted = wLength.*multiplier;
+                
+
+                
+                % iii. use effective length to calculate mu (see below for comments)
+                ln_length = log(wLength_adjusted);
+                fitLine = polyfit(wTime,ln_length,1);
+                mu = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+                
+                
+                %  8. if no change in curve #, use effective length to calculate mu
+            else
+                % i. ln(effective length) vs time
+                ln_length = log(wLength);
+                
+                % ii. fit linear slope to ln(eL) vs time
+                fitLine = polyfit(wTime,ln_length,1); % gives: fitLine = [0.6931, -0.0000]
+                % where:   slope = fitLine(1)
+                %          y-int = fitLine(2)
+                
+                % iii. mu = slope / ln(2)
+                mu = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+                
+            end
+            
+            % 9. save mu and y-intercept
+            slidingData(w,1) = mu;
+            slidingData(w,2) = fitLine(2); % log(initial length), y-int
+            
+            % 10. repeat for all windows
+            currentWindow = currentWindow + 1;
+            
+            clear wLength wCurves mu fitLine ln_length dropPoint isDrop maxCurve minCurve;
+            clear wLength_adjusted multiplier experiment newFolder wTime;
+        end
+        
+        %  11. save data and repeat for all tracks
+        trackData = struct('mu',slidingData(:,1),'yInt',slidingData(:,2));
+        M{n}(track) = trackData;
+    
+        disp(['Track ', num2str(track), ' from xy ', num2str(n), ' complete!'])
+        
+        clear slidingData trackData;
+      
+    end 
+    
+    % 12. repeat for all movies
+    
+   
+   
+    
+end
+%%
+save('t300_2017-01-16-neighbors-window5-cond1-cond3.mat', 'D7', 'M', 'T') %'D'
+>>>>>>> in-progress
 
 %% checks
 % plot mu over time (like length) 

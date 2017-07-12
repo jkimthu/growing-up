@@ -35,7 +35,7 @@
 
 % particle tracking data
 clear
-load('letstry-2017-06-12-xy1-xy52-noLinker.mat');
+load('t300_2017-01-16-cond1-cond3-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -190,7 +190,9 @@ for n = 1:length(D);
     
     % 0. if no data in n, continue to next movie
     if isempty(D3{n}) == 1
+
         disp(strcat('Removing (0) short tracks from D3 (', num2str(n),') !'))
+
         continue
     end
     
@@ -561,7 +563,8 @@ clear SizeStrainer n;
 
 %% Saving results
 
-save('letstry-2017-06-12-revisedTrimmer-cond1-cond6-noLinker.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+
+save('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinkerc.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
