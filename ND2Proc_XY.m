@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 July 7
+%  Last modified (jen): 2017 July 11
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('letstry-2017-06-12_xy*.nd2');
+xyDirectory = dir('t300_2017-01-16_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -53,6 +53,7 @@ names = {xyDirectory.name};
 ConversionFactor = 6.5/60;
 
 %  use first image of first series
+ii=1;
 reader = bfGetReader(names{ii});
 
 %  refine the filter parameters
@@ -88,14 +89,14 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
-for ii = 1
+for ii = 1:NSeries
     %% i. track all particles using adjusted parameters
     
     %reader.setSeries(ii);
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-14.1379, -1];       
+    Threshold =  [-13.8276, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -159,7 +160,7 @@ end
 
 
 
-save('letstry-2017-06-12-xy1-xy52-noLinker.mat','D','T')
+save('t300_2017-01-16-cond1-cond3-noLinker.mat','D','T')
 
    %% Section Three (E): clear section variables.
    

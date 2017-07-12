@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 6
+% last edit: jen, 2017 Jul 11
 
 % OK LEZ GO!
 %%
@@ -25,18 +25,18 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-06-12';
+experiment = '2017-01-16';
 
 
 % TRACKING DATA
 % open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment,'  (t300)');
 cd(newFolder);
 
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('letstry-2017-06-12-revisedTrimmer-xy1-xy52-noLinker.mat','D7','D','T','rejectD');
+load('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinkerc.mat','D7','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,9 +57,9 @@ reject6_DM = buildDM(rejectD(6,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 52;
+n = 1;
 
-img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
+img_prefix = strcat('t300_2017-01-16_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -70,7 +70,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('letstry-2017-06-12_xy*.tif');
+imgDirectory = dir('t300_2017-01-16_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -137,7 +137,7 @@ for img = 1:length(names)%max(interestingFrames)
     filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'-noLinker.tif');
     
     figure(1)
-    imshow(I, 'DisplayRange',[3200 7400]);
+    imshow(I, 'DisplayRange',[3000 9400]);
     
     
     % 3. if no tracked cells (surivors NOR rejects), save and skip
@@ -226,7 +226,7 @@ for img = 1:length(names)%max(interestingFrames)
             if any(IDs(p) == rejectGroup3{img}) == 1
                 
                 hold on
-                plot(x_rotated,y_rotated,'w','lineWidth',2)
+                plot(x_rotated,y_rotated,'r','lineWidth',2)
                 %text((centroid_X(p)-5)/conversionFactor, (centroid_Y(p)-5)/conversionFactor, num2str(targetIDs(p)),'Color','c','FontSize',12);
                 xlim([0 2048]);
                 ylim([0 2048]);

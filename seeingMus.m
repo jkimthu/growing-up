@@ -66,20 +66,20 @@ end
 % Initialize
 clear;
 %load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
-load('letstry-2017-06-12-increasedWindow-Mus-LVVV-scrambled-edited.mat','D_smash','M_scrambled_edited','T');
-M6 = M_scrambled_edited;
-D6=D_smash;
+load('t300_2017-01-16-neighbors-window5-cond1-cond3.mat','D7','M','T');
+M6 = M;
+D6 = D7;
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
+conditions = [1 10; 11 20];%; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
-    mu_vc = [];
-    mu_ve =[];
-    mu_va =[];
+%     mu_vc = [];
+%     mu_ve =[];
+%     mu_va =[];
     Time_cond = [];
     
     for n = conditions(i,1):conditions(i,2)
@@ -87,14 +87,15 @@ for i = 1:length(conditions) %number of conditions
             
             %  assemble all instantaneous growth rates into a single vector
             %mu_elongation = [mu_elongation; M6{n}(m).Parameters(:,1)];
-            mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
+            %mu_elongation = [mu_elongation; M6{n}(m).Parameters_L(:,1)];
+            mu_elongation = [mu_elongation; M6{n}(m).mu];
             %mu_vc = [mu_vc; M6{n}(m).Parameters_VC(:,1)];
             %mu_ve = [mu_ve; M6{n}(m).Parameters_VE(:,1)];
-            mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
+            %mu_va = [mu_va; M6{n}(m).Parameters_VA(:,1)];
             
             %  assemble a corresponding timestamp vector
             %vectorLength = length(M6{n}(m).Parameters(:,1));
-            vectorLength = length(M6{n}(m).Parameters_L(:,1));
+            vectorLength = length(M6{n}(m).mu);
             trackFrames = D6{n}(m).Frame(3:vectorLength+2);
             %trackFrames = D6{n}(m).Frame(7:vectorLength+6);
             Time_cond = [Time_cond; T{n}(trackFrames)];
@@ -123,8 +124,8 @@ for i = 1:length(conditions) %number of conditions
 %     mu_VE_Means = accumarray(Bins,mu_ve,[],@nanmean);
 %     mu_VE_STDs = accumarray(Bins,mu_ve,[],@nanstd);
 %     
-    mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
-    mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
+    %mu_VA_Means = accumarray(Bins,mu_va,[],@nanmean);
+    %mu_VA_STDs = accumarray(Bins,mu_va,[],@nanstd);
 %     
     
     %   to calculate s.e.m.
@@ -156,17 +157,17 @@ for i = 1:length(conditions) %number of conditions
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
 %     mu_VC_sems = mu_VC_STDs./sqrt(Mu_Counts');
 %     mu_VE_sems = mu_VE_STDs./sqrt(Mu_Counts');
-    mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
+    %mu_VA_sems = mu_VA_STDs./sqrt(Mu_Counts');
     
     
     figure(1)
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-    axis([0,11,-0.1,.8])
+    %axis([0,11,-0.1,1.5])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('1', '2', '3', '4', '5', '6');  
+    legend('fluc','const');  
     %legend('no treatment', 'poly-lysine');  
     
 %     figure(2)
@@ -187,14 +188,14 @@ for i = 1:length(conditions) %number of conditions
 %     ylabel('Growth rate from V_ellipse (1/hr)')
 %     legend('1', '2', '3', '4', '5', '6');  
     
-    figure(4)
-    errorbar(mu_VA_Means,mu_VA_sems)
-    hold on
-    grid on
-    axis([0,11,-0.1,1.1])
-    xlabel('Time')
-    ylabel('Growth rate from V_anupam (1/hr)')
-    legend('1', '2', '3', '4', '5', '6');  
+%     figure(4)
+%     errorbar(mu_VA_Means,mu_VA_sems)
+%     hold on
+%     grid on
+%     axis([0,11,-0.1,1.1])
+%     xlabel('Time')
+%     ylabel('Growth rate from V_anupam (1/hr)')
+%     legend('1', '2', '3', '4', '5', '6');  
     %legend('no treatment', 'poly-lysine');  
 %     
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
