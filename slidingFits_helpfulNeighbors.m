@@ -55,7 +55,7 @@ mu = fitLine(1)/log(2);         % gives: mu = 1
 % 0. initialize 
 clear
 clc
-experiment = '2017-01-16';
+experiment = '2017-01-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment,'  (t300)');
@@ -64,7 +64,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinker-jiggle0p3.mat','D7','T');
+load('t300_2017-01-17-revisedTrimmer-cond1-cond3-noLinker-jiggle0p3.mat','D7','T');
 numMovies = length(D7);
 
 
@@ -251,7 +251,7 @@ for n = 1:length(D7)
 end
 
 %%
-save('t300_2017-01-16-neighbors-window5-cond1-cond3-jiggle0p3.mat', 'D7', 'M', 'T') %'D'
+save('t300_2017-01-17-neighbors-window5-cond1-cond3-jiggle0p3.mat', 'D7', 'M', 'T') %'D'
 
 
 %% checks

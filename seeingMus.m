@@ -66,12 +66,12 @@ end
 % Initialize
 clear;
 %load('monod-2016-05-25-increasedWindow-Mus-LVVV.mat','D6','M6','T');
-load('t300_2017-01-16-neighbors-window5-cond1-cond3-jiggle0p3.mat','D7','M','T');
+load('t300_2017-01-17-neighbors-window5-cond1-cond3-jiggle0p3.mat','D7','M','T');
 M6 = M;
 D6 = D7;
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20];%; 21 30; 31 40; 41 50; 51 60];
+conditions = [1 8; 11 12];%; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions

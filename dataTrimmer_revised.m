@@ -35,7 +35,7 @@
 
 % particle tracking data
 clear
-load('t300_2017-01-16-cond1-cond3-noLinker.mat');
+load('t300_2017-01-17-cond1-cond3-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -267,7 +267,7 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.2;
+jiggleThreshold = -0.3;
 
 for n = 1:length(D)
     
@@ -564,7 +564,7 @@ clear SizeStrainer n;
 %% Saving results
 
 
-save('t300_2017-01-16-revisedTrimmer-cond1-cond3-noLinker-jiggle0p2.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-01-17-revisedTrimmer-cond1-cond3-noLinker-jiggle0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% dealing with improper track linking
