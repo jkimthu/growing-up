@@ -413,6 +413,8 @@ for n = 1:length(D);
             
         end
         
+        clear remainderTrack clippedTarget clipPoint Lengths growthFrac originalTrack jumpPoints
+        
     end
     
     % 5. when all tracks finished, save trimmed data and accmulated rejects
@@ -423,11 +425,12 @@ for n = 1:length(D);
     X = ['Clipping ', num2str(jump_counter), ' jumps in D5(', num2str(n), ')...'];
     disp(X)
     
+    clear trackScraps X data;
     
 end
     
-clear growthFrac Lengths jumpFrac jump_counter Rates clippedTarget clipPoint m n;
-clear trackScraps remainderTrack originalTrack jumpPoints X data;
+clear  jumpFrac jump_counter Rates m n;
+
 
 
 
