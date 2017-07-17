@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 July 12
+%  Last modified (jen): 2017 July 15
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('t300_2017-01-17_xy*.nd2');
+xyDirectory = dir('t300_2017-01-16_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 11:12
+for ii = 15:20
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +98,7 @@ for ii = 11:12
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-16.5517, -1];       
+    Threshold =  [-13.8276, -1];       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -154,14 +154,14 @@ for ii = 11:12
 
     %A=arrayfun(@(Q) max(Q.Area),PT);
 
-    D{ii} = P_Tracks;
-    T{ii} = ND2ReaderT(reader);
+    cond4{ii} = P_Tracks;
+    time4{ii} = ND2ReaderT(reader);
 
     
 end
 
 
-save('t300_2017-01-17-cond1-cond3-noLinker.mat','D','T')
+save('t300_2017-01-16-noLinker.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
