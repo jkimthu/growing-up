@@ -84,16 +84,28 @@ clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM reject5_DM 
 %%
 
 % 2. define IDs for tracked vs trimmed tracks
-interestingTracks = 18;
+interestingTracks = unique(dm_reject4(:,1));
 
 
+%%
 % 3. isolate data from interesting tracks
 
-dm_survivors = dm_survivors(dm_survivors(:,1) == interestingTracks,:);
+interesting_survivors = [];
+interesting_total = [];
+interesting_reject4 = [];
 
-dm_total = dm_total(dm_total(:,1) == interestingTracks,:);
-dm_reject4 = dm_reject4(dm_reject4(:,1) == interestingTracks,:);
-
+for it = 1:length(interestingTracks)
+    
+    a = dm_survivors(dm_survivors(:,1) == interestingTracks(it),:);
+    b = dm_total(dm_total(:,1) == interestingTracks(it),:);
+    c = dm_reject4(dm_reject4(:,1) == interestingTracks(it),:);
+    
+    interesting_survivors = [interesting_survivors; a];
+    
+    interesting_total = [interesting_total; b];
+    interesting_reject4 = [interesting_reject4; c];
+    
+end
 
 %%
 % 2. for all frames, assemble tracks present in each category
@@ -107,10 +119,10 @@ rejectGroup4 = [];
 for fr = 1:finalFrame
     
     % i. isolate data from each frame
-    survivors = dm_survivors(dm_survivors(:,30) == fr,:); % col 30 = frame #
+    survivors = interesting_survivors(interesting_survivors(:,30) == fr,:); % col 30 = frame #
     
-    totals = dm_total(dm_total(:,30) == fr,:);
-    reject4s = dm_reject4(dm_reject4(:,30) == fr,:);
+    totals = interesting_total(interesting_total(:,30) == fr,:);
+    reject4s = interesting_reject4(interesting_reject4(:,30) == fr,:);
 
     survivorTrackIDs{fr} = survivors(:,1); % col 1 = TrackID
     
@@ -124,13 +136,13 @@ clear fr;
 %%
 
 % for each image
-for img = 184:length(names)
+for img = 1:length(names)
     
     cla
     
     % 3. initialize current image
     I=imread(names{img});
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTracks),'.tif');
+    filename = strcat('dynamicOutlines-frame',num2str(img),'-tracksWithJumps.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[4000 10000]);
