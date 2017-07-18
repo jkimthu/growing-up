@@ -73,14 +73,13 @@ windowSize = 5;
 
 
 % 0. initialize division parameters
-dropThreshold = -0.75;
-
+dropFrac = -0.3;
 
 %%
 %  1. for each movie, identify the number of tracks
 
 
-for n = 1:length(D5)
+for n = 1:10%length(D5)
     
     numTracks = length(D5{n});
  
@@ -95,10 +94,12 @@ for n = 1:length(D5)
         % 0. initalize array, curveNum
         curveNum = zeros(length(trackFrames),1);
         
-        % i. identify all changes in size > absolute threshold
+        % i. identify all changes in size > proportional threshold
         sizeChange = diff(trackLengths);
-        dropTrack = find(sizeChange <= dropThreshold);
+        growthFrac = sizeChange./trackLengths(1:length(sizeChange));
         
+        dropTrack = find(growthFrac <= dropFrac);
+    
         
         % ii. starting with zero, list curve # for each frame
         currentCurve = 0;
@@ -138,7 +139,6 @@ for n = 1:length(D5)
             
             % 6. isolate current window's time, length, and curve #
             wLength = trackLengths(currentWindow);
-            %wVolume = v_anupam(currentWindow);
             wCurves = curveNum(currentWindow);
             wTime = trackTimes(currentWindow);
             
@@ -148,7 +148,7 @@ for n = 1:length(D5)
                 
                 % i. find point of drop
                 dropPoint = find(isDrop ~= 0);
-              
+                
                 % ii. double length values after change
                 multiplier = NaN(windowSize,1);
                 minCurve = min(wCurves);
@@ -158,6 +158,7 @@ for n = 1:length(D5)
                 
                 wLength_adjusted = wLength.*multiplier;
                 
+                
                 % iii. use effective length to calculate mu (see below for comments)
                 ln_length = log(wLength_adjusted);
                 fitLine = polyfit(wTime,ln_length,1);
@@ -166,6 +167,7 @@ for n = 1:length(D5)
                 
                 %  8. if no change in curve #, use effective length to calculate mu
             else
+                
                 % i. ln(effective length) vs time
                 ln_length = log(wLength);
                 
@@ -193,7 +195,7 @@ for n = 1:length(D5)
         % 11. save data and repeat for all tracks
         
         trackData = struct('mu',slidingData(:,1),'yInt',slidingData(:,2));
-        M_abs{n}(track) = trackData;
+        M_prop{n}(track) = trackData;
         
         clear slidingData trackData;
         
@@ -205,29 +207,30 @@ for n = 1:length(D5)
 end
 
 %%
-save('t300_2017-01-16-neighbors-abs-jiggle0p4.mat', 'D5', 'M_abs', 'T') %'D'
+save('t300_2017-01-16-neighbors-prop-jiggle0p4.mat', 'D5', 'M_prop', 'T') %'D'
 
 
 %% checks
 % plot mu over time (like length) 
 
-load('t300_2017-01-16-neighbors-abs-jiggle0p4.mat');
+load('t300_2017-01-16-neighbors-prop-jiggle0p4.mat');
 
 
 n=1;
-track = 10;
+track = 1;
 
 trackLengths = D5{n}(track).MajAx;
 trackFrames = D5{n}(track).Frame;
 trackTimes = T{n}(trackFrames)/3600;
-trackMus = M_abs{n}(track).mu;
+trackMus = M_prop{n}(track).mu;
 
-figure(2)
+
+figure(1)
 plot(trackFrames, trackLengths,'o')
 hold on
 plot(trackFrames, trackLengths,'r')
 grid on
-xlim([0 499])
+xlim([0 202])
 title(track);
 
 
@@ -236,8 +239,8 @@ title(track);
 %hold on
 %plot(trackFrames(3:end-2),trackMus*4,'Color',[0.5 0 0.5]); 
 hold on
-plot(trackFrames(3:end-2),trackMus,'ok'); 
-xlim([0 499])
+plot(trackFrames(3:end-2),trackMus,'bo','MarkerSize',10); 
+xlim([0 202])
 title(track);
 
 
