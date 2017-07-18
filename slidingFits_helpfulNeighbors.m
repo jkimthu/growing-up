@@ -96,8 +96,14 @@ for n = 1:length(D5)
         curveNum = zeros(length(trackFrames),1);
         
         % i. identify all changes in size > absolute threshold
+        %sizeChange = diff(trackLengths);
+        %dropTrack = find(sizeChange <= dropThreshold);
+        
+        % i. identify all changes in size > proportional threshold
         sizeChange = diff(trackLengths);
-        dropTrack = find(sizeChange <= dropThreshold);
+        growthFrac = sizeChange./trackLengths(1:length(sizeChange));
+        
+        dropTrack = find(growthFrac <= dropFrac);
         
         
         % ii. starting with zero, list curve # for each frame
