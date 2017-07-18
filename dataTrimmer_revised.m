@@ -8,28 +8,23 @@
 
 %  Selection Criteria:
 
-%   1. Track must have only one TrackID
-%           - tracks are clipped, such that data prior to change in TrackID number remain
+%   1. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
+%           - tracks are clipped, not deleted
+%           - data prior and after jump are considered separate tracks          
+
 
 %   2. Tracks must be at least the length of fitting window
 %           - note: currently, windowSize = 5 frames
 
 %   3. Tracks cannot oscillate too quickly between gains and losses
 
-%   4. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
-%           - tracks are clipped, such that data prior to jump remain
-
-%   5. Tracks must be at least the length of fitting window
-%           - note: currently, windowSize = 5 frames
-%           -       this criteria is repeated to follow another clipping step
-
-%   6. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
+%   4. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
 
 
 
+% last edit: July 18, 2017
 
-% last edit: July 12, 2017
-
+% OK lez go!
 
 %% initialize
 
@@ -39,125 +34,129 @@ load('t300_2017-01-16-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
-rejectD = cell(6,length(D));
+rejectD = cell(4,length(D));
 
 % criteria counter
 criteria_counter = 0;
 
-
-%% Criteria ONE: tracks cannot contain multiple TrackIDs
-
-%REDUNDANT WITH NO LINKER
-
-% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
-%       but at least the first trackID is useable. Let's keep these first ones
-%       and reject data from subsequent IDs.
-
-% 0. for each track in current movie
-%       1. determine whether trackID contains number changes
-%               2. if so, trim track such that only first trackID remains
-%                  (all following are very likely error prone)
-%                         i. isolate entire data struct of current track,
-%                            in prep to clip all variables (MajAx, X, Y, etc.)
-%                        ii. isolate data corresponding to first TrackID
-%               3. replace data from original track (containing multiple IDs) with trimmed data
-%               4. add remainder of track to temporary (movie-specific) rejects collection
-%       5. if no changes, continue to next track
-% 6. when all tracks finished, save accumulated rejects
-% 7. report!
-% 8. repeat for next movie
+% windowsize for mu calculations
+windowSize = 5;
 
 
-% for easy reshuffling of criteria
+%% Criteria ONE: clip tracks to separate data surrounding >30% jumps in cell size
+
+
+% Goal: huge jumps in cell size correspond to cells coming together. Remove
+%       the additional fusion and consider that segment of data its own
+%       track. Vet it like all others.
+
+%  0. initialize threshold value
+%  0. isolate data for current movie
+%  0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
+%        0. for each track, search for large positive increases: > %30 jumps in size
+%               0. determine if track is shorter than window size. skip over, if so. it will be trimmed later.
+%               1. determine change in length between each timestep
+%               2. express change of as a fraction of cell size in previous timestep
+%               3. list rows in which the change exceeds size jump threshold
+%               4. if the track contains jumps,
+%                        i. isolate structure of target track z, in prep to clip all variables (MajAx, X, Y, etc.)
+%                       ii. define timepoint of earliest jump
+%                      iii. clip data structure at earliest jump
+%                       iv. redefine track in data set as clipped structure
+%                        v. store remainder of original Target for "reject" data matrix
+%               5. repeat for all jumpy tracks
+%        6. when all tracks finished, save trimmed data and accmulated rejects
+%        7. report number of clipped tracks
+%        8. insert at end of data matrix, D2
+%  9. repeat for next movie
+
+
+
 criteria_counter = criteria_counter + 1;
 
-for n = 1:length(D)
+% 0. initialize
+jumpFrac = 0.3;                                                            
+                                                                           
+for n = 1:length(D);                                                       
     
-    
-    % 0. initialize
+    % 0. isolate data for current movie
     data = D{n};
     
     % 0. if no data in n, continue to next movie
     if isempty(data) == 1
-        disp(strcat('Clipping (0) tracks with multiple IDs from D2 (', num2str(n),') !'))
+        disp(strcat('Clipping 0 jumps in D2 (', num2str(n),') !'))
         continue
     end
-
+    
     % 0. remove 'Conversion' field, as it is only one element and interferes with downstream clipping.
     data = rmfield(data,'Conv'); 
     
     
-    currentRejects = [];
-    reject_counter = 0;
-    
+    % 0. for each track, search for large positive increases: > %30 jumps in size
+    jump_counter = 0;
     for m = 1:length(data)
         
-        % 1. determine whether trackID contains number changes
-        trackIDs = data(m).TrackID;
-        isChange = diff(trackIDs);
+        %0. determine if track is shorter than window size. skip over, if so. it will be trimmed later.
+        if length(data(m).X) < windowSize
+            continue
+        end
         
-        % if so,
-        if sum(isChange) ~= 0
+        % 1. determine change in length between each timestep                           
+        Rates = diff(data(m).MajAx);
+        
+        % 2. express change of as a fraction of the cell size in previous timestep
+        Lengths = data(m).MajAx(1:length(Rates));
+        growthFrac = Rates./Lengths;
+                                                                           
+        % 3. list rows in which the change exceeds size jump threshold
+        jumpPoints = find(growthFrac > jumpFrac);                        
+
+        
+        % 4. if the track contains jumps...
+        if isempty(jumpPoints) == 0
             
-            % 2. trim track such that only first trackID remains
-            reject_counter = reject_counter +1;
-            
-            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
+            % i. isolate structure of target track z, in prep to clip all variables (MajAx, X, Y, etc.)
             originalTrack = data(m);
             
-            % ii. isolate data corresponding to first TrackID
-            originalIDs = originalTrack.TrackID;
-            firstIDs = originalIDs == originalTrack.TrackID(1);
-            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
+            % ii. define timepoint of earliest jump
+            clipPoint = jumpPoints(1);
             
+            % iii. clip data structure at desired timepoint
+            clippedTarget = structfun(@(M) M(1:clipPoint), originalTrack, 'Uniform', 0);
             
-            % 3. replace data from original track (containing multiple IDs) with trimmed data
-            data(m) = firstTrack;
+            % iv. redefine track in data set as clipped structure
+            data(m) = clippedTarget;
             
+            % v. store remainder of original Target for reject data matrix
+            remainderTrack = structfun(@(M) M(clipPoint+1:end), originalTrack, 'Uniform', 0);
             
-            % 4. add remainder of track to rejects collection
-            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
-            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
-            %currentRejects{reject_counter} = rejectTrack;
-            currentRejects = [currentRejects; rejectTrack];
-            
-            % 5. if no changes, continue to next track
+            jump_counter = jump_counter + 1;
+            trackScraps(jump_counter,1) = remainderTrack;
+
+            % 5. repeat for all jumpy tracks
         end
+        
+        clear remainderTrack clippedTarget clipPoint Lengths Rates growthFrac originalTrack jumpPoints
         
     end
     
-    % 6. when all tracks finished, save trimmed data and accmulated rejects
-    D2{n} = data;
-    rejectD{criteria_counter,n} = currentRejects;
+    % 6. when all tracks finished, save accmulated rejects
+    rejectD{criteria_counter,n} = trackScraps;
     
-    % 7. report !
-    disp(strcat('Clipping (', num2str(length(currentRejects)),') tracks with multiple IDs from D2 (', num2str(n),') !'))
+    % 7. report!
+    X = ['Clipping ', num2str(jump_counter), ' jumps in D2(', num2str(n), ')...'];
+    disp(X)
     
-    %8. repeat for all movies
-    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
-    clear firstTrack firstIDs reject_counter
+    % 8. insert at end of data matrix, D2
+    D2{n} = [data; trackScraps];
+    
+    % 9. repeat for all movies
+    clear trackScraps X data;
+    
 end
+    
+clear  jumpFrac jump_counter Rates m n;
 
-clear isChange trackIDs m n;
-
-%%
-% double-check:
-% how many TrackID(1)s are represented only with < 5 data points?
-% see dynamicOutlines commit 2017-07-03 for example movie with n=52
-% and movie: shortTracks-afterTrackID-clipping-5fps.avi
-% justifying the removal of these very short tracks
-
-% for n = 1:length(D2)
-%     
-%     currentMovie = D2{n};
-%     
-%     for m = 1:length(currentMovie)
-%         currentTrack = currentMovie(m);
-%         trackLengths(m,1) = length(currentTrack.X);
-%     end
-%     shorties = find(trackLengths < 5);
-%     allShorts{n} = shorties;
-% end
 
 
 %% Criteria Two: tracks must be at least window size in length (5 frames)
@@ -184,7 +183,6 @@ criteria_counter = criteria_counter + 1;
 
 % 0. initialize new dataset before trimming
 D3 = D2;
-windowSize = 5;                                                             % each timepoint = 1:05 mins;
 
 for n = 1:length(D);
     
@@ -267,7 +265,7 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.3;
+jiggleThreshold = -0.4;
 
 for n = 1:length(D)
     
@@ -305,7 +303,7 @@ for n = 1:length(D)
     end
     
     % 9. determine which tracks fall under jiggle threshold
-    belowThreshold = find(nonDropRatio < jiggleThreshold);
+    belowThreshold = find(nonDropRatio <= jiggleThreshold);
     
     % 10. report!
     X = ['Removing ', num2str(length(belowThreshold)), ' jiggly tracks from D4(', num2str(n), ')...'];
@@ -336,199 +334,24 @@ clear n gainLossRatio jiggleThreshold jigglers counter dropThreshold;
 
 
 
-%% Criteria Four: clip tracks to remove >30% jumps in cell size
-
-
-% Goal: huge jumps in cell size correspond to.... thus, clip off!
-
-%  0. initialize threshold value
-%  0. isolate data for current movie
-%        0. for each track, search for large positive increases: > %30 jumps in size
-%               1. determine change in length between each timestep
-%               2. express change of as a fraction of cell size in previous timestep
-%               3. list rows in which the change exceeds size jump threshold
-%               4. if the track contains jumps,
-%                        i. isolate structure of target track z, in prep to clip all variables (MajAx, X, Y, etc.)
-%                       ii. define timepoint of earliest jump
-%                      iii. clip data structure at earliest jump
-%                       iv. redefine track in data set as clipped structure
-%                        v. store remainder of original Target for reject data matrix
-%        5. when all tracks finished, save trimmed data and accmulated rejects
-%        6. report number of clipped tracks
-%  7. repeat for next movie
-
-
+%% Criteria Four: maximum particle size must be greater than 1.5um
 
 criteria_counter = criteria_counter + 1;
 
-% 0. initialize
-jumpFrac = 0.3;                                                            
-                                                                           
-for n = 1:length(D);                                                       
-    
-    % 0. isolate data for current movie
-    data = D4{n};
-    
-    % 0. if no data in n, continue to next movie
-    if isempty(data) == 1
-        disp(strcat('Clipping 0 jumps in D5 (', num2str(n),') !'))
-        continue
-    end
-    
-    jump_counter = 0;
-    for m = 1:length(data)   
-                                                                           
-        % 1. determine change in length between each timestep                           
-        Rates = diff(data(m).MajAx);
-
-        
-        % 2. express change of as a fraction of the cell size in previous timestep
-        Lengths = data(m).MajAx(1:length(Rates));
-        growthFrac = Rates./Lengths;
-                                                                           
-        % 3. list rows in which the change exceeds size jump threshold
-        jumpPoints = find(growthFrac > jumpFrac);                        
-
-        
-        % 4. if the track contains jumps...
-        if isempty(jumpPoints) == 0
-            
-            % i. isolate structure of target track z, in prep to clip all variables (MajAx, X, Y, etc.)
-            originalTrack = data(m);
-            
-            % ii. define timepoint of earliest jump
-            clipPoint = jumpPoints(1);
-            
-            % iii. clip data structure at desired timepoint
-            clippedTarget = structfun(@(M) M(1:clipPoint), originalTrack, 'Uniform', 0);
-            
-            % iv. redefine track in data set as clipped structure
-            data(m) = clippedTarget;
-            
-            % v. store remainder of original Target for reject data matrix
-            remainderTrack = structfun(@(M) M(clipPoint+1:end), originalTrack, 'Uniform', 0);
-            
-            jump_counter = jump_counter + 1;
-            trackScraps(jump_counter,1) = remainderTrack;
-            
-        end
-        
-        clear remainderTrack clippedTarget clipPoint Lengths growthFrac originalTrack jumpPoints
-        
-    end
-    
-    % 5. when all tracks finished, save trimmed data and accmulated rejects
-    D5{n} = data;
-    rejectD{criteria_counter,n} = trackScraps;
-    
-    % 6. report!
-    X = ['Clipping ', num2str(jump_counter), ' jumps in D5(', num2str(n), ')...'];
-    disp(X)
-    
-    clear trackScraps X data;
-    
-end
-    
-clear  jumpFrac jump_counter Rates m n;
-
-
-
-
-
-%% Criteria Five: repeat - tracks must be at least window size in length (5 frames)
-
-
-% Goal: after clipping off large size jumps, some tracks can be quite short
-%       Remove tracks shorter than windowSize, such that mu calculations in
-%       slidingFits does not encounter complications
-
-% 0. initiaize new dataset before trimming
-% 0. in current movie
-%           1. skip to next movie if no data remaining in n
-%           2. for each track, determine number of timepoints
-%           3. find tracks that are shorter than threshold number of frames
-%           4. report!
-%           5. if no sub-threshold tracks, continue to next movie
-%           6. else, remove structures based on row # (in reverse order)
-%           7. save sub-threshold tracks into reject data matrix
-% 8. repeat for next movie
-
-
-
-criteria_counter = criteria_counter + 1;
-
-
-% 0. initialize new dataset before trimming
-D6 = D5;
-windowSize = 5;                                                             % each timepoint = 1:05 mins;
-
-for n = 1:length(D);
-    
-    % 1. so that loop doesn't crash if no data remaining in n
-    if isempty(D6{n}) == 1
-        X = ['Removing 0 short tracks from D6(', num2str(n), ')...'];
-        disp(X)
-        continue
-    end
-
-    % 2. determine number of timepoints in each track m 
-    for m = 1:length(D6{n})
-        numFrames(m) = length(D6{n}(m).MajAx);
-    end
-    
-    % 3. find tracks that are shorter than threshold number of frames
-    subThreshold = find(numFrames < windowSize);       
-    
-    % 4. report!
-    X = ['Removing ', num2str(length(subThreshold)), ' short tracks from D6(', num2str(n), ')...'];
-    disp(X)
-    
-    % 5. continue if nothing is too short
-    if isempty(subThreshold) == 1
-        continue
-    end
-    
-    % 6. remove structures based on row # (in reverse order)
-    fingers = 0;
-    for toRemove = 1:length(subThreshold)
-        
-        r = length(subThreshold) - fingers;                  % reverse order                  
-        rejectTracks(r,1) = D6{n}(subThreshold(r));   % store data for reject data matrix
-        D6{n}(subThreshold(r)) = [];                         % deletes data
-        fingers = fingers + 1;
-        
-    end
-    
-    % 7. save sub-threshold tracks into reject data matrix
-    rejectD{criteria_counter,n} = rejectTracks;
-    
-    % 8. repeat for all movies
-    clear  numFrames m subThreshold fingers toRemove r X rejectTracks;
-    
-end
-
-clear n windowSize; 
-
-
- 
-%% Criteria Six: maximum particle size must be greater than 1.5um
-
-criteria_counter = criteria_counter + 1;
-
-D7 = D6;
+D5 = D4;
 SizeStrainer = 1.5;
 
 for n = 1:length(D);   
     
     % 1. so that loop doesn't crash if no data remaining in n
-    if isempty(D7{n}) == 1
+    if isempty(D5{n}) == 1
         X = ['Removing 0 small particles from D7(', num2str(n), ')...'];
         disp(X)
         continue
     end
     
-    for i = 1:length(D7{n})
-        lengthTrack(i) = max(D7{n}(i).MajAx);                          
+    for i = 1:length(D5{n})
+        lengthTrack(i) = max(D5{n}(i).MajAx);                          
     end          
     
     % finds tracks that don't exceed __ um
@@ -547,8 +370,8 @@ for n = 1:length(D);
     countSmalls = 0;
     for s = 1:length(tooSmalls)
         t = length(tooSmalls) - countSmalls;
-        tracks_tooSmalls(t,1) = D7{n}(tooSmalls(t));      %  recording to add into reject data matrix
-        D7{n}(tooSmalls(t)) = [];
+        tracks_tooSmalls(t,1) = D5{n}(tooSmalls(t));      %  recording to add into reject data matrix
+        D5{n}(tooSmalls(t)) = [];
         countSmalls = countSmalls + 1;
     end
     
@@ -567,143 +390,7 @@ clear SizeStrainer n;
 %% Saving results
 
 
-save('t300_2017-01-16-revisedTrimmer-jiggle0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
-%% dealing with improper track linking
-% 
-% Goal: it seems that any tracks with changes in trackID are ones that are poorly joined 
-%       but at least the first trackID is useable. Let's keep these first ones
-%       and reject data from subsequent IDs.
-
-% 0. for each track in current movie
-%       1. determine whether trackID contains number changes
-%               2. if so, trim track such that only first trackID remains
-%                  (all following are very likely error prone)
-%                         i. isolate entire data struct of current track,
-%                            in prep to clip all variables (MajAx, X, Y, etc.)
-%                        ii. isolate data corresponding to first TrackID
-%               3. replace data from original track (containing multiple IDs) with trimmed data
-%               4. add remainder of track to temporary (movie-specific) rejects collection
-%       5. if no changes, continue to next track
-% 6. when all tracks finished, save accmulated rejects.
-% 7. repeat for next movie
-
-
-load('letstry-2017-06-12-autoTrimmed-scrambled-proportional.mat');
-
-for n = 1:length(D7)
-    
-    
-    % 0. initialize
-    data = D7{n};
-    currentRejects = [];
-    reject_counter = 0;
-    
-    for m = 1:length(data)
-        
-        % 1. determine whether trackID contains number changes
-        trackIDs = data(m).TrackID;
-        isChange = diff(trackIDs);
-        
-        % if so,
-        if sum(isChange) ~= 0
-            
-            % 2. trim track such that only first trackID remains
-            reject_counter = reject_counter +1;
-            disp(strcat('Track (', num2str(m),') from xy (', num2str(n),') has multiple IDs! Trimming...'))
-            
-            % i. isolate entire data struct of current track, in prep to clip all variables (MajAx, X, Y, etc.)
-            originalTrack = data(m);
-            
-            % ii. isolate data corresponding to first TrackID
-            originalIDs = originalTrack.TrackID;
-            firstIDs = originalIDs == originalTrack.TrackID(1);
-            firstTrack = structfun(@(M) M(firstIDs), originalTrack, 'Uniform', 0);
-            
-            
-            % 3. replace data from original track (containing multiple IDs) with trimmed data
-            data(m) = firstTrack;
-            
-            
-            % 4. add remainder of track to rejects collection
-            rejectIDs = originalIDs ~= originalTrack.TrackID(1);
-            rejectTrack = structfun(@(M) M(rejectIDs), originalTrack, 'Uniform', 0);
-            currentRejects{reject_counter} = rejectTrack;
-            
-            % 5. if no changes, continue to next track
-        end
-        
-    end
-    
-    % 6. when all tracks finished, save trimmed data and accmulated rejects
-    Scram7{n} = data;
-    rejectD{7,n} = currentRejects;
-    
-    clear currentRejects data rejectTrack rejectIDs originalIDs originalTrack
-    clear firstTrack firstIDs
-end
-
-
-%%
-i=18;
-plot(tracks2Add{i}.Frame,tracks2Add{i}.MajAx,'o')
-title(tracks2Add{i}.TrackID(1));
-
-
-%% visualizing samples of data set
-
-% -- criteria five, check
-% select sample of tracks to visualize
-bottomTracks = find(allRatios < 0.85);
-sampleTracks = find(allRatios < 1);
-
-c = ismember(sampleTracks, bottomTracks);
-sampleTracks(c) = [];
-
-for st = 1:length(sampleTracks)
-    
-    % designate subplot position
-    subplot(ceil(length(sampleTracks)/5), 5, st)
-    
-    % plot
-    figure(n)
-    plot(T{n}(D6{n}(sampleTracks(st)).Frame(1:end))/3600,(D6{n}(sampleTracks(st)).MajAx),'Linewidth',2)
-   
-    
-    % label
-    title(sampleTracks(st));
-    
-end
-
-%%
-% -- final pass, check
-
-%
-for n = 52 %:length(D6)
-    %counter = counter +1;
-    
-    for i = 1:20%length(D6{n})
-        
-        % designate subplot position
-        %subplot(ceil(length(D6{n})/5), 5, i)
-        subplot(ceil(20/5), 5, i)
-        
-        % plot
-        %figure(counter)
-        plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
-        
-        % label
-        title(i);
-        
-    end
-end
-
-%% visualize any one single curve
-
-%
-plot(T{n}(D6{n}(i).Frame(1:end))/3600,(D6{n}(i).MajAx),'Linewidth',2)
-        axis([0,10,0,15])
-
-
-
+%% 
