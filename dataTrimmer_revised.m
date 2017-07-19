@@ -394,3 +394,36 @@ save('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat', 'D', 'D2', 'D3', 'D4', 'D5'
 
 
 %% 
+% checking the trimmer for possible errors
+
+load('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat');
+
+startNums = cellfun('length',D);
+D2_nums = cellfun('length',D2);
+D3_nums = cellfun('length',D3);
+D4_nums = cellfun('length',D4);
+final_nums = cellfun('length',D5);
+rejectNums = cellfun('length',rejectD);
+
+test1 = D2_nums - startNums;
+test2 = test1 - rejectNums(1,:);
+%sum(test2) == 0
+
+clear test1 test2
+test1 = D2_nums - D3_nums;
+test2 = test1 - rejectNums(2,:);
+%sum(test2) == 0
+
+clear test1 test2
+test1 = D3_nums - D4_nums;
+test2 = test1 - rejectNums(3,:);
+%sum(test2) == 0
+
+clear test1 test2
+test1 = D4_nums - final_nums;
+test2 = test1 - rejectNums(4,:);
+%sum(test2) == 0
+
+clear test1 test2
+change = startNums + rejectNums(1,:) - rejectNums(2,:) - rejectNums(3,:) - rejectNums(4,:);
+%sum(change - final_nums) ==0
