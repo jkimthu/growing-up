@@ -73,7 +73,7 @@ windowSize = 5;
 
 
 % 0. initialize division parameters
-dropThreshold = -0.75;
+dropFrac = -0.3;
 
 
 %%
@@ -199,7 +199,7 @@ for n = 1:length(D5)
         % 11. save data and repeat for all tracks
         
         trackData = struct('mu',slidingData(:,1),'yInt',slidingData(:,2));
-        M_abs{n}(track) = trackData;
+        M{n}(track) = trackData;
         
         clear slidingData trackData;
         
@@ -211,7 +211,7 @@ for n = 1:length(D5)
 end
 
 %%
-save('t300_2017-01-16-neighbors-abs-jiggle0p4.mat', 'D5', 'M_abs', 'T') %'D'
+save('t300_2017-01-16-neighbors-window5-jiggle0p4.mat', 'D5', 'M', 'T') %'D'
 
 
 %% checks
