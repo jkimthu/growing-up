@@ -22,7 +22,7 @@
 
 
 
-% last edit: July 18, 2017
+% last edit: July 19, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('t300_2017-01-16-noLinker.mat');
+load('mopsvns-2017-05-26-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -390,7 +390,7 @@ clear SizeStrainer n;
 %% Saving results
 
 
-save('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 

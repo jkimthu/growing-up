@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 July 15
+%  Last modified (jen): 2017 July 19
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('t300_2017-01-16_xy*.nd2');
+xyDirectory = dir('mopsvnc-2017-05-26_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 15:20
+for ii = 2:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +98,7 @@ for ii = 15:20
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-13.8276, -1];       
+    Threshold =  [-59.3103, -1]; %threshold for 2017-05-26      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -117,8 +117,8 @@ for ii = 15:20
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    UpperBound = 26;     % upper bound for restricted field, or Inf
-    %UpperBound = 8; % xy1-30 2017-0612, UpperBound = 26 used in xy31-60
+    %UpperBound = 26;     % upper bound for restricted field, or Inf
+    UpperBound = 8; % xy1-30 2017-0612, UpperBound = 26 used in xy31-60
     
     % to actually trim the set:
     P_Trim1 = ParticleTrim(P,TrimField,LowerBound,UpperBound);
@@ -129,8 +129,8 @@ for ii = 15:20
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 2.0;     % upper bound for restricted field, or Inf
-    %UpperBound = 1.6; % xy1-30 2017-0612, UpperBound = 2.0 used in xy31-60
+    %UpperBound = 2.0;     % upper bound for restricted field, or Inf
+    UpperBound = 1.6; % xy1-30 2017-0612, UpperBound = 2.0 used in xy31-60
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -154,14 +154,14 @@ for ii = 15:20
 
     %A=arrayfun(@(Q) max(Q.Area),PT);
 
-    cond4{ii} = P_Tracks;
-    time4{ii} = ND2ReaderT(reader);
+    D{ii} = P_Tracks;
+    T{ii} = ND2ReaderT(reader);
 
     
 end
 
 
-save('t300_2017-01-16-noLinker.mat','D','T')
+save('mopsvns-2017-05-26-noLinker.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
