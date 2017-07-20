@@ -157,4 +157,51 @@ for i = 1:length(conditions) %number of conditions
     
 end
 
+%% checks
+
+% plot length and mu for individial tracks of interest
+
+clear
+load('mopsvnc-2017-05-26-neighbors-window5-jiggle0p1.mat','D5','M','T');
+
 %%
+n=30;
+data = D5{n};
+
+% these tracks were the few left green at the end of xy30 (2017-05-26) with
+% a jiggle threshold of 0.1p. do these together make sense for the gradual
+% drop to a the low growth rate seen in the seeingMus plot?
+interestingTracks = [20, 107, 690, 58, 717, 88, 174, 29, 35];
+
+for i = 1:length(data)
+    ID(i,1) = data(i).TrackID(1);
+end
+
+for it = 1:length(interestingTracks)
+
+    track = find(ID == interestingTracks(it))
+    
+    trackLengths = D5{n}(track).MajAx;
+    trackFrames = D5{n}(track).Frame;
+    trackTimes = T{n}(trackFrames)/3600;
+    trackMus = M{n}(track).mu;
+    
+    figure(it)
+    plot(trackFrames, trackLengths,'o')
+    hold on
+    plot(trackFrames, trackLengths,'r')
+    grid on
+    xlim([0 202])
+    title(track);
+    
+    hold on
+    plot(trackFrames(3:end-2),trackMus,'ok');
+    xlim([0 202])
+    title(interestingTracks(it)); %label plot with TrackID
+
+end
+
+%hold on
+%plot(trackFrames(3:end-2),trackMus*4,'Color',[1 0.5 0],'Marker','o'); 
+%hold on
+%plot(trackFrames(3:end-2),trackMus*4,'Color',[0.5 0 0.5]); 
