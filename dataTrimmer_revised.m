@@ -265,7 +265,7 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.4;
+jiggleThreshold = -0.1;
 
 for n = 1:length(D)
     
@@ -382,7 +382,7 @@ for n = 1:length(D);
     
 end 
 
-clear SizeStrainer n;
+clear SizeStrainer n i m tooSmalls X;
 
 
  
@@ -390,7 +390,7 @@ clear SizeStrainer n;
 %% Saving results
 
 
-save('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 

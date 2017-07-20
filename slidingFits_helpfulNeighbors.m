@@ -29,7 +29,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Jul 12
+% last update: jen, 2017 Jul 19
 
 % OK lez go!
 
@@ -55,16 +55,16 @@ mu = fitLine(1)/log(2);         % gives: mu = 1
 % 0. initialize 
 clear
 clc
-experiment = '2017-01-16';
+experiment = '2017-05-26';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment,'  (t300)');
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
 % 0. initialize trimmed track data
 
-load('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat','D5','T');
+load('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p1.mat','D5','T');
 numMovies = length(D5);
 
 
@@ -210,14 +210,14 @@ for n = 1:length(D5)
     %       12. repeat for all movies
 end
 
-%%
-save('t300_2017-01-16-neighbors-window5-jiggle0p4.mat', 'D5', 'M', 'T') %'D'
+%
+save('mopsvnc-2017-05-26-neighbors-window5-jiggle0p1.mat', 'D5', 'M', 'T') %'D'
 
 
 %% checks
 % plot mu over time (like length) 
-
-load('t300_2017-01-16-neighbors-abs-jiggle0p4.mat');
+clear
+load('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat','D5','D','T','rejectD');
 
 
 n=1;

@@ -65,12 +65,12 @@ end
 
 % Initialize
 clear;
-load('t300_2017-01-16-neighbors-window5-jiggle0p4.mat','D5','M','T');
+load('mopsvnc-2017-05-26-neighbors-window5-jiggle0p4.mat','D5','M','T');
 
 
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40];%; 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30];%; 31 40];%; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -146,10 +146,10 @@ for i = 1:length(conditions) %number of conditions
     hold on
     grid on
 
-    %axis([0,41,0,.9])
+    axis([0,21,0,1.4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('fluc','low','ave','high');  
+    legend('1 uM','10 uM','100 uM');  
 
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;

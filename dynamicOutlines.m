@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 19
+% last edit: jen, 2017 Jul 20
 
 % OK LEZ GO!
 %%
@@ -25,18 +25,18 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-01-16';
+experiment = '2017-05-26';
 
 
 % TRACKING DATA
 % open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment,'  (t300)');
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);%,'  (t300)');
 cd(newFolder);
 
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('t300_2017-01-16-revisedTrimmer-jiggle0p4.mat','D5','D','T','rejectD');
+load('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,9 +57,9 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 40;
+n = 30;
 
-img_prefix = strcat('t300_2017-01-16_xy', num2str(n), 'T'); 
+img_prefix = strcat('mopsvnc-2017-05-26_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -70,7 +70,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('t300_2017-01-16_xy*.tif');
+imgDirectory = dir('mopsvnc-2017-05-26_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -102,8 +102,6 @@ rejectGroup2 = [];
 rejectGroup3 = [];
 rejectGroup4 = [];
 
-rejectGroup_shorts =[];
-
 for fr = 1:finalFrame
     
     % i. isolate data from each frame
@@ -131,7 +129,7 @@ clear fr;
 
 %%
 % for each image
-for img = 1:length(names)%max(interestingFrames)
+for img = 175:length(names)%max(interestingFrames)
     
     cla
     
@@ -141,7 +139,7 @@ for img = 1:length(names)%max(interestingFrames)
     filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'.tif');
     
     figure(1)
-    imshow(I, 'DisplayRange',[5000 11000]);
+    imshow(I, 'DisplayRange',[5000 14000]);
     
     
     % 3. if no tracked cells (surivors NOR rejects), save and skip
