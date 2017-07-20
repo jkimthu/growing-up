@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 July 19
+%  Last modified (jen): 2017 July 20
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('mopsvnc-2017-05-26_xy*.nd2');
+xyDirectory = dir('letstry-2017-06-12_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 2:NSeries
+for ii = 1:30%NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +98,7 @@ for ii = 2:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-59.3103, -1]; %threshold for 2017-05-26      
+    Threshold =  [-13.1724, -1]; %threshold for 2017-06-12      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -161,7 +161,7 @@ for ii = 2:NSeries
 end
 
 
-save('mopsvns-2017-05-26-noLinker.mat','D','T')
+save('letstry-2017-06-12-noLinker.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
