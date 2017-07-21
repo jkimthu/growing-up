@@ -165,13 +165,13 @@ clear
 load('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat','D5','M','T');
 
 %%
-n=20;
+n=52;
 data = D5{n};
 
 % these tracks were the few left green at the end of xy1 (2017-06-12) with
 % a jiggle threshold of 0.1p. do these together make sense for the gradual
 % drop to a the low growth rate seen in the seeingMus plot?
-interestingTracks = [2,5,7,14,15,25];
+interestingTracks = [11,16,22,25,27];
 
 for i = 1:length(data)
     ID(i,1) = data(i).TrackID(1);
