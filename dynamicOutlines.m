@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 20
+% last edit: jen, 2017 Jul 21
 
 % OK LEZ GO!
 %%
@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-05-26';
+experiment = '2017-06-12';
 
 
 % TRACKING DATA
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat','D5','D','T','rejectD');
+load('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,9 +57,9 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 30;
+n = 1;
 
-img_prefix = strcat('mopsvnc-2017-05-26_xy', num2str(n), 'T'); 
+img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -70,7 +70,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('mopsvnc-2017-05-26_xy*.tif');
+imgDirectory = dir('letstry-2017-06-12_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -129,7 +129,7 @@ clear fr;
 
 %%
 % for each image
-for img = 175:length(names)%max(interestingFrames)
+for img = 1:length(names)%max(interestingFrames)
     
     cla
     
@@ -139,7 +139,7 @@ for img = 175:length(names)%max(interestingFrames)
     filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'.tif');
     
     figure(1)
-    imshow(I, 'DisplayRange',[5000 14000]);
+    imshow(I, 'DisplayRange',[4000 8000]);
     
     
     % 3. if no tracked cells (surivors NOR rejects), save and skip

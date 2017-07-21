@@ -65,12 +65,12 @@ end
 
 % Initialize
 clear;
-load('mopsvnc-2017-05-26-neighbors-window5-jiggle0p4.mat','D5','M','T');
+load('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat','D5','M','T');
 
 
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30];%; 31 40];%; 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -146,10 +146,10 @@ for i = 1:length(conditions) %number of conditions
     hold on
     grid on
 
-    axis([0,21,0,1.4])
+    axis([0,21,0.2,1.2])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('1 uM','10 uM','100 uM');  
+    legend('KS 1 uM','KS 100 uM','KS 10 mM', 'KS LB', 'NCM 1 uM', 'NCM LB');  
 
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
@@ -162,16 +162,16 @@ end
 % plot length and mu for individial tracks of interest
 
 clear
-load('mopsvnc-2017-05-26-neighbors-window5-jiggle0p1.mat','D5','M','T');
+load('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat','D5','M','T');
 
 %%
-n=30;
+n=1;
 data = D5{n};
 
-% these tracks were the few left green at the end of xy30 (2017-05-26) with
+% these tracks were the few left green at the end of xy1 (2017-06-12) with
 % a jiggle threshold of 0.1p. do these together make sense for the gradual
 % drop to a the low growth rate seen in the seeingMus plot?
-interestingTracks = [20, 107, 690, 58, 717, 88, 174, 29, 35];
+interestingTracks = [23, 20, 17, 5,7];
 
 for i = 1:length(data)
     ID(i,1) = data(i).TrackID(1);
@@ -179,7 +179,7 @@ end
 
 for it = 1:length(interestingTracks)
 
-    track = find(ID == interestingTracks(it))
+    track = find(ID == interestingTracks(it));
     
     trackLengths = D5{n}(track).MajAx;
     trackFrames = D5{n}(track).Frame;

@@ -22,7 +22,7 @@
 
 
 
-% last edit: July 19, 2017
+% last edit: July 21, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('mopsvns-2017-05-26-noLinker.mat');
+load('letstry-2017-06-12-noLinker.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -260,14 +260,14 @@ criteria_counter = criteria_counter + 1;
 
 % 0. initiaize new dataset before trimming
 D4 = D3;
-
+%%
 % 0. define threshold change in length considered a division
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
 jiggleThreshold = -0.1;
 
-for n = 1:length(D)
+for n = 31:60%length(D)
     
     % 0. if no data in n, continue to next movie
     if isempty(D4{n}) == 1
@@ -390,7 +390,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 
