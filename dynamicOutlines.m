@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 21
+% last edit: jen, 2017 Jul 26
 
 % OK LEZ GO!
 %%
@@ -90,7 +90,9 @@ dm_reject3 = reject3_DM(reject3_DM(:,31) == n,:);
 dm_reject4 = reject4_DM(reject4_DM(:,31) == n,:);
 
 clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM
-%%
+
+%% when tracking all tracked cells, surviving AND trimmed
+
 % 2. for all frames, assemble tracks present in each category
 allTracks = unique(dm_total(:,1));
 
@@ -127,6 +129,14 @@ end
 clear fr;
 
 
+%% when tracking only surviving cells
+
+% 2. for all surviving tracks, sort based on width
+%       - max width in 2017-06-12 experiment = 2.0000 um
+%       - min width in 2017-06-12 experiment = 1.0000 um
+
+
+
 %%
 % for each image
 for img = 1:length(names)%max(interestingFrames)
@@ -136,21 +146,21 @@ for img = 1:length(names)%max(interestingFrames)
     % 3. initialize current image
     I=imread(names{img});
     %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-frame',num2str(img),'-n',num2str(n),'.tif');
+    filename = strcat('dynamicOutlines-widthTracking-1to1p6-frame',num2str(img),'-n',num2str(n),'.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[4000 8000]);
     
     
-    % 3. if no tracked cells (surivors NOR rejects), save and skip
-    if isempty(allData{img}) == 1
+    % 3. if no survivors, save and skip
+    if isempty(survivorTrackIDs{img}) == 1
         saveas(gcf,filename)
         
         continue
         
     else
         % 4. else, isolate data for each image
-        dm_currentImage = dm_total(dm_total(:,30) == img,:); % col 30 = frame #
+        dm_currentImage = dm_survivors(dm_survivors(:,30) == img,:); % col 30 = frame #
         
         % axes
         majorAxes = dm_currentImage(:,3); % lengths
@@ -179,54 +189,53 @@ for img = 1:length(names)%max(interestingFrames)
             
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
            
-            
-            if any(IDs(p) == rejectGroup1{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'Color',[1 0.5 0],'lineWidth',1)
-                text((centroid_X(p)-3)/conversionFactor, (centroid_Y(p)-3)/conversionFactor, num2str(IDs(p)),'Color',[1 0.5 0],'FontSize',9);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
-            
-            if any(IDs(p) == rejectGroup2{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'b','lineWidth',1)
-                text((centroid_X(p)-3)/conversionFactor, (centroid_Y(p)-3)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',9);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
-            
-            if any(IDs(p) == rejectGroup3{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'r','lineWidth',1)
-                text((centroid_X(p)-3)/conversionFactor, (centroid_Y(p)-3)/conversionFactor, num2str(IDs(p)),'Color','r','FontSize',9);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
 
-            if any(IDs(p) == rejectGroup4{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',1)
-                text((centroid_X(p)-2)/conversionFactor, (centroid_Y(p)-2)/conversionFactor, num2str(IDs(p)),'Color',[0.5 0 0.5],'FontSize',9);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
-                        % i. if track number is a reject of nonDrops method, plot green
+            % i. if track number is a surivor track, plot outline with
+            % color based on cell width
+            
             if any(IDs(p) == survivorTrackIDs{img}) == 1
                 
-                hold on
-                plot(x_rotated,y_rotated,'g','lineWidth',1)
-                text((centroid_X(p)+3)/conversionFactor, (centroid_Y(p)+3)/conversionFactor, num2str(IDs(p)),'Color','g','FontSize',10);
-                xlim([0 2048]);
-                ylim([0 2048]);
+                if minorAxes(p) < 1.2
+                    
+                    hold on
+                    plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',1)
+                    text((centroid_X(p)+3)/conversionFactor, (centroid_Y(p)+3)/conversionFactor, num2str(IDs(p)),'Color',[0.5 0 0.5],'FontSize',10);
+                    xlim([0 2048]);
+                    ylim([0 2048]);
+                    
+                elseif minorAxes(p) < 1.3
+                    
+                    hold on
+                    plot(x_rotated,y_rotated,'b','lineWidth',1)
+                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',10);
+                    xlim([0 2048]);
+                    ylim([0 2048]);
+                    
+                elseif minorAxes(p) < 1.4
+                    
+                    hold on
+                    plot(x_rotated,y_rotated,'g','lineWidth',1)
+                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','g','FontSize',10);
+                    xlim([0 2048]);
+                    ylim([0 2048]);
+
+                elseif minorAxes(p) < 1.5
+                    
+                    hold on
+                    plot(x_rotated,y_rotated,'Color',[1 0.5 0],'lineWidth',1)
+                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color',[1 0.5 0],'FontSize',10);
+                    xlim([0 2048]);
+                    ylim([0 2048]);
+                    
+                elseif minorAxes(p) < 1.6
+                    
+                    hold on
+                    plot(x_rotated,y_rotated,'r','lineWidth',1)
+                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','r','FontSize',10);
+                    xlim([0 2048]);
+                    ylim([0 2048]);
+                     
+                end
                 
             end
             
