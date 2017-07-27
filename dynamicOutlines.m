@@ -57,7 +57,7 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 1;
+n = 30;
 
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
@@ -127,14 +127,6 @@ for fr = 1:finalFrame
     
 end
 clear fr;
-
-
-%% when tracking only surviving cells
-
-% 2. for all surviving tracks, sort based on width
-%       - max width in 2017-06-12 experiment = 2.0000 um
-%       - min width in 2017-06-12 experiment = 1.0000 um
-
 
 
 %%
@@ -227,7 +219,7 @@ for img = 1:length(names)%max(interestingFrames)
                     xlim([0 2048]);
                     ylim([0 2048]);
                     
-                elseif minorAxes(p) < 1.6
+                elseif minorAxes(p) <= 1.6
                     
                     hold on
                     plot(x_rotated,y_rotated,'r','lineWidth',1)
