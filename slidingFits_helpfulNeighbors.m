@@ -64,7 +64,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat','D5','T');
+load('letstry-2017-06-12-tighterWidths-jiggle-0p3-0p1.mat','D5','T');
 numMovies = length(D5);
 
 
@@ -211,7 +211,7 @@ for n = 1:length(D5)
 end
 
 %
-save('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat', 'D5', 'M', 'T') %'D'
+save('letstry-2017-06-12-tighterWidths-window5-jiggle-varied.mat', 'D5', 'M', 'T') %'D'
 
 
 %% checks

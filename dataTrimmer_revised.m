@@ -22,7 +22,7 @@
 
 
 
-% last edit: July 21, 2017
+% last edit: July 27, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('letstry-2017-06-12-noLinker.mat');
+load('letstry-2017-06-12-tighterWidths.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -390,7 +390,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('letstry-2017-06-12-tighterWidths-jiggle-0p3-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 
