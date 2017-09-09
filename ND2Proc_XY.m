@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 July 27
+%  Last modified (jen): 2017 September 9
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('letstry-2017-06-12_xy*.nd2');
+xyDirectory = dir('lb-monod-2017-09-08_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 31:60%NSeries
+for ii = 1:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +98,7 @@ for ii = 31:60%NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-13.1724, -1]; %threshold for 2017-06-12      
+    Threshold =  [-48.5517, -1]; %threshold for 2017-06-12      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -161,7 +161,7 @@ for ii = 31:60%NSeries
 end
 
 
-save('letstry-2017-06-12-tighterWidths.mat','D','T')
+save('lb-kanamycin-2017-09-08.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
