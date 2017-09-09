@@ -22,7 +22,7 @@
 
 
 
-% last edit: July 27, 2017
+% last edit: Sept 9, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('letstry-2017-06-12-tighterWidths.mat');
+load('lb-kanamycin-2017-09-08.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -140,15 +140,23 @@ for n = 1:length(D);
         
     end
     
-    % 6. when all tracks finished, save accmulated rejects
-    rejectD{criteria_counter,n} = trackScraps;
-    
-    % 7. report!
+    % 6. report!
     X = ['Clipping ', num2str(jump_counter), ' jumps in D2(', num2str(n), ')...'];
     disp(X)
     
-    % 8. insert at end of data matrix, D2
-    D2{n} = [data; trackScraps];
+    
+    % when all tracks finished, 
+    if jump_counter == 1
+        
+        % 7. save accmulated rejects
+        rejectD{criteria_counter,n} = trackScraps;
+        
+        % 8. and insert data after jump at end of data matrix, D2
+        D2{n} = [data; trackScraps];
+    
+    else
+        D2{n} = data;
+    end
     
     % 9. repeat for all movies
     clear trackScraps X data;
@@ -260,14 +268,14 @@ criteria_counter = criteria_counter + 1;
 
 % 0. initiaize new dataset before trimming
 D4 = D3;
-%%
+
 % 0. define threshold change in length considered a division
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
 jiggleThreshold = -0.1;
 
-for n = 31:60%length(D)
+for n = 1:length(D)
     
     % 0. if no data in n, continue to next movie
     if isempty(D4{n}) == 1
@@ -390,7 +398,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('letstry-2017-06-12-tighterWidths-jiggle-0p3-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-kanamycin-2017-09-08-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 
