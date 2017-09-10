@@ -13,7 +13,10 @@
 %       3. Average mu (with standard deviation) per timepoint in each condition 
 %               - Another way of looking at steady state
 %
-%
+% 
+
+% last updated: jen, 2017 Sept 10
+
 %%
 %
 %  VISUAL CHECK: plot raw data and mu over time
@@ -65,12 +68,12 @@ end
 
 % Initialize
 clear;
-load('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat','D5','M','T');
+load('lb-kanamycin-2017-09-08-window5-jiggle-0p3.mat','D5','M','T');
 
 
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
+conditions = [1 10; 11 20]; %[1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -146,10 +149,10 @@ for i = 1:length(conditions) %number of conditions
     hold on
     grid on
 
-    axis([0,21,0.2,1.2])
+    axis([0,21,-0.1,0.9])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('KS 1 uM','KS 100 uM','KS 10 mM', 'KS LB', 'NCM 1 uM', 'NCM LB');  
+    legend('full LB + kan','1/8 LB + kan');  
 
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
