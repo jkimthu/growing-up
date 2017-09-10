@@ -22,7 +22,7 @@
 
 
 
-% last edit: Sept 9, 2017
+% last edit: Sept 10, 2017
 
 % OK lez go!
 
@@ -353,7 +353,7 @@ for n = 1:length(D);
     
     % 1. so that loop doesn't crash if no data remaining in n
     if isempty(D5{n}) == 1
-        X = ['Removing 0 small particles from D7(', num2str(n), ')...'];
+        X = ['Removing 0 small particles from D5(', num2str(n), ')...'];
         disp(X)
         continue
     end
