@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 26
+% last edit: jen, 2017 Jul 28
 
 % OK LEZ GO!
 %%
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat','D5','D','T','rejectD');
+load('letstry-2017-06-12-tighterWidths-jiggle-0p3-0p1.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -45,7 +45,7 @@ load('letstry-2017-06-12-revisedTrimmer-jiggle-0p3-0p1.mat','D5','D','T','reject
 % build data matrix from fully trimmed data
 survivorDM = buildDM(D5,T);
 
-% build data matrix for each rejected tracks
+% build data matrix for each rejected track
 totalDM = buildDM(D,T);
 reject1_DM = buildDM(rejectD(1,:),T);
 reject2_DM = buildDM(rejectD(2,:),T);
@@ -57,7 +57,7 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 30;
+n = 50;
 
 img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
 img_suffix = 'XY1C1.tif';
@@ -138,7 +138,7 @@ for img = 1:length(names)%max(interestingFrames)
     % 3. initialize current image
     I=imread(names{img});
     %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-widthTracking-1to1p6-frame',num2str(img),'-n',num2str(n),'.tif');
+    filename = strcat('dynamicOutlines-tightenedWidths-frame',num2str(img),'-n',num2str(n),'.tif');
     
     figure(1)
     imshow(I, 'DisplayRange',[4000 8000]);
@@ -152,7 +152,7 @@ for img = 1:length(names)%max(interestingFrames)
         
     else
         % 4. else, isolate data for each image
-        dm_currentImage = dm_survivors(dm_survivors(:,30) == img,:); % col 30 = frame #
+        dm_currentImage = dm_total(dm_total(:,30) == img,:); % col 30 = frame #
         
         % axes
         majorAxes = dm_currentImage(:,3); % lengths
@@ -173,74 +173,76 @@ for img = 1:length(names)%max(interestingFrames)
         
         % trackIDs
         IDs = dm_currentImage(:,1);
-    
+        
         
         % 5. for each particle of interest in current image, draw ellipse
         for p = 1:length(IDs)
             
             
             [x_rotated, y_rotated] = drawEllipse(p,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
-           
-
+            
+            
             % i. if track number is a surivor track, plot outline with
             % color based on cell width
             
             if any(IDs(p) == survivorTrackIDs{img}) == 1
                 
-                if minorAxes(p) < 1.2
-                    
-                    hold on
-                    plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',1)
-                    text((centroid_X(p)+3)/conversionFactor, (centroid_Y(p)+3)/conversionFactor, num2str(IDs(p)),'Color',[0.5 0 0.5],'FontSize',10);
-                    xlim([0 2048]);
-                    ylim([0 2048]);
-                    
-                elseif minorAxes(p) < 1.3
-                    
-                    hold on
-                    plot(x_rotated,y_rotated,'b','lineWidth',1)
-                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',10);
-                    xlim([0 2048]);
-                    ylim([0 2048]);
-                    
-                elseif minorAxes(p) < 1.4
-                    
-                    hold on
-                    plot(x_rotated,y_rotated,'g','lineWidth',1)
-                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','g','FontSize',10);
-                    xlim([0 2048]);
-                    ylim([0 2048]);
-
-                elseif minorAxes(p) < 1.5
-                    
-                    hold on
-                    plot(x_rotated,y_rotated,'Color',[1 0.5 0],'lineWidth',1)
-                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color',[1 0.5 0],'FontSize',10);
-                    xlim([0 2048]);
-                    ylim([0 2048]);
-                    
-                elseif minorAxes(p) <= 1.6
-                    
-                    hold on
-                    plot(x_rotated,y_rotated,'r','lineWidth',1)
-                    text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','r','FontSize',10);
-                    xlim([0 2048]);
-                    ylim([0 2048]);
-                     
-                end
+                hold on
+                plot(x_rotated,y_rotated,'g','lineWidth',1)
+                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','g','FontSize',10);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                                
+            end
+            
+            if any(IDs(p) == rejectGroup1{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'b','lineWidth',1)
+                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',10);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+            
+            if any(IDs(p) == rejectGroup2{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'Color',[0.5 0 0.5],'lineWidth',1)
+                text((centroid_X(p)+3)/conversionFactor, (centroid_Y(p)+3)/conversionFactor, num2str(IDs(p)),'Color',[0.5 0 0.5],'FontSize',10);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+            
+            if any(IDs(p) == rejectGroup3{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'Color',[1 0.5 0],'lineWidth',1)
+                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color',[1 0.5 0],'FontSize',10);
+                xlim([0 2048]);
+                ylim([0 2048]);
+                
+            end
+            
+            if any(IDs(p) == rejectGroup4{img}) == 1
+                
+                hold on
+                plot(x_rotated,y_rotated,'r','lineWidth',1)
+                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','r','FontSize',10);
+                xlim([0 2048]);
+                ylim([0 2048]);
                 
             end
             
         end
         
-        % 6. save
-        saveas(gcf,filename)
-        
     end
+    
+    % 6. save
+    saveas(gcf,filename)
+    
 end
-
-
-
 
 
 
