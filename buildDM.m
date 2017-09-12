@@ -182,7 +182,40 @@ ccFraction = NaN(length(angle),1);
 
 % Compile data into single matrix
 dm = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame stage_num eccentricity angle condVals];
-
+% 1. track Number
+% 2. Time
+% 3. lengthVals
+% 4. muVals
+% 5. isDrop
+% 6. curveFinder
+% 7. timeSinceBirth
+% 8. curveDurations
+% 9. ccFraction 
+% 10. lengthAdded_incremental_sinceBirth
+% 11. addedLength
+% 12. widthVals
+% 13. vcVals
+% 14. veVals
+% 15. vaVals
+% 16. mu_vcVals
+% 17. mu_veVals
+% 18. mu_vaVals
+% 19. vcAdded_incremental_sinceBirth
+% 20. veAdded_incremental_sinceBirth
+% 21. vaAdded_incremental_sinceBirth
+% 22. addedVC
+% 23. addedVE
+% 24. addedVA
+% 25. addedVC_incremental
+% 26. addedVE_incremental
+% 27. addedVA_incremental
+% 28. x_pos
+% 29. y_pos
+% 30. orig_frame
+% 31. stage_num
+% 32. eccentricity
+% 33. angle
+% 34. condVals
 
 
 end
