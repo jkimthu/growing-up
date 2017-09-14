@@ -22,7 +22,7 @@
 
 
 
-% last edit: Sept 10, 2017
+% last edit: Sept 14, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-kanamycin-2017-09-08.mat');
+load('lb-monod-2017-09-13.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -398,7 +398,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-kanamycin-2017-09-08-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-monod-2017-09-13-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 
