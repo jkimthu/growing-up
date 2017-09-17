@@ -22,7 +22,7 @@
 
 
 
-% last edit: Sept 14, 2017
+% last edit: Sept 17, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-monod-2017-09-13.mat');
+load('lb-monod-2017-09-15.mat');
 %D = D_smash;
 
 % reject data matrix
@@ -273,7 +273,7 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.1;
+jiggleThreshold = -0.3;
 
 for n = 1:length(D)
     
@@ -366,7 +366,7 @@ for n = 1:length(D);
     tooSmalls = find(lengthTrack < SizeStrainer);                          
     
     % report!
-    X = ['Removing ', num2str(length(tooSmalls)), ' small particles from D7(', num2str(n), ')...'];
+    X = ['Removing ', num2str(length(tooSmalls)), ' small particles from D5(', num2str(n), ')...'];
     disp(X)
     
     % so loop doesn't crash if nothing is too small
@@ -398,7 +398,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-monod-2017-09-13-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-monod-2017-09-15-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
 %% 

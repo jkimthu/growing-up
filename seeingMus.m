@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Sept 15
+% last updated: jen, 2017 Sept 17
 
 %%
 %
@@ -68,12 +68,12 @@ end
 
 % Initialize
 clear;
-load('lb-monod-2017-09-13-window5-jiggle-0p1.mat','D5','M','T');
+load('lb-monod-2017-09-15-window5-jiggle-0p3.mat','D5','M','T');
 
 
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40]; % 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -152,7 +152,7 @@ for i = 1:length(conditions) %number of conditions
     axis([0,21,0,4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('1/2 LB','1/4 LB','1/8 LB','full LB');  
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');  
 
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
