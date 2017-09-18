@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-09-15';
+experiment = '2017-09-13';
 
 
 % TRACKING DATA
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-monod-2017-09-15-jiggle-0p1.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-13-jiggle-0p1.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,10 +57,10 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 11;
-movieNum = 11; % in case different than n
+n = 10;
+movieNum = 10; % in case different than n
 
-img_prefix = strcat('lb-monod-2017-09-15_xy', num2str(movieNum), 'T'); 
+img_prefix = strcat('lb-monod-2017-09-13_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -71,7 +71,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('lb-monod-2017-09-15_xy*.tif');
+imgDirectory = dir('lb-monod-2017-09-13_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -111,7 +111,7 @@ for fr = 1:finalFrame
     totals = dm_total(dm_total(:,30) == fr,:);
     
     survivors = dm_survivors(dm_survivors(:,30) == fr,:); % col 30 = frame #
-    reject1s = dm_reject1(dm_reject1(:,30) == fr,:);
+    %reject1s = dm_reject1(dm_reject1(:,30) == fr,:);
     reject2s = dm_reject2(dm_reject2(:,30) == fr,:);
     reject3s = dm_reject3(dm_reject3(:,30) == fr,:);
     reject4s = dm_reject4(dm_reject4(:,30) == fr,:);
@@ -120,7 +120,7 @@ for fr = 1:finalFrame
     allData{fr} = totals(:,1);
     
     survivorTrackIDs{fr} = survivors(:,1); % col 1 = TrackID
-    rejectGroup1{fr} = reject1s(:,1);
+    %rejectGroup1{fr} = reject1s(:,1);
     rejectGroup2{fr} = reject2s(:,1);
     rejectGroup3{fr} = reject3s(:,1);
     rejectGroup4{fr} = reject4s(:,1);
@@ -142,7 +142,7 @@ for img = 1:length(names)
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[10000 20000]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[8000 30000]); %lowering right # increases num sat'd pxls
     
     
     % 3. if no particles to display, save and skip
@@ -196,15 +196,15 @@ for img = 1:length(names)
                                 
             end
             
-            if any(IDs(p) == rejectGroup1{img}) == 1
-                
-                hold on
-                plot(x_rotated,y_rotated,'b','lineWidth',1)
-                text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',10);
-                xlim([0 2048]);
-                ylim([0 2048]);
-                
-            end
+%             if any(IDs(p) == rejectGroup1{img}) == 1
+%                 
+%                 hold on
+%                 plot(x_rotated,y_rotated,'b','lineWidth',1)
+%                 text((centroid_X(p)+2)/conversionFactor, (centroid_Y(p)+2)/conversionFactor, num2str(IDs(p)),'Color','b','FontSize',10);
+%                 xlim([0 2048]);
+%                 ylim([0 2048]);
+%                 
+%             end
             
             if any(IDs(p) == rejectGroup2{img}) == 1
                 
