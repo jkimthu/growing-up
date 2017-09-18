@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Jul 28
+% last edit: jen, 2017 Sept 18
 
 % OK LEZ GO!
 %%
@@ -25,18 +25,18 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-06-12';
+experiment = '2017-09-15';
 
 
 % TRACKING DATA
 % open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/',experiment);%,'  (t300)');
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('letstry-2017-06-12-tighterWidths-jiggle-0p3-0p1.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-15-jiggle-0p1.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,20 +57,21 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 50;
+n = 11;
+movieNum = 11; % in case different than n
 
-img_prefix = strcat('letstry-2017-06-12_xy', num2str(n), 'T'); 
+img_prefix = strcat('lb-monod-2017-09-15_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
-img_folder=strcat('xy', num2str(n));
+img_folder=strcat('xy', num2str(movieNum));
 cd(img_folder);
 
 % pixels to um 
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('letstry-2017-06-12_xy*.tif');
+imgDirectory = dir('lb-monod-2017-09-15_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -131,21 +132,21 @@ clear fr;
 
 %%
 % for each image
-for img = 1:length(names)%max(interestingFrames)
+for img = 1:length(names)
     
     cla
     
     % 3. initialize current image
     I=imread(names{img});
-    %filename = strcat('dynamicOutlines-frame',num2str(img),'-track',num2str(interestingTrack),'.tif');
-    filename = strcat('dynamicOutlines-tightenedWidths-frame',num2str(img),'-n',num2str(n),'.tif');
+    filename = strcat('dynamicOutlines-xy',num2str(movieNum),'-frame',num2str(img),'-n',num2str(n),'.tif');
     
     figure(1)
-    imshow(I, 'DisplayRange',[4000 8000]);
+    % imtool(I), displays image in grayscale with range
+    imshow(I, 'DisplayRange',[10000 20000]); %lowering right # increases num sat'd pxls
     
     
-    % 3. if no survivors, save and skip
-    if isempty(survivorTrackIDs{img}) == 1
+    % 3. if no particles to display, save and skip
+    if isempty(allData{img}) == 1
         saveas(gcf,filename)
         
         continue
