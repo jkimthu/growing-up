@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Sept 17
+% last updated: jen, 2017 Sept 21
 
 %%
 %
@@ -68,7 +68,7 @@ end
 
 % Initialize
 clear;
-load('lb-monod-2017-09-15-window5-jiggle-0p3.mat','D5','M','T');
+load('lb-monod-2017-09-20-window5-jiggle-0p1.mat','D5','M','T');
 
 
 
