@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Sept 18
+% last edit: jen, 2017 Sept 21
 
 % OK LEZ GO!
 %%
@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-09-13';
+experiment = '2017-09-20';
 
 
 % TRACKING DATA
@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-monod-2017-09-13-jiggle-0p1.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-20-jiggle-0p1.mat','D5','D','T','rejectD');
 %D = D_smash;
 
 
@@ -57,10 +57,10 @@ reject4_DM = buildDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 10;
-movieNum = 10; % in case different than n
+n = 60;
+movieNum = 60; % in case different than n
 
-img_prefix = strcat('lb-monod-2017-09-13_xy', num2str(movieNum), 'T'); 
+img_prefix = strcat('lb-monod-2017-09-20_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -71,7 +71,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('lb-monod-2017-09-13_xy*.tif');
+imgDirectory = dir('lb-monod-2017-09-20_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -142,7 +142,7 @@ for img = 1:length(names)
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[8000 30000]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[8000 28000]); %lowering right # increases num sat'd pxls
     
     
     % 3. if no particles to display, save and skip
