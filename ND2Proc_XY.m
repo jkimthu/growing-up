@@ -35,14 +35,15 @@
 
 
 
-%  Last modified (jen): 2017 September 21
+%  Last modified (jen): 2017 September 22
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('lb-monod-2017-09-20_xy*.nd2');
+xyDirectory = dir('t3600_2017-01-12_xy*');
+%xyDirectory = dir('lb-monod-2017-09-20_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +91,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1:NSeries
+for ii = 2:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +99,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-81.3793, -1]; %threshold for 2017-09-20      
+    Threshold =  [-25.1034, -1]; %threshold for 2017-01-12      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -117,8 +118,8 @@ for ii = 1:NSeries
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    UpperBound = 26;     % upper bound for restricted field, or Inf
-    %UpperBound = 8; % xy1-30 2017-0612, UpperBound = 26 used in xy31-60
+    %UpperBound = 26;     % upper bound for restricted field, or Inf
+    UpperBound = 8;     % upper bound for glucose only 
     
     % to actually trim the set:
     P_Trim1 = ParticleTrim(P,TrimField,LowerBound,UpperBound);
@@ -129,8 +130,8 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 1.8;     % upper bound for restricted field, or Inf
-    %UpperBound = 1.4; % xy1-30 2017-06-12, UpperBound = 1.6 used in xy31-60
+    %UpperBound = 1.8;     % upper bound for restricted field, or Inf
+    UpperBound = 1.4;     % upperbound in glucose only
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -161,7 +162,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-monod-2017-09-20.mat','D','T')
+save('t3600-2017-01-12.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
