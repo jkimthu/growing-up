@@ -6,14 +6,16 @@
 %        and tables it along with all other associated data into an awesome,
 %        organized matrix
 %
-%  Last edit: Jen Nguyen, June 22 2017
+%  Last edit: Jen Nguyen, Sept 25 2017
 
-
+%  NOTE!!!
+%  code is only updated for 34 columns.
+%  comments are updated to reflect code for 35 columns, as edited in buildDM
 
 
 % Envisioned data matrix:
 
-%        row      Track#    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    lngthAdded    addedLngth    Width    V_cyl   V_elpse  V_anu  mu_vc  mu_ve  mu_va  Condition o
+%        row      TrackID    Time     Lngth      Mu       drop?      curve#    timeSinceBirth    curveDuration    cc stage    lngthAdded    addedLngth    Width    V_cyl   V_elpse  V_anu  mu_vc  mu_ve  mu_va  Condition o
 %         1         1         t        x         u         0*         1              0                3              1           0            z-x          wx                                                     1  
 %         2         1         t        y         u         0          1              1                3              2          y-x           z-x          wy      v                                              1
 %         3         1         t        z         u         0          1              2                3              3          z-x           z-x          wz      v                                              1
@@ -29,7 +31,7 @@
 
 %     where,
 %                  row       =   row number, obvi
-%        1.        track     =   identifies track 
+%        1.        trackID   =   track ID, as assigned by ND2Proc_XY.m
 %        2.        time      =   all timepoints associated with concatinated length trajectories
 %        3.        majAx     =   length values from concatentated length trajectories
 %        4.        mu        =   calculated growth rates from SlidingFits.m
@@ -62,7 +64,8 @@
 %       31.        n         =   movie number in original ND file
 %       32.        ecc       =   eccentricity of fitted ellipse
 %       33.        angle     =   as in matrix D
-%       34.        condition =   1 fluc; 2 low; 3 ave; 4 high, unless noted otherwise
+%       34.        trackNum  =   total track number (vs ID which is xy based)
+%       35.        condition =   1 fluc; 2 low; 3 ave; 4 high, unless noted otherwise
 
 
 
@@ -83,7 +86,7 @@
 %%
 %   Initialize.
 clear
-load('letstry-2017-06-12-increasedWindow-Mus-LVVV-trackLength20.mat');
+load('t3600-2017-01-12-window5-jiggle-0p3.mat');
 D7 = D6;
 M7 = M6;
 

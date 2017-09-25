@@ -2,25 +2,27 @@
 % adapted from matrixBuilder, but prevents need to save data matrices.
 % ideal for smaller inputs that take less time to process.
 
-% last updated: jen, 2017-06-23
+% last updated: jen, 2017 Sept 25
 
 function [dm] = buildDM(D7,T)
 
 % initialize all values
-condVals = [];
+condVals = [];    % col 35 (of 35 columns)
 
-trackNumber = [];                                                      
+trackID = [];     % col 1
+trackNum = [];    % col 34, total track number for entire experiment
+tn_counter = 0;
 
-Time = [];
+Time = [];        % col 2
 
-x_pos = [];
-y_pos = [];
-orig_frame = [];
-stage_num = [];  % col 31
+x_pos = [];       % col 28
+y_pos = [];       % col 29
+orig_frame = [];  % col 30
+stage_num = [];   % col 31
 eccentricity = [];
 angle = [];
 
-lengthVals = [];
+lengthVals = [];  % col 3
 widthVals = [];
 vcVals = [];
 veVals = [];
@@ -31,7 +33,7 @@ mu_vcVals = [];
 mu_veVals = [];
 mu_vaVals = [];
 
-isDrop = []; 
+isDrop = [];      % col 5
 dropThreshold = -0.75;                                                     % consider greater negatives a division event
 
 curveFinder = [];                                                        
@@ -67,63 +69,75 @@ for n = 1:length(D7)
      
     for m = 1:length(D7{n})                                                
         
-        %   TRACK #                                                        
+        % 1. track ID                                                        
         lengthCurrentTrack = length(D7{n}(m).TrackID);
         Track = D7{n}(m).TrackID;
-        trackNumber = [trackNumber; Track];
+        trackID = [trackID; Track];
         
         
-        %   frame number in original image
+        % 34. track number
+        tn_counter = tn_counter + 1;
+        tnTrack = ones(length(Track),1)*tn_counter;
+        trackNum = [trackNum; tnTrack];
+        
+        
+        % 30. frame number in original image
         frameTrack = D7{n}(m).Frame;%(7:lengthCurrentTrack+6);
         orig_frame = [orig_frame; frameTrack];
         
         
-        %   TIME
+        % 2. time
         %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
         timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);                  % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          % concat=enate timestamp
         
         
         
-        %   lengths
+        % 3. lengths
         lengthTrack = D7{n}(m).MajAx;%(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         dLengths = diff(lengthTrack);
         dLengths = [0; dLengths];
         addedLength_incremental = [addedLength_incremental; dLengths];
         
+        % 5. drop?
+        dropTrack = diff(lengthTrack);
+        toBool = dropTrack < dropThreshold;                                % converts different to a Boolean based on dropThreshold
+        toBool = [0; toBool];                                              % * add zero to front, to even track lengths
+        isDrop = [isDrop; toBool];
         
-        %   widths
+        
+        % 12. widths
         widthTrack = D7{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
         
         
-        %   x positions in original image
+        % 28. x positions in original image
         xTrack = D7{n}(m).X;%(7:lengthCurrentTrack+6); 
         x_pos = [x_pos; xTrack];
         
         
-        %   y positions in original image
+        % 29. y positions in original image
         yTrack = D7{n}(m).Y;%(7:lengthCurrentTrack+6);
         y_pos = [y_pos; yTrack];
         
         
-        %   trim stage in dataTrimmer
+        % 31. trim stage in dataTrimmer
         trimTrack = ones(length(Track),1)*n;
         stage_num = [stage_num; trimTrack];
         
         
-        %   eccentricity of ellipses used in particle tracking
+        % 32. eccentricity of ellipses used in particle tracking
         eccTrack = D7{n}(m).Ecc;%(7:lengthCurrentTrack+6);
         eccentricity = [eccentricity; eccTrack];
         
         
-        %   angle of ellipses used in particle tracking
+        % 33. angle of ellipses used in particle tracking
         angTrack = D7{n}(m).Ang;%(7:lengthCurrentTrack+6);
         angle = [angle; angTrack];
          
                                                                            
-        %   CONDITION
+        % 34. CONDITION
         % assign condition based on xy number
         condition = ceil(n/10);
         
@@ -149,8 +163,7 @@ muVals = NaN(length(angle),1);
 mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
 mu_vaVals = NaN(length(angle),1);
-
-isDrop = NaN(length(angle),1);  
+ 
 curveFinder = NaN(length(angle),1);                                                      
 
 timeSinceBirth = NaN(length(angle),1);
@@ -181,8 +194,8 @@ ccFraction = NaN(length(angle),1);
 
 
 % Compile data into single matrix
-dm = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame stage_num eccentricity angle condVals];
-% 1. track Number
+dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals];
+% 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
 % 4. muVals
@@ -215,7 +228,8 @@ dm = [trackNumber Time lengthVals muVals isDrop curveFinder timeSinceBirth curve
 % 31. stage_num
 % 32. eccentricity
 % 33. angle
-% 34. condVals
+% 34. trackNum  =  total track number (vs ID which is xy based)
+% 35. condVals
 
 
 end
