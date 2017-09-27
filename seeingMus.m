@@ -70,13 +70,12 @@ end
 clear;
 load('t3600-2017-01-12-xy23-window5-jiggle-0p3.mat','D5','M','T');
 
-
-
+%%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40];%; 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
-for i = 3:4%1:length(conditions) %number of conditions
+for i = 1:length(conditions) %number of conditions
     
     %    Condition One    %
     mu_elongation = [];
@@ -149,11 +148,10 @@ for i = 3:4%1:length(conditions) %number of conditions
     hold on
     grid on
 
-    axis([0,21,0,0.8])
+    axis([0,21,0.2,1.2])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('fluc','low','ave','high');  
-
+    legend('KS 1 uM','KS 100 uM','KS 10 mM', 'KS LB', 'NCM 1 uM', 'NCM LB')
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;

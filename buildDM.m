@@ -4,7 +4,7 @@
 
 % last updated: jen, 2017 Sept 25
 
-function [dm] = buildDM(D5,T)
+function [dm] = buildDM(D5,M,T)
 %%
 % initialize all values
 condVals = [];    % col 35 (of 35 columns)
@@ -28,7 +28,7 @@ vcVals = [];
 veVals = [];
 vaVals = [];
 
-muVals = [];
+muVals = [];     % col 4
 mu_vcVals = [];
 mu_veVals = [];
 mu_vaVals = [];
@@ -66,7 +66,7 @@ addedVA_incremental = [];
 % Select xy positions for analysis / concatenation
 
 for n = 1:length(D5)
-
+%%
     for m = 1:length(D5{n})                                                
         
         % 1. track ID                                                        
@@ -82,15 +82,17 @@ for n = 1:length(D5)
         
         
         % 30. frame number in original image
-        frameTrack = D5{n}(m).Frame;%(7:lengthCurrentTrack+6);
+        frameTrack = D5{n}(m).Frame;
+        %frameTrack = D5{n}(m).Frame(3:lengthCurrentTrack+2); % trimming to fit mu
         orig_frame = [orig_frame; frameTrack];
         
         
         % 2. time
         %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
-        timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);                  % data format, if all ND2s were processed individually
-        Time = [Time; timeTrack];                                          % concat=enate timestamp
-        
+        timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);
+                                                                           % data format, if all ND2s were processed individually
+        Time = [Time; timeTrack];                                          %concat=enate timestamp
+       
         
         
         % 3. lengths
@@ -99,6 +101,14 @@ for n = 1:length(D5)
         dLengths = diff(lengthTrack);
         dLengths = [0; dLengths];
         addedLength_incremental = [addedLength_incremental; dLengths];
+        
+        
+        % 4. mu
+        muTrack = zeros(lengthCurrentTrack,1);
+        measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
+        muTrack(3:length(measuredMus)+2) = measuredMus;
+        muVals = [muVals; muTrack];                                        % concatenate growth rates
+        
         
         
         % 5. drop?
@@ -255,7 +265,7 @@ for n = 1:length(D5)
     end % for m
     
     disp(['Tracks (', num2str(m), ') assembled from movie (', num2str(n), ') !'])
-    
+%%    
     
 end % for n
 
@@ -265,7 +275,6 @@ vcVals = NaN(length(angle),1);
 veVals = NaN(length(angle),1);
 vaVals = NaN(length(angle),1);
 
-muVals = NaN(length(angle),1);
 mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
 mu_vaVals = NaN(length(angle),1);

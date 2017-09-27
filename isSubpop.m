@@ -11,19 +11,24 @@
 %
 
 % Strategy:
-%           0. initialize data matrix
-%           1. time period of interest
-%                2. isolate condition of interest
-%                     3. collect mu and track ID 
-%                     4. bin mu and track ID's according to mu
-%                     5. count unique track ID's per bin
-%                     6. normalize counts by total for fraction of population
-%                     7. plot histogram onto subplot (according to time period)
-%                8. repeat for second condition of interest                   
-%           9. repeat for all time periods of interest
+%           0. initialize data and conditions of interest
+%           0. initialize time windows of interest
+%           1. define time windows of interest
+%           2. for each time window...
+%                   3. convert timestamps into bins by window
+%                   4. isolate data from current window of interest
+%                   5. for each condition of interest...
+%                           6. collect mus and stats
+%                           7. bin mus into mu bins
+%                           8. plot pdf onto subplot for time window
+%                   9.  repeat for all conditions in window
+%          10. repeat for all windows
+%
+
+%               
 
 
-% last edit: jen, 2017 May 31
+% last edit: jen, 2017 Sept 27
 
 % OK LEZ GO!
 
@@ -31,27 +36,125 @@
 
 % 0. initialize data matrix
 clear
-load('dm-2017-05-26.mat');
+load('letstry-2017-06-12-tighterWidths-window5-jiggle-varied.mat');
+dataMatrix = buildDM(D5,M,T);
 
-conditions = [1,2,3,4,5,6];
-c = 1;
+% 0. designate which conditions from experiment to be analyzed
+conditions = [1,2,3]; % of 6 total experiments in 2017-06-12
+
+% 1. define time windows of interest                     
+windowLength = 30;      % in minutes
+window = [2,4,8,13,19]; % 20 half hr windows total in 10 hr experiment
+
 %%
+% 2. for each time window...
+for w = 1:length(window);
 
-% 1. define time periods of interest
-periods = [1,3,7,9]; % first(0-1 hr), third(2-3), sixth(5-6), and ninth(8-9)
-
-for i=1:length(periods);
+    % 3. convert timestamps into bins by window
+    timestamps = dataMatrix(:,2)/60; % in minutes
+    timeBins = ceil(timestamps/windowLength);   % sorted by window length
     
-    timeByHour = ceil(dataMatrix(:,2));
-    interestingTimePeriod = find(timeByHour == periods(i));
-    currentPeriodData = dataMatrix(interestingTimePeriod,:);
+    % 4. isolate data from current window of interest
+    currentWindow = dataMatrix(timeBins == window(w),:);
+    
+    % 5. for each condition...
+    for c = 1:length(conditions)
+        
+        % 6. collect mus and stats
+        col4 = currentWindow(currentWindow(:,35) == conditions(c),4);
+        mus = col4(col4 > 0);
+        
+        meanMu{w}(c) = mean(mus);
+        stdMu{w}(c) = std(mus);
+        countMu{w}(c) = length(mus);
+        semMu{w}(c) = std(mus)/sqrt(length(mus));
+        
+        % 7. bin mus into mu bins
+        %bins = linspace(1,70,70);
+        binnedMus = ceil(mus*10);
+        tracksBinnedByMu = accumarray(binnedMus,mus,[],@(x) {x});
+        binCounts = cellfun(@length,tracksBinnedByMu);
+        
+        % 8. plot pdf onto subplot for time window
+        popFractionPerBin = binCounts/length(mus);
+        
+        figure(1)
+        if c == 1
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4)
+            hold on
+            title(window(w))
+            axis([0,.3,0,30])
+            xlabel('pdf')
+            ylabel('doubling rate bin')
+            
+        elseif c == 2
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4,'FaceColor',[0 0.7 0.7])
+            hold on
+            
+        else
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4,'FaceColor',[1 0.6 0]) 
+            %barh(popFractionPerBin,0.4,'FaceColor',[0.5 0 0.9])
+            hold on
+            
+        end 
+        legend('KS 1 uM','KS 100 uM','KS 10 mM')
+        
+        if c == 1
+            figure(2)
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4)
+            hold on
+            title(window(w))
+            axis([0,.3,0,30])
+            xlabel('pdf')
+            ylabel('doubling rate bin')
+            legend('KS 1 uM')
+        end
+        
+        if c == 2
+            figure(3)
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4,'FaceColor',[0 0.7 0.7])
+            hold on
+            title(window(w))
+            axis([0,.3,0,30])
+            xlabel('pdf')
+            ylabel('doubling rate bin')
+            legend('KS 100 uM')
+        end
+        
+        if c == 3
+            figure(4)
+            subplot(1,length(window),w)
+            barh(popFractionPerBin,0.4,'FaceColor',[1 0.6 0])
+            hold on
+            title(window(w))
+            axis([0,.3,0,30])
+            xlabel('pdf')
+            ylabel('doubling rate bin')
+            legend('KS 10 mM')
+        end
+        
+        % 9.  repeat for all conditions in window
+    end
+    
+    % 10.  repeat for all conditions in window 
+end
+
+save('2017-06-12-isSubpop-muStats.mat','countMu','meanMu','semMu','stdMu')
+
+%%
+c = 1;
     
     
     % 2. isolate condition of interest
     for condition = 1:2:3
         
-        interestingCondition = find(currentPeriodData(:,28) == condition);
-        currentConditionData = currentPeriodData(interestingCondition,:);
+        interestingCondition = find(currentWindow(:,28) == condition);
+        currentConditionData = currentWindow(interestingCondition,:);
         
         
         % 3. collect mu data and track IDs
@@ -90,20 +193,20 @@ for i=1:length(periods);
         if condition > c
             subplot(1,4,i)
             barh(popFractionPerBin,0.25,'FaceColor',[0 0.7 0.7])
-            title(periods(i))
+            title(window(i))
             axis([0,.5,0,25])
 
         else
             subplot(1,4,i)
             barh(popFractionPerBin,0.5)
-            title(periods(i))
+            title(window(i))
             axis([0,.5,0,25])
             
             hold on
         end
-        xlabel('Fraction of populations')
+        xlabel('pdf')
         ylabel('doubling rate bin')
-        legend('1 uM','100mM');
+        legend('KS 1 uM','KS 100 uM','KS 10 mM')
         
     end
 end
