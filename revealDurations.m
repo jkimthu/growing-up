@@ -7,108 +7,121 @@
    
 
 
-%  Last edit: Jen Nguyen, February 23nd 2016
+%  Last edit: Jen Nguyen, 2017 Sept 26
 
 
 
-% The intended input for these scripts is the following data matrix,
-% saved with the naming convention of:
-
-% dmMMDD-cond.mat
-
-%      where,
-%              dm  =  dataMatrix                  (see matrixBuilder.m)
-%              MM  =  month of experimental date
-%              DD  =  day of experimental date
-%       condition  =  experimental condition      (fluc or const)
+% As of Sept 2017, this script uses function, buildDM, instead of specific
+% matrixBuilder.m data outputs. The overall concept is still similar.
 
 
-% In these matrices is a column (#8) of doubles, one for each cell at any
-% given timepoint.
+% In data matrices is a column (#8) of doubles, one for each cell at any
+% given timepoint. The value of the double is the cell cycle duration,
+% calculated from
 
 
 % Strategy:
 %
-%      0.  initialize data and parameters
-%      1.  bin durations by corresponding timestamp
-%      2.  caculated average and s.e.m. per timestep
-%      3.  plot !
+%      0.  initialize data and binning parameters
+%      1.  specify current condition of interest
+%               2.  isolate data from current condition
+%               3.  accumulate cell cycle duration data by timebin
+%               4.  convert bin # to absolute time
+%               5.  calculate average and s.e.m. per timebin
+%               6.  plot!
+%      7.  repeat for all conditions
+
 
 % OK! Lez go!
 
 %%
 %   Initialize.
 
-% data
-dmDirectory = dir('dm*.mat'); % note: this assumes the only two data matrices are 'const' and 'fluc'
-names = {dmDirectory.name}; % loaded alphabetically
+% 0. initialze data
+clc
+clear
 
-for dm = 1:length(names)
-    load(names{dm});                
-    dataMatrices{dm} = dataMatrix;                                         % for entire condition
-end                                                                        
+% trimmed dataset
+load('lb-monod-2017-09-20-jiggle-0p1.mat','D5','T');
+dataMatrix = buildDM(D5,T);
 
-% parameters
-expHours = 10; %  duration of experiment in hours                      
-binFactor = 200; % time bins of 0.005 hr  
-hrPerBin = 1/binFactor; 
+% 0. initialize binning parameters
+expHours = 10;          % duration of experiment in hours                      
+binFactor = 12;         % bins per hour
+hrPerBin = 1/binFactor; % hour fraction per bin
 
-clear dataMatrix dmDirectory dm;
-clear names;
-%
-%   Find and plot birth events.
+%%
+% 1.  specify current condition of interest
+totalCond = max(dataMatrix(:,35)); % col 35 = condition value
 
-for condition = 1%:2:3
-  
-    interestingData = dataMatrices{condition};  % condition: 1 = constant, 2 = fluctuating
-    timestamps = interestingData(:,2);
-    durations = interestingData(:,8);                                          
+for condition = 1:totalCond
     
-    % accumulate durations by time bin
-    timeBins = ceil(timestamps*binFactor);                
-    binnedByTime = accumarray(timeBins,durations,[],@(x) {x});                     
+    % 2.  isolate data from current condition
+    interestingData = dataMatrix(dataMatrix(:,35) == condition,:);
     
-    % convert bin # to absolute time
-    timeVector = linspace(1, expHours/hrPerBin, expHours/hrPerBin);         
-    timeVector = hrPerBin*timeVector';                                         
+    % 3.  accumulate cell cycle duration data by timebin
     
-    % find average duration per timebin EXCLUDING zeros
-    duration = zeros(expHours/hrPerBin,1);
-    sem = zeros(expHours/hrPerBin,1);
-    for i = 1:length(binnedByTime)
-        if isempty(binnedByTime{i})
-            continue
-        else
-            woz = binnedByTime{i};          % without zeros
-            woz(woz==0) = NaN;
-            meanWOZ = nanmean(woz);
-            stdWOZ = nanstd(woz);
-            totalWOZ = sum(~isnan(woz));
-            sem(i,1) = stdWOZ / sqrt(totalWOZ);
-            duration(i,1) = meanWOZ;
-        end
-    end
+    %     note: in data matrix, curve durations lists a value of 0 for
+    %           incomplete curve. thus, we must not include zeros in analysis.
     
-    % remove zeros and NaNs for plotting simplicity
-    duration(duration==0) = NaN;
-    mask = find(~isnan(duration));
-    duration = duration(mask);
-    sem = sem(mask);
-    timeVector = timeVector(mask);
-
+    %     solution: so that we can apply the same rows to time data, 
+    %               select rows based on the following scheme:
+    %                   i. find all non-zero duration times
+    %                  ii. select rows from (i) where isDrop = 1 (col 5)
+    %                 iii. convert birthTimes to bin-able time values
     
+    % i .find all non-zero duration times
+    allDurations = interestingData(:,8)/60; % col 8 = curve durations
+    timestamps = interestingData(:,2)/3600; % time in seconds converted to hours
+    
+    fullCycles = allDurations(allDurations > 0);
+    fullTimes = timestamps(allDurations > 0);
+    
+    % ii. select rows from (i) where isDrop = 1
+    isDrop = interestingData(:,5);
+    fullDrops = isDrop(allDurations > 0);
+    
+    uniqueDurations = fullCycles(fullDrops == 1);
+    birthTimes = fullTimes(fullDrops == 1);
+    
+    timeBins = ceil(birthTimes*binFactor);                
+    binnedDurations = accumarray(timeBins,uniqueDurations,[],@(x) {x});
+    
+    
+    % 4.  convert bin # to absolute time
+    timeVector = linspace(1, max(timeBins), max(timeBins));
+    timeVector = hrPerBin*timeVector'; 
+    
+    
+    % 5.  calculate average and s.e.m. per timebin
+    meanVector = cellfun(@mean,binnedDurations);
+    countVector = cellfun(@length,binnedDurations);
+    stdVector = cellfun(@std,binnedDurations);
+    semVector = stdVector./sqrt(countVector);
+    
+    
+    % 6.  plot!
     figure(1)
-    if condition == 1
-        plot(timeVector,duration,'k')
-        axis([0,10,1,5])
-        hold on
-    else
-        plot(timeVector,duration,'b')
-    %hold on
-    %errorbar(timeVector,duration,sem)
-    end
+    errorbar(timeVector,meanVector,semVector)
+    axis([0,10,0,60])
+    hold on
+    xlabel('Time (hr)')
+    ylabel('Doubling time + s.e.m. (min)')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
     
+    figure(2)
+    errorbar(timeVector,meanVector,stdVector)
+    axis([0,10,0,60])
+    hold on
+    xlabel('Time (hr)')
+    ylabel('Doubling time + standard dev (min)')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
+    
+    % 7. repeat for all conditions
 end
+
+               
+
 
 
 
