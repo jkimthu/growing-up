@@ -2,22 +2,17 @@
 
 % Goal: Plot mean cell cycle duration over time
 
-%       Like revealBirths.m, this script looks for an evolution of cell cycle behavoir.
+%       Like revealBirths.m, this script looks for an evolution of cell cycle behavior.
 %       Unlike it, this calculates an average of the durations across time.
    
 
 
-%  Last edit: Jen Nguyen, 2017 Sept 26
+%  Last edit: Jen Nguyen, 2017 Sept 27
 
 
 
 % As of Sept 2017, this script uses function, buildDM, instead of specific
 % matrixBuilder.m data outputs. The overall concept is still similar.
-
-
-% In data matrices is a column (#8) of doubles, one for each cell at any
-% given timepoint. The value of the double is the cell cycle duration,
-% calculated from
 
 
 % Strategy:
@@ -68,7 +63,7 @@ for condition = 1:totalCond
     %               select rows based on the following scheme:
     %                   i. find all non-zero duration times
     %                  ii. select rows from (i) where isDrop = 1 (col 5)
-    %                 iii. convert birthTimes to bin-able time values
+    %                 iii. convert birthTimes into timebins
     
     % i .find all non-zero duration times
     allDurations = interestingData(:,8)/60; % col 8 = curve durations
@@ -84,6 +79,7 @@ for condition = 1:totalCond
     uniqueDurations = fullCycles(fullDrops == 1);
     birthTimes = fullTimes(fullDrops == 1);
     
+    % iii. convert birthTimes into timebins
     timeBins = ceil(birthTimes*binFactor);                
     binnedDurations = accumarray(timeBins,uniqueDurations,[],@(x) {x});
     
@@ -115,7 +111,24 @@ for condition = 1:totalCond
     hold on
     xlabel('Time (hr)')
     ylabel('Doubling time + standard dev (min)')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    
+    figure(3)
+    histogram(uniqueDurations,'Normalization','pdf')
+    axis([0,80,0,0.25])
+    hold on
+    xlabel('cell cycle duration (min)')
+    ylabel('fraction of population')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    
+    figure(4)
+    subplot(totalCond,1,condition)
+    histogram(uniqueDurations,'Normalization','pdf')
+    axis([0,80,0,0.25])
+    hold on
+    xlabel('cell cycle duration (min)')
+    ylabel('fraction of population')
+    legend(num2str(condition));
     
     % 7. repeat for all conditions
 end
