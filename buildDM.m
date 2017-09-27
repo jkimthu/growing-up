@@ -270,8 +270,6 @@ mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
 mu_vaVals = NaN(length(angle),1);
                                                    
-
-
 lengthAdded_incremental_sinceBirth = NaN(length(angle),1);
 vcAdded_incremental_sinceBirth = NaN(length(angle),1);
 veAdded_incremental_sinceBirth = NaN(length(angle),1);
