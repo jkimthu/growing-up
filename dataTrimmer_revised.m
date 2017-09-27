@@ -22,7 +22,7 @@
 
 
 
-% last edit: Sept 23, 2017
+% last edit: Sept 27, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('t3600-2017-01-12.mat');
+load('t3600-2017-01-12-xy23.mat');
 %load('lb-monod-2017-09-20.mat');
 %D = D_smash;
 
@@ -399,7 +399,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('t3600-2017-01-12-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('t3600-2017-01-12-xy23-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 

@@ -29,7 +29,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Sept 23
+% last update: jen, 2017 Sept 27
 
 % OK lez go!
 
@@ -64,7 +64,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load('t3600-2017-01-12-jiggle-0p3.mat','D5','T');
+load('t3600-2017-01-12-xy23-jiggle-0p3.mat','D5','T');
 numMovies = length(D5);
 
 
@@ -85,7 +85,7 @@ for n = 1:length(D5)
     numTracks = length(D5{n});
  
     %  2. per track, isolate length, width, frame and time data
-    for track = 1: numTracks
+    for track = 1:numTracks
         trackLengths = D5{n}(track).MajAx;
         trackFrames = D5{n}(track).Frame;
         trackTimes = T{n}(trackFrames)/3600;
@@ -211,7 +211,7 @@ for n = 1:length(D5)
 end
 
 %
-save('t3600-2017-01-12-window5-jiggle-0p3.mat', 'D5', 'M', 'T') %'D'
+save('t3600-2017-01-12-xy23-window5-jiggle-0p3.mat', 'D5', 'M', 'T') %'D'
 
 
 %% checks

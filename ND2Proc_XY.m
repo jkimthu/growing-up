@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 September 22
+%  Last modified (jen): 2017 September 27
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('t3600_2017-01-12_xy*');
+xyDirectory = dir('t3600_2017-01-12_xy23.nd2');
 %xyDirectory = dir('lb-monod-2017-09-20_xy*.nd2');
 names = {xyDirectory.name};
 
@@ -91,7 +91,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 2:NSeries
+for ii = 1;%2:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -162,7 +162,7 @@ for ii = 2:NSeries
 end
 
 
-save('t3600-2017-01-12.mat','D','T')
+save('t3600-2017-01-12-xy23.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
