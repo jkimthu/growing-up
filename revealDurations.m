@@ -113,9 +113,13 @@ for condition = 1:totalCond
     ylabel('Doubling time + standard dev (min)')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
     
+    
+    % 7. plot pdf of stabilized cell cycle durations
+    stableDurations = uniqueDurations(birthTimes > 3);
+    
     figure(3)
-    histogram(uniqueDurations,'Normalization','pdf')
-    axis([0,80,0,0.25])
+    histogram(stableDurations,'Normalization','pdf')
+    axis([0,45,0,0.4])
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
@@ -123,14 +127,14 @@ for condition = 1:totalCond
     
     figure(4)
     subplot(totalCond,1,condition)
-    histogram(uniqueDurations,'Normalization','pdf')
-    axis([0,80,0,0.25])
+    histogram(stableDurations,'Normalization','pdf')
+    axis([0,45,0,0.4])
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
     legend(num2str(condition));
     
-    % 7. repeat for all conditions
+    % 8. repeat for all conditions
 end
 
                

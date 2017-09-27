@@ -100,23 +100,27 @@ for condition = 1:totalCond
     ylabel('Doubling time + standard dev (min)')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
     
+    % 7. plot pdfs from steady-state
+    stableBirthSizes = birthSizes(birthTimes > 3);
+    
     figure(3)
-    histogram(birthSizes,'Normalization','pdf')
-    axis([0,20,0,0.75])
+    histogram(stableBirthSizes,'Normalization','pdf')
+    axis([0,12,0,0.9])
     hold on
     xlabel('Size at birth (um)')
     ylabel('pdf')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
     
     figure(4)
-    histogram(birthSizes,'Normalization','pdf')
-    axis([0,12,0,0.75])
+    subplot(totalCond,1,condition)
+    histogram(stableBirthSizes,'Normalization','pdf')
+    axis([0,20,0,0.9])
     hold on
-    xlabel('Size at birth (um)')
-    ylabel('fraction of population')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    xlabel('size at birth (um)')
+    ylabel('pdf')
+    legend(num2str(condition));
     
-    % 7. repeat for all conditions
+    % 8. repeat for all conditions
 end
 
                
