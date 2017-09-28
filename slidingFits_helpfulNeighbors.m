@@ -29,7 +29,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Sept 27
+% last update: jen, 2017 Sept 28
 
 % OK lez go!
 
@@ -55,16 +55,16 @@ mu = fitLine(1)/log(2);         % gives: mu = 1
 % 0. initialize 
 clear
 clc
-experiment = '2017-01-12';
+experiment = '2017-09-26';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/2017 glucose/',experiment,'  (t3600)');%,'  (t300)');
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
 % 0. initialize trimmed track data
 
-load('t3600-2017-01-12-xy23-jiggle-0p3.mat','D5','T');
+load('lb-monod-2017-09-26-jiggle-varied.mat','D5','T');
 numMovies = length(D5);
 
 
@@ -211,7 +211,7 @@ for n = 1:length(D5)
 end
 
 %
-save('t3600-2017-01-12-xy23-window5-jiggle-0p3.mat', 'D5', 'M', 'T') %'D'
+save('lb-monod-2017-09-26-window5-jiggle-varied.mat', 'D5', 'M', 'T') %'D'
 
 
 %% checks

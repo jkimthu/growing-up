@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Sept 27
+% last updated: jen, 2017 Sept 28
 
 %%
 %
@@ -68,7 +68,7 @@ end
 
 % Initialize
 clear;
-load('t3600-2017-01-12-xy23-window5-jiggle-0p3.mat','D5','M','T');
+load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
 
 %%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
@@ -147,11 +147,10 @@ for i = 1:length(conditions) %number of conditions
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
-
-    axis([0,21,0.2,1.2])
+    axis([0,21,0,4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('KS 1 uM','KS 100 uM','KS 10 mM', 'KS LB', 'NCM 1 uM', 'NCM LB')
+    legend('full LB','1/8 LB','1/32 LB', '1/100 LB', '1/1000 LB', '1/10000 LB')
 
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;

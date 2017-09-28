@@ -42,7 +42,7 @@
 
 %% 1. create directory of movies
 
-xyDirectory = dir('t3600_2017-01-12_xy23.nd2');
+xyDirectory = dir('lb-monod-2017-09-26_xy*.nd2');
 %xyDirectory = dir('lb-monod-2017-09-20_xy*.nd2');
 names = {xyDirectory.name};
 
@@ -91,7 +91,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1;%2:NSeries
+for ii = 1:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -99,7 +99,7 @@ for ii = 1;%2:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-25.1034, -1]; %threshold for 2017-01-12      
+    Threshold =  [-32.069, -1]; %threshold for 2017-09-26      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -118,8 +118,8 @@ for ii = 1;%2:NSeries
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    %UpperBound = 26;     % upper bound for restricted field, or Inf
-    UpperBound = 8;     % upper bound for glucose only 
+    UpperBound = 26;     % upper bound for LB
+    %UpperBound = 8;     % upper bound for glucose only 
     
     % to actually trim the set:
     P_Trim1 = ParticleTrim(P,TrimField,LowerBound,UpperBound);
@@ -130,8 +130,8 @@ for ii = 1;%2:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    %UpperBound = 1.8;     % upper bound for restricted field, or Inf
-    UpperBound = 1.4;     % upperbound in glucose only
+    UpperBound = 1.7;     % upper bound for LB
+    %UpperBound = 1.4;     % upperbound in glucose only
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -162,7 +162,7 @@ for ii = 1;%2:NSeries
 end
 
 
-save('t3600-2017-01-12-xy23.mat','D','T')
+save('lb-monod-2017-09-26.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
