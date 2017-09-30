@@ -89,8 +89,7 @@ for n = 1:length(D5)
         
         % 2. time
         %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
-        timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);
-                                                                           % data format, if all ND2s were processed individually
+        timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);                                                         % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          %concat=enate timestamp
        
         
