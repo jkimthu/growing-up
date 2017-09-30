@@ -23,10 +23,10 @@ eccentricity = [];
 angle = [];
 
 lengthVals = [];  % col 3
-widthVals = [];
-vcVals = [];
-veVals = [];
-vaVals = [];
+widthVals = [];   % col 12
+vcVals = [];      % col 13
+veVals = [];      % col 14
+vaVals = [];      % col 15
 
 muVals = [];     % col 4
 mu_vcVals = [];
@@ -219,7 +219,18 @@ for n = 1:length(D5)
         % 12. widths
         widthTrack = D5{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
-        clear widthTrack
+        
+        
+        % 13, 14, 15. volumes
+        v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder
+        v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
+        vol_smallCylinder = (pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack) );
+        vol_sphere = 4/3 * pi * (widthTrack/2).^3;
+        v_anupam = vol_smallCylinder + vol_sphere;                         % approx. volume as cylinder with spherical caps
+        
+        vcVals = [vcVals; v_cylinder];                                     % concatenate values
+        veVals = [veVals; v_ellipse];
+        vaVals = [vaVals; v_anupam];
         
         
         % 28. x positions in original image
@@ -270,10 +281,6 @@ end % for n
 
 
 % fill in NaN for all non-present data
-vcVals = NaN(length(angle),1);
-veVals = NaN(length(angle),1);
-vaVals = NaN(length(angle),1);
-
 mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
 mu_vaVals = NaN(length(angle),1);
