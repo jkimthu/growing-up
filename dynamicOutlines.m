@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Sept 21
+% last edit: jen, 2017 Oct 3
 
 % OK LEZ GO!
 %%
@@ -25,7 +25,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-09-20';
+experiment = '2017-09-26';
 
 
 % TRACKING DATA
@@ -36,21 +36,22 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-monod-2017-09-20-jiggle-0p1.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-26-jiggle-varied.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-26-window5-jiggle-varied.mat','M');
 %D = D_smash;
 
 
 
 %%
 % build data matrix from fully trimmed data
-survivorDM = buildDM(D5,T);
+survivorDM = buildDM(D5,M,T);
 
 % build data matrix for each rejected track
-totalDM = buildDM(D,T);
-reject1_DM = buildDM(rejectD(1,:),T);
-reject2_DM = buildDM(rejectD(2,:),T);
-reject3_DM = buildDM(rejectD(3,:),T);
-reject4_DM = buildDM(rejectD(4,:),T);
+totalDM = buildRejectDM(D,T);
+reject1_DM = buildRejectDM(rejectD(1,:),T); % build Reject DM doesn't take M input
+reject2_DM = buildRejectDM(rejectD(2,:),T);
+reject3_DM = buildRejectDM(rejectD(3,:),T);
+reject4_DM = buildRejectDM(rejectD(4,:),T);
 
 
 
@@ -60,7 +61,7 @@ reject4_DM = buildDM(rejectD(4,:),T);
 n = 60;
 movieNum = 60; % in case different than n
 
-img_prefix = strcat('lb-monod-2017-09-20_xy', num2str(movieNum), 'T'); 
+img_prefix = strcat('lb-monod-2017-09-26_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -71,7 +72,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('lb-monod-2017-09-20_xy*.tif');
+imgDirectory = dir('lb-monod-2017-09-26_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -85,12 +86,11 @@ clear img_folder img_prefix img_suffix experiment newFolder img_folder
 dm_survivors = survivorDM(survivorDM(:,31) == n,:);
 
 dm_total = totalDM(totalDM(:,31) == n,:);
-dm_reject1 = reject1_DM(reject1_DM(:,31) == n,:);
+%dm_reject1 = reject1_DM(reject1_DM(:,31) == n,:);
 dm_reject2 = reject2_DM(reject2_DM(:,31) == n,:);
 dm_reject3 = reject3_DM(reject3_DM(:,31) == n,:);
 dm_reject4 = reject4_DM(reject4_DM(:,31) == n,:);
 
-clear totalDM survivorDM reject1_DM reject2_DM reject3_DM reject4_DM
 
 %% when tracking all tracked cells, surviving AND trimmed
 
@@ -250,14 +250,7 @@ end
 
 
 %%
-% I2 = imadjust(I);
-% figure(2)
-% inshow(I2)
+clearvars -except D D5 M T rejectD survivorDM totalDM reject2_DM reject3_DM reject4_DM
 
-
-%figure(2)
-%I2=imshow(flipud(names{i}), 'DisplayRange',[3200 7400]);
-
-%set(gca,'Ydir','Normal')
 
 
