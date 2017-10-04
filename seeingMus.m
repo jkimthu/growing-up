@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Sept 28
+% last updated: jen, 2017 Oct 4
 
 %%
 %
@@ -68,7 +68,7 @@ end
 
 % Initialize
 clear;
-load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
+load('lb-monod-2017-09-26-window5-jiggle-0p5.mat','D5','M','T');
 
 %%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff

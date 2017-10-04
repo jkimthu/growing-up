@@ -22,7 +22,7 @@
 
 
 
-% last edit: Sept 28, 2017
+% last edit: Oct 3, 2017
 
 % OK lez go!
 
@@ -274,9 +274,9 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.3;
+jiggleThreshold = -0.5;
 
-for n = 41:60%length(D)
+for n = 1:60%length(D)
     
     % 0. if no data in n, continue to next movie
     if isempty(D4{n}) == 1
@@ -399,7 +399,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-monod-2017-09-26-jiggle-varied.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-monod-2017-09-26-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
