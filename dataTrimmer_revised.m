@@ -12,7 +12,6 @@
 %           - tracks are clipped, not deleted
 %           - data prior and after jump are considered separate tracks          
 
-
 %   2. Tracks must be at least the length of fitting window
 %           - note: currently, windowSize = 5 frames
 
@@ -22,7 +21,8 @@
 
 
 
-% last edit: Oct 4, 2017
+
+% last edit: Oct 6, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-monod-2017-09-26-smallerdistance.mat');
+load('lb-monod-2017-09-26.mat');
 
 
 % reject data matrix
@@ -273,9 +273,9 @@ D4 = D3;
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
-jiggleThreshold = -0.3;
+jiggleThreshold = -0.5;
 
-for n = 1:length(D)
+for n = 21:60%length(D)
     
     % 0. if no data in n, continue to next movie
     if isempty(D4{n}) == 1
@@ -393,12 +393,10 @@ end
 clear SizeStrainer n i m tooSmalls X;
 
 
- 
-
 %% Saving results
 
 
-save('lb-monod-2017-09-26-smallerdistance-jiggle-0p3.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
