@@ -17,7 +17,7 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Oct 3
+% last edit: jen, 2017 Oct 4
 
 % OK LEZ GO!
 %%
@@ -36,9 +36,9 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-monod-2017-09-26-jiggle-varied.mat','D5','D','T','rejectD');
-load('lb-monod-2017-09-26-window5-jiggle-varied.mat','M');
-%D = D_smash;
+load('lb-monod-2017-09-26-smallerdistance-jiggle-0p5.mat','D5','D','T','rejectD');
+load('lb-monod-2017-09-26-smallerdistance-window5-jiggle-0p5.mat','M');
+
 
 
 
@@ -58,8 +58,8 @@ reject4_DM = buildRejectDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 60;
-movieNum = 60; % in case different than n
+n = 1;
+movieNum = 10; % in case different than n
 
 img_prefix = strcat('lb-monod-2017-09-26_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';

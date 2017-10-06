@@ -68,11 +68,11 @@ end
 
 % Initialize
 clear;
-load('lb-monod-2017-09-26-window5-jiggle-0p5.mat','D5','M','T');
+load('lb-monod-2017-09-26-smallerdistance-window5-jiggle-0p5.mat','D5','M','T');
 
 %%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
+conditions = [1;2];%[1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -81,7 +81,8 @@ for i = 1:length(conditions) %number of conditions
     mu_elongation = [];
     Time_cond = [];
     
-    for n = conditions(i,1):conditions(i,2)
+    
+    for n = i%conditions(i,1):conditions(i,2)
         for m = 1:length(M{n})
             
             %  assemble all instantaneous growth rates into a single vector
@@ -150,8 +151,9 @@ for i = 1:length(conditions) %number of conditions
     axis([0,21,0,4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('full LB','1/8 LB','1/32 LB', '1/100 LB', '1/1000 LB', '1/10000 LB')
-
+    %legend('full LB','1/8 LB','1/32 LB', '1/100 LB', '1/1000 LB', '1/10000 LB')
+    legend('xy10','xy60')
+    
     clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     clear Mu_cond Time_cond plotUntil;
     

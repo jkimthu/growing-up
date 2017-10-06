@@ -43,7 +43,6 @@
 %% 1. create directory of movies
 
 xyDirectory = dir('lb-monod-2017-09-26_xy*.nd2');
-%xyDirectory = dir('lb-monod-2017-09-20_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -141,7 +140,7 @@ for ii = 1:NSeries
     %% v. track remaining particles based on coordinate distance
     
     TrackMode = 'position';       % Choice of {position, velocity, acceleration} to predict position based on previous behavior
-    DistanceLimit = 5;            % Limit of distance a particle can travel between frames, in units defined by ConversionFactor
+    DistanceLimit = 1;            % Limit of distance a particle can travel between frames, in units defined by ConversionFactor
     MatchMethod = 'best';         % Choice of {best, single}
     P_Tracks = Particle_Track(P_Trim2,TrackMode,DistanceLimit,MatchMethod);
     
@@ -162,7 +161,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-monod-2017-09-26.mat','D','T')
+save('lb-monod-2017-09-26-smallerdistance.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
