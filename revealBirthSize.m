@@ -7,7 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Sept 27
+%  Last edit: Jen Nguyen, 2017 Oct 6
 
 
 
@@ -38,7 +38,7 @@ clc
 clear
 
 % trimmed dataset
-load('lb-monod-2017-09-20-window5-jiggle-0p1.mat','D5','M','T');
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5.mat','D5','M','T');
 dataMatrix = buildDM(D5,M,T);
 
 % 0. initialize binning parameters
@@ -92,48 +92,48 @@ for condition = 1:totalCond
     
     
     % 6.  plot!
-%     figure(1)
-%     errorbar(timeVector,meanVector,semVector)
-%     axis([0,10.3,1,8])
-%     hold on
-%     xlabel('Time (hr)')
-%     ylabel('Doubling time + s.e.m. (min)')
-%     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
-%     
-%     figure(2)
-%     errorbar(timeVector,meanVector,stdVector)
-%     axis([0,10.3,0,10])
-%     hold on
-%     xlabel('Time (hr)')
-%     ylabel('Doubling time + standard dev (min)')
-%     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
-%     
-%     % 7. plot pdfs from steady-state
-%     stableBirthSizes = birthSizes(birthTimes > 3);
-%     
-%     figure(3)
-%     histogram(stableBirthSizes,'Normalization','pdf')
-%     axis([0,12,0,0.9])
-%     hold on
-%     xlabel('Size at birth (um)')
-%     ylabel('pdf')
-%     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
-%     
-%     figure(4)
-%     subplot(totalCond,1,condition)
-%     histogram(stableBirthSizes,'Normalization','pdf')
-%     axis([0,20,0,0.9])
-%     hold on
-%     xlabel('size at birth (um)')
-%     ylabel('pdf')
-%     legend(num2str(condition));
+    figure(1)
+    errorbar(timeVector,meanVector,semVector)
+    axis([0,10.3,1,8])
+    hold on
+    xlabel('Time (hr)')
+    ylabel('Length at birth + s.e.m. (min)')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
+    
+    figure(2)
+    errorbar(timeVector,meanVector,stdVector)
+    axis([0,10.3,0,10])
+    hold on
+    xlabel('Time (hr)')
+    ylabel('Length at birth + standard dev (min)')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
+    
+    % 7. plot pdfs from steady-state
+    stableBirthSizes = birthSizes(birthTimes > 3);
+    
+    figure(3)
+    histogram(stableBirthSizes,'Normalization','pdf')
+    axis([0,12,0,1.2])
+    hold on
+    xlabel('Length at birth (um)')
+    ylabel('pdf')
+    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    
+    figure(4)
+    subplot(totalCond,1,condition)
+    histogram(stableBirthSizes,'Normalization','pdf')
+    axis([0,20,0,1.2])
+    hold on
+    xlabel('Length at birth (um)')
+    ylabel('pdf')
+    legend(num2str(condition));
     
     figure(5)
     errorbar(timeVector,meanWidth,semWidth)
     axis([0,10.3,0.75,2.25])
     hold on
     xlabel('Time (hr)')
-    ylabel('Doubling time + s.e.m. (min)')
+    ylabel('Width at birth + s.e.m. (min)')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
     
     figure(6)
@@ -141,7 +141,7 @@ for condition = 1:totalCond
     axis([0,10.3,0.75,2.25])
     hold on
     xlabel('Time (hr)')
-    ylabel('Doubling time + standard dev (min)')
+    ylabel('Width at birth + standard dev (min)')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
     
     % 7. plot pdfs from steady-state
@@ -149,18 +149,18 @@ for condition = 1:totalCond
     
     figure(7)
     histogram(stableBirthWidths,'Normalization','pdf')
-    axis([1,2,0,7])
+    axis([1,2,0,10])
     hold on
-    xlabel('Size at birth (um)')
+    xlabel('Width at birth (um)')
     ylabel('pdf')
     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
     
     figure(8)
     subplot(totalCond,1,condition)
     histogram(stableBirthWidths,'Normalization','pdf')
-    axis([1,2,0,7])
+    axis([1,2,0,10])
     hold on
-    xlabel('size at birth (um)')
+    xlabel('Width at birth (um)')
     ylabel('pdf')
     legend(num2str(condition));
     
