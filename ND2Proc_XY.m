@@ -5,7 +5,7 @@
 
 %  Changes from original script from Vicente:
 %
-%       1. Original ND2 is imported here as invididual movies. 
+%       1. Original ND2 is imported here as individual movies. 
 %          Something about ND2's must have changed such that the NSeries
 %          line would ready the entire files as a single series.
 %          Solution: export individual series and run tracking on each
@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2017 September 27
+%  Last modified (jen): 2017 Oct 6
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -140,7 +140,7 @@ for ii = 1:NSeries
     %% v. track remaining particles based on coordinate distance
     
     TrackMode = 'position';       % Choice of {position, velocity, acceleration} to predict position based on previous behavior
-    DistanceLimit = 1;            % Limit of distance a particle can travel between frames, in units defined by ConversionFactor
+    DistanceLimit = 5;            % Limit of distance a particle can travel between frames, in units defined by ConversionFactor
     MatchMethod = 'best';         % Choice of {best, single}
     P_Tracks = Particle_Track(P_Trim2,TrackMode,DistanceLimit,MatchMethod);
     
