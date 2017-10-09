@@ -29,7 +29,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Oct 6
+% last update: jen, 2017 Oct 8
 
 % OK lez go!
 
@@ -64,7 +64,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5.mat','D','D5','T','rejectD');
+load('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D','D5','T','rejectD');
 numMovies = length(D5);
 
 
@@ -211,7 +211,7 @@ for n = 1:length(D5)
 end
 
 %
-save('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5.mat', 'D','D5', 'M', 'T','rejectD') %'D'
+save('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat', 'D','D5', 'M', 'T','rejectD') %'D'
 
 
 %% checks

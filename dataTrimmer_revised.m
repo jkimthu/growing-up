@@ -17,12 +17,12 @@
 
 %   3. Tracks cannot oscillate too quickly between gains and losses
 
-%   4. Tracks must be of reasonable size, at least SizeStrainer (1.5um)
+%   4. Tracks must be of reasonable size, at least SizeStrainer (1.8um)
 
 
 
 
-% last edit: Oct 6, 2017
+% last edit: Oct 8, 2017
 
 % OK lez go!
 
@@ -347,7 +347,7 @@ clear n gainLossRatio jiggleThreshold jigglers counter dropThreshold;
 criteria_counter = criteria_counter + 1;
 
 D5 = D4;
-SizeStrainer = 1.5;
+SizeStrainer = 1.8;
 
 for n = 1:length(D);   
     
@@ -396,7 +396,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
