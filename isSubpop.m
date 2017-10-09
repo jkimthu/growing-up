@@ -28,7 +28,7 @@
 %               
 
 
-% last edit: jen, 2017 Sept 27
+% last edit: jen, 2017 Oct 9
 
 % OK LEZ GO!
 
@@ -36,7 +36,7 @@
 
 % 0. initialize data matrix
 clear
-load('letstry-2017-06-12-tighterWidths-window5-jiggle-varied.mat');
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat');
 dataMatrix = buildDM(D5,M,T);
 
 % 0. designate which conditions from experiment to be analyzed
@@ -44,7 +44,7 @@ conditions = [1,2,3]; % of 6 total experiments in 2017-06-12
 
 % 1. define time windows of interest                     
 windowLength = 30;      % in minutes
-window = [2,4,8,13,19]; % 20 half hr windows total in 10 hr experiment
+window = [2,4,8,13,20]; % 20 half hr windows total in 10 hr experiment
 
 %%
 % 2. for each time window...
@@ -58,10 +58,10 @@ for w = 1:length(window);
     currentWindow = dataMatrix(timeBins == window(w),:);
     
     % 5. for each condition...
-    for c = 1:length(conditions)
+    for c = 1:3
         
         % 6. collect mus and stats
-        col4 = currentWindow(currentWindow(:,35) == conditions(c),4);
+        col4 = currentWindow(currentWindow(:,35) == c,4);
         mus = col4(col4 > 0);
         
         meanMu{w}(c) = mean(mus);
@@ -84,7 +84,7 @@ for w = 1:length(window);
             barh(popFractionPerBin,0.4)
             hold on
             title(window(w))
-            axis([0,.3,0,30])
+            axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
             
@@ -100,7 +100,7 @@ for w = 1:length(window);
             hold on
             
         end 
-        legend('KS 1 uM','KS 100 uM','KS 10 mM')
+        legend('1','1/8','1/32')
         
         if c == 1
             figure(2)
@@ -108,10 +108,10 @@ for w = 1:length(window);
             barh(popFractionPerBin,0.4)
             hold on
             title(window(w))
-            axis([0,.3,0,30])
+            axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('KS 1 uM')
+            legend('1 LB')
         end
         
         if c == 2
@@ -120,10 +120,10 @@ for w = 1:length(window);
             barh(popFractionPerBin,0.4,'FaceColor',[0 0.7 0.7])
             hold on
             title(window(w))
-            axis([0,.3,0,30])
+            axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('KS 100 uM')
+            legend('1/8 LB')
         end
         
         if c == 3
@@ -132,10 +132,10 @@ for w = 1:length(window);
             barh(popFractionPerBin,0.4,'FaceColor',[1 0.6 0])
             hold on
             title(window(w))
-            axis([0,.3,0,30])
+            axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('KS 10 mM')
+            legend('1/32 LB')
         end
         
         % 9.  repeat for all conditions in window
@@ -144,7 +144,7 @@ for w = 1:length(window);
     % 10.  repeat for all conditions in window 
 end
 
-save('2017-06-12-isSubpop-muStats.mat','countMu','meanMu','semMu','stdMu')
+save('2017-09-26-isSubpop-muStats.mat','countMu','meanMu','semMu','stdMu')
 
 %%
 c = 1;
