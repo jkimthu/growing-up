@@ -36,7 +36,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5.mat','D5','D','M','T','rejectD');
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','D','M','T','rejectD');
 
 
 
@@ -56,8 +56,8 @@ reject4_DM = buildRejectDM(rejectD(4,:),T);
 %%
 % IMAGE DATA
 % movie (xy position) of interest
-n = 40;
-movieNum = 40; % in case different than n
+n = 50;
+movieNum = 50; % in case different than n
 
 img_prefix = strcat('lb-monod-2017-09-26_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
