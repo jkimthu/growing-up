@@ -7,7 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Sept 27
+%  Last edit: Jen Nguyen, 2017 Oct 6
 
 
 
@@ -37,12 +37,12 @@ clc
 clear
 
 % trimmed dataset
-load('lb-monod-2017-09-20-jiggle-0p1.mat','D5','T');
-dataMatrix = buildDM(D5,T);
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
+dataMatrix = buildDM(D5,M,T);
 
 % 0. initialize binning parameters
 expHours = 10;          % duration of experiment in hours                      
-binFactor = 12;         % bins per hour
+binFactor = 6;          % bins per hour
 hrPerBin = 1/binFactor; % hour fraction per bin
 
 %%
@@ -99,15 +99,15 @@ for condition = 1:totalCond
     % 6.  plot!
     figure(1)
     errorbar(timeVector,meanVector,semVector)
-    axis([0,10,0,60])
+    axis([0,10.3,0,75])
     hold on
     xlabel('Time (hr)')
     ylabel('Doubling time + s.e.m. (min)')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB'); 
+    legend('full LB','1/8 LB','1/32 LB','1/100 LB','1/1000 LB','1/10000 LB'); 
     
     figure(2)
     errorbar(timeVector,meanVector,stdVector)
-    axis([0,10,0,60])
+    axis([0,10,0,75])
     hold on
     xlabel('Time (hr)')
     ylabel('Doubling time + standard dev (min)')
@@ -115,11 +115,22 @@ for condition = 1:totalCond
     
     
     % 7. plot pdf of stabilized cell cycle durations
+    % i. isolate data from stabilized timepoints
     stableDurations = uniqueDurations(birthTimes > 3);
     
+    % ii. bin birth volumes
+    bins = ceil(stableDurations);
+    binnedDurations = accumarray(bins,stableDurations,[],@(x) {x});
+    binCounts = cellfun(@length,binnedDurations);
+    
+    % iii. normalize bin quantities by total births 
+    stable_counts = length(stableDurations);
+    normalizedRatios = binCounts/stable_counts;
+    
+
     figure(3)
-    histogram(stableDurations,'Normalization','pdf')
-    axis([0,45,0,0.4])
+    bar(normalizedRatios,1)
+    axis([0,180,0,0.4])
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
@@ -127,8 +138,8 @@ for condition = 1:totalCond
     
     figure(4)
     subplot(totalCond,1,condition)
-    histogram(stableDurations,'Normalization','pdf')
-    axis([0,45,0,0.4])
+    bar(normalizedRatios,1)
+    axis([0,180,0,0.4])
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
