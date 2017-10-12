@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2017 Oct 11
+%  Last modified (jen): 2017 Oct 12
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1:NSeries
+for ii = 1:30%NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -129,8 +129,8 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 1.7;     % upper bound for LB
-    %UpperBound = 1.4;     % upperbound in glucose only
+    %UpperBound = 1.7;     % upper bound for condition 4
+    UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
     
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -161,7 +161,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-fluc-2017-10-10.mat','D','T')
+save('lb-fluc-2017-10-10-c123-width1p4-c4-width1p7.mat','Dcombo','T')
 
 
    %% Section Three (E): clear section variables.
