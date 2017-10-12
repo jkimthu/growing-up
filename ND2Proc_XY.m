@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 Oct 6
+%  Last modified (jen): 2017 Oct 11
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('lb-monod-2017-09-26_xy*.nd2');
+xyDirectory = dir('lb-fluc-2017-10-10_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -82,7 +82,7 @@ ImType = {'Single'};                 % This sets the type of image being used.  
 
 %  find particles in each image
 [P,Im] = Particle_Centroid_ND2(reader,FilterParameters,Threshold,[],Background,ImType,ConversionFactor,PlotFlag);  %Actual Processing
-
+%function [ParticleOut,Img]=Particle_Centroid_ND2(reader,FilterParam,Threshold,FIndex,Backgrnd,DiffInfo,ConvFactor,PlotFlag)
 
 %% 4. track particles in each series, looping through all
 
@@ -98,7 +98,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-32.069, -1]; %threshold for 2017-09-26      
+    Threshold =  [-15.1724, -1]; %threshold for 2017-10-10      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -161,7 +161,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-monod-2017-09-26-smallerdistance.mat','D','T')
+save('lb-fluc-2017-10-10.mat','D','T')
 
 
    %% Section Three (E): clear section variables.

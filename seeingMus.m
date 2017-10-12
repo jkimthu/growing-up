@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Oct 8
+% last updated: jen, 2017 Oct 11
 
 %%
 %
@@ -69,11 +69,11 @@ end
 % Initialize
 clear;
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
-load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
+load('lb-fluc-2017-10-10-window5-jiggle-0p5-bigger1p8.mat','D5','M','T');
 
 %%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40; 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30; 31 40];% 41 50; 51 60];
 %%
 
 for i = 1:length(conditions) %number of conditions
@@ -114,7 +114,9 @@ for i = 1:length(conditions) %number of conditions
     %  accumulate growth rates by bin, and calculate mean and std dev
     mu_Elong_Means = accumarray(Bins,mu_elongation,[],@nanmean);
     mu_Elong_STDs = accumarray(Bins,mu_elongation,[],@nanstd);
+    %mu_Elong_Counts = accumarray(Bins,mu_elongation,[],@nanlength);
     
+
 
     
     %   to calculate s.e.m.
@@ -134,29 +136,23 @@ for i = 1:length(conditions) %number of conditions
         clear i counter;
     end
     
-%      % 5. for s.e.m. per bin
-%     countsPerBin = zeros(binsPerPeriod,1);
-%     for j = 1:binsPerPeriod
-%         countsPerBin(j) = length(find(periodFractions_binned == j));
-%     end
-%     clear j
-%     
-%     
+%    counts = cellfun(@length,mu_Elong_Means);
+
     %   2. divide standard dev by square root of tracks per bin
     mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
 
-    figure(1)
+    figure(2)
     errorbar(mu_Elong_Means,mu_Elong_sems)
     hold on
     grid on
     axis([0,21,0,4])
     xlabel('Time')
     ylabel('Elongation rate (1/hr)')
-    legend('full LB','1/8 LB','1/32 LB', '1/100 LB', '1/1000 LB', '1/10000 LB')
+    legend('fluc','1/1000 LB','ave', '1/50 LB')
     %legend('xy10','xy60')
     
-    clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
-    clear Mu_cond Time_cond plotUntil;
+    %clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
+    %clear Mu_cond Time_cond plotUntil;
     
 end
 

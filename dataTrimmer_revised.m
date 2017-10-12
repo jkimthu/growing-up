@@ -22,7 +22,7 @@
 
 
 
-% last edit: Oct 8, 2017
+% last edit: Oct 11, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-monod-2017-09-26.mat');
+load('lb-fluc-2017-10-10.mat');
 
 
 % reject data matrix
@@ -265,17 +265,17 @@ end
 
 
 criteria_counter = criteria_counter + 1;
-
+%%
 % 0. initiaize new dataset before trimming
 D4 = D3;
-%%
+
 % 0. define threshold change in length considered a division
 dropThreshold = -0.75;
 
 % 0. define threshold under which tracks are too jiggly
 jiggleThreshold = -0.5;
 
-for n = 21:60%length(D)
+for n = 1:length(D)
     
     % 0. if no data in n, continue to next movie
     if isempty(D4{n}) == 1
@@ -396,7 +396,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-monod-2017-09-26-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-fluc-2017-10-10-jiggle-0p5-bigger1p8.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
