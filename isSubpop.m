@@ -28,7 +28,7 @@
 %               
 
 
-% last edit: jen, 2017 Oct 9
+% last edit: jen, 2017 Oct 13
 
 % OK LEZ GO!
 
@@ -36,11 +36,11 @@
 
 % 0. initialize data matrix
 clear
-load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat');
+load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat');
 dataMatrix = buildDM(D5,M,T);
 
 % 0. designate which conditions from experiment to be analyzed
-conditions = [1,2,3]; % of 6 total experiments in 2017-06-12
+conditions = [1,2,3]; % of 4 total experiments in 2017-10-10
 
 % 1. define time windows of interest                     
 windowLength = 30;      % in minutes
@@ -100,7 +100,7 @@ for w = 1:length(window);
             hold on
             
         end 
-        legend('1','1/8','1/32')
+        legend('fluc','low','ave')
         
         if c == 1
             figure(2)
@@ -111,7 +111,7 @@ for w = 1:length(window);
             axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('1 LB')
+            legend('fluc')
         end
         
         if c == 2
@@ -123,7 +123,7 @@ for w = 1:length(window);
             axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('1/8 LB')
+            legend('low')
         end
         
         if c == 3
@@ -135,7 +135,7 @@ for w = 1:length(window);
             axis([0,.35,0,50])
             xlabel('pdf')
             ylabel('doubling rate bin')
-            legend('1/32 LB')
+            legend('ave')
         end
         
         % 9.  repeat for all conditions in window
@@ -144,7 +144,7 @@ for w = 1:length(window);
     % 10.  repeat for all conditions in window 
 end
 
-save('2017-09-26-isSubpop-muStats.mat','countMu','meanMu','semMu','stdMu')
+%save('2017-09-26-isSubpop-muStats.mat','countMu','meanMu','semMu','stdMu')
 
 %%
 c = 1;
