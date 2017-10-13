@@ -1,10 +1,10 @@
-% timestamp-dependent distributions of dataMatrix parameters
+% singlePeriodMus
 
 
 
-%  Goal: plot average growth rate per period fraction
+%  Goal: plot average of mus, binned by period fraction
 
-%  Last edit: Jen Nguyen, March 15th 2017
+%  Last edit: Jen Nguyen, 2017 Oct 13
 
 
 
@@ -13,114 +13,85 @@
 %
 %     0. initialize experiment and analysis parameters
 %     1. isolate data of interest
-%     2. accumulate data points by time bin (period fraction)
-%     3. plot for all isolated groups
+%     2. remove data not in stabilized region
+%     3. accumulate data points by time bin (period fraction)
+%     4. plot for all isolated groups
 
 
 %%
 clear
 
 % 0. Load workspace from SlidingFits.m    
-load('t900_2017-01-10-increasedWindow-Mus-LVVV.mat');
+load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat');
 load('meta.mat');
-meta = meta_2017jan10;
+meta = meta_2017oct10;
 
+dataMatrix = buildDM(D5,M,T);
 %%
 % 0. Initialize period fractioning
-periodLength = 900;                         % in seconds
+periodLength = 5;                   % in min
 binsPerPeriod = 30;
+timePerBin = 5*60/30;               % in sec
 
+% 0. initialize analysis parameters
 %%
-for i = 1%:2:3
+for condition = 1:4
     
-    % initize vectors for data accumulation
-    muTrack = [];
-    timeTrack = [];
+    % 1. isolate data of interest
+    conditionData = dataMatrix(dataMatrix(:,35)==condition,:);
+    Mus = conditionData(:,4); % col 4 = mus
+    Time = conditionData(:,2)/60; % col 2 = timestamps in sec, covert to min
     
-    % designate times to trim
-    minTime = meta(i,3);
-    maxTime = meta(i,4);
+    % 2. remove data not in stabilized region
+    minTime = meta(condition,3)*60;  % hr converted to min
+    maxTime = meta(condition,4)*60;
     
-    for n = meta(i,1):meta(i,2)
-        for m = 1:length(M6{n})
-            
-            %  assemble all instantaneous growth rates into a single vector
-            muTrack = [muTrack; M6{n}(m).Parameters_VA(:,1)];
-            
-            %  assemble a corresponding timestamp vector
-            vectorLength = length(M6{n}(m).Parameters_VA(:,1));
-            trackFrames = D6{n}(m).Frame(7:vectorLength+6);
-            timeTrack = [timeTrack; T{n}(trackFrames)];
-            
-        end
-    end
+    % i. remove mu data with timestamps prior to and after stabilization
+    Mus_trim1 = Mus(Time >= minTime);
+    Time_trim1 = Time(Time >= minTime);
+    %plot(Time_trim1,Mus_trim1,'o')
     
-    %trim times to only stable
-    timeTrack(timeTrack < minTime*3600) = NaN;
-    timeTrack(timeTrack > maxTime*3600) = NaN;
-    timeFilter = find(~isnan(timeTrack));
-    muTrack = muTrack(timeFilter);
-    timeTrack = timeTrack(timeFilter);
+    Mus_trim2 = Mus_trim1(Time_trim1 <= maxTime);
+    Time_trim2 = Time_trim1(Time_trim1 <= maxTime);
+    %plot(Time_trim2,Mus_trim2,'o')
     
-    timeWarp = timeTrack/periodLength; % units = seconds/seconds
-    floorWarp = floor(timeWarp);
-    timeWarp = timeWarp - floorWarp;
-    rightBin = timeWarp * binsPerPeriod;
-    rightBin = ceil(rightBin);
-    
-    % replace all values of Mu > 1 or Mu <= 0 with NaN
-    trimmedMu = muTrack;
-    trimmedMu(trimmedMu > 1) = NaN;
-    trimmedMu(trimmedMu <= 0) = NaN;
-    
-    % remove NaNs from data sets
-    nanFilter = find(~isnan(trimmedMu));
-    trimmedMu = trimmedMu(nanFilter);
-    trimmedTime = rightBin(nanFilter);
-    
-
-    muMeans = accumarray(trimmedTime,trimmedMu,[],@nanmean);
-    muSTDs = accumarray(trimmedTime,trimmedMu,[],@nanstd);
-    
-    %   calculate s.e.m.
-    %   count number of total tracks in each bin
-    for j = 1:binsPerPeriod
-        currentBin_count = find(rightBin==j);
-        counter = 1;
+    % i. remove zeros (always two at start and end of track) and negatives
+    Mus_trim3 = Mus_trim2(Mus_trim2 > 0);
+    Time_trim3 = Time_trim2(Mus_trim2 > 0);
         
-        for k = 2:length(currentBin_count)
-            if currentBin_count(k) == currentBin_count(k-1)+1;
-                counter = counter;
-            else
-                counter = counter + 1;
-            end
-        end
-        muCounts(j) = counter;
-        clear k counter;
-    end
     
-    %   2. divide standard dev by square root of tracks per bin
-    muSEMs = muSTDs./sqrt(muCounts');
+    % 3. accumulate data points by time bin (period fraction)
+    timeWarp = Time_trim3/periodLength; % units = seconds/seconds
+    floorWarp = floor(timeWarp);
+    timeBins = timeWarp - floorWarp;
+    rightBin = timeBins * binsPerPeriod;
+    rightBin = ceil(rightBin);
+        
+    binnedMus = accumarray(rightBin,Mus_trim3,[],@(x) {x});
     
-
-    errorbar(muMeans,muSEMs)
+    % 4.  convert bin # to absolute time (in seconds)
+    timeVector = linspace(1, binsPerPeriod, binsPerPeriod);
+    timeVector = timePerBin*timeVector'; 
+    
+    
+    % 5.  calculate average and s.e.m. per timebin
+    meanVector = cellfun(@mean,binnedMus);
+    countVector = cellfun(@length,binnedMus);
+    stdVector = cellfun(@std,binnedMus);
+    semVector = stdVector./sqrt(countVector);
+    
+    
+    % 6. plot
+    figure(1)
+    errorbar(timeVector,meanVector,semVector)
     hold on
     grid on
-    axis([-0.2,30.2,0.25,.45])
+    axis([-0.2,300.2,0.25,3.2])
     xlabel('Time')
-    ylabel('doubling rate of volume, VA (1/hr)')
+    ylabel('elongation rate (1/hr)')
+    legend('fluc','low','ave','high')
 
 end
 
 %%
-% 2. determine bin size for mu
-    
-
-    
-    
-    % 4. calculate mean, std, n, and error
-    meanStage = cell2mat( cellfun(@nanmean,binnedByMu,'UniformOutput',false) );
-    stdStage = cell2mat( cellfun(@nanstd,binnedByMu,'UniformOutput',false) );
-    nStage = cell2mat( cellfun(@length,binnedByMu,'UniformOutput',false) );
-    errorStage = stdStage./sqrt(nStage);
 
