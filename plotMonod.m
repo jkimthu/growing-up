@@ -93,7 +93,7 @@ for e = 1:experimentCount
         
         
         % iv. calculate mean and sem
-        muMean = mean(Mus_trim3)
+        muMean = mean(Mus_trim3);
         muStd = std(Mus_trim3);
         muCounts = length(Mus_trim3);
         muSem = muStd./sqrt(muCounts);
