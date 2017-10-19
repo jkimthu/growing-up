@@ -2,9 +2,9 @@
 % adapted from matrixBuilder, but prevents need to save data matrices.
 % ideal for smaller inputs that take less time to process.
 
-% last updated: jen, 2017 Sept 25
+% last updated: jen, 2017 Oct 18
 
-function [dm] = buildDM(D5,M,T)
+function [dm] = buildDM(D5,M,M_va,T)
 %%
 % initialize all values
 condVals = [];    % col 35 (of 35 columns)
@@ -31,7 +31,7 @@ vaVals = [];      % col 15
 muVals = [];     % col 4
 mu_vcVals = [];
 mu_veVals = [];
-mu_vaVals = [];
+mu_vaVals = [];  % col 18
 
 isDrop = [];      % col 5
 dropThreshold = -0.75;                                                     % consider greater negatives a division event
@@ -108,6 +108,12 @@ for n = 1:length(D5)
         muTrack(3:length(measuredMus)+2) = measuredMus;
         muVals = [muVals; muTrack];                                        % concatenate growth rates
         
+        
+        % 18. mu_Va
+        mu_vaTrack = zeros(lengthCurrentTrack,1);
+        measuredMus_va = M_va{n}(m).mu_va(:,1);
+        mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
+        mu_vaVals = [mu_vaVals; mu_vaTrack];   
         
         
         % 5. drop?
@@ -283,7 +289,6 @@ end % for n
 % fill in NaN for all non-present data
 mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
-mu_vaVals = NaN(length(angle),1);
                                                    
 lengthAdded_incremental_sinceBirth = NaN(length(angle),1);
 vcAdded_incremental_sinceBirth = NaN(length(angle),1);
