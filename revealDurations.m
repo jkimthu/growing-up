@@ -7,12 +7,8 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Oct 6
+%  Last edit: Jen Nguyen, 2017 Oct 12
 
-
-
-% As of Sept 2017, this script uses function, buildDM, instead of specific
-% matrixBuilder.m data outputs. The overall concept is still similar.
 
 
 % Strategy:
@@ -37,7 +33,7 @@ clc
 clear
 
 % trimmed dataset
-load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
+load('lb-fluc-2017-10-10-window5-jiggle-0p5-bigger1p8.mat','D5','M','T');
 dataMatrix = buildDM(D5,M,T);
 
 % 0. initialize binning parameters
@@ -103,15 +99,15 @@ for condition = 1:totalCond
     hold on
     xlabel('Time (hr)')
     ylabel('Doubling time + s.e.m. (min)')
-    legend('full LB','1/8 LB','1/32 LB','1/100 LB','1/1000 LB','1/10000 LB'); 
+    legend('fluc','1/1000 LB','ave','1/50 LB'); 
     
-    figure(2)
-    errorbar(timeVector,meanVector,stdVector)
-    axis([0,10,0,75])
-    hold on
-    xlabel('Time (hr)')
-    ylabel('Doubling time + standard dev (min)')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+%     figure(2)
+%     errorbar(timeVector,meanVector,stdVector)
+%     axis([0,10,0,75])
+%     hold on
+%     xlabel('Time (hr)')
+%     ylabel('Doubling time + standard dev (min)')
+%     legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
     
     
     % 7. plot pdf of stabilized cell cycle durations
@@ -134,7 +130,7 @@ for condition = 1:totalCond
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    legend('fluc','1/1000 LB','ave','1/50 LB'); 
     
     figure(4)
     subplot(totalCond,1,condition)
@@ -143,7 +139,7 @@ for condition = 1:totalCond
     hold on
     xlabel('cell cycle duration (min)')
     ylabel('fraction of population')
-    legend(num2str(condition));
+    legend('fluc','1/1000 LB','ave','1/50 LB'); 
     
     % 8. repeat for all conditions
 end

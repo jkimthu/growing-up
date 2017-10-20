@@ -1,4 +1,4 @@
-%% revealBirthVolumes
+%% revealAspectRatio
 
 % Goal: Plot mean birth aspect ratios over time
 
@@ -7,7 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Oct 2
+%  Last edit: Jen Nguyen, 2017 Oct 11
 
 
 
@@ -33,7 +33,7 @@ clc
 clear
 
 % trimmed dataset
-load('lb-monod-2017-09-20-window5-jiggle-0p1.mat','D5','M','T');
+load('lb-fluc-2017-10-10-window5-jiggle-0p5-bigger1p8.mat','D5','M','T');
 dataMatrix = buildDM(D5,M,T);
 
 % 0. initialize binning parameters
@@ -90,7 +90,7 @@ for condition = 1:totalCond
     hold on
     xlabel('Time (hr)')
     ylabel('Aspect atio at birth + s.e.m.')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
+    legend('fluc','1/1000 LB','ave','1/50 LB');
     
     
     
@@ -114,8 +114,8 @@ for condition = 1:totalCond
     bar(normalizedRatios,0.4)
     axis([0,100,0,0.12])
     hold on
-    xlabel('size at birth (um)')
-    ylabel('pdf')
+    xlabel('aspect ratio at birth (um)')
+    ylabel('population fraction')
     legend(num2str(condition));
     
    
