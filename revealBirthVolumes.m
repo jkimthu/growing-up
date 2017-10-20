@@ -7,7 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Sept 30
+%  Last edit: Jen Nguyen, 2017 Oct 13
 
 
 
@@ -33,8 +33,10 @@ clc
 clear
 
 % trimmed dataset
-load('lb-monod-2017-09-20-window5-jiggle-0p1.mat','D5','M','T');
+load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
 dataMatrix = buildDM(D5,M,T);
+load('meta.mat');
+meta = meta_2017oct10;
 
 % 0. initialize binning parameters
 expHours = 10;          % duration of experiment in hours                      
@@ -65,11 +67,23 @@ for condition = 1:totalCond
     birthVe = allVe(isDrop == 1);
     birthVa = allVa(isDrop == 1);
     
+    
+    % 3.  trim data to only account for stabilized growth
+    
+    % i. remove data not in stabilized region
+    minTime = meta(condition,3);  % hr
+    maxTime = meta(condition,4);
+    
+    birthVa_trim1 = birthVa(birthTimes >= minTime);
+    birthTimes_trim1 = birthTimes(birthTimes >= minTime);
+    
+    birthVa_trim2 = birthVa_trim1(birthTimes_trim1 <= maxTime);
+    birthTimes_trim2 = birthTimes_trim1(birthTimes_trim1 <= maxTime);
+    
+    
     % iii. convert birthTimes into timebins
-    timeBins = ceil(birthTimes*binFactor);                
-    binnedVc = accumarray(timeBins,birthVc,[],@(x) {x});
-    binnedVe = accumarray(timeBins,birthVe,[],@(x) {x});
-    binnedVa = accumarray(timeBins,birthVa,[],@(x) {x});
+    timeBins = ceil(birthTimes_trim2*binFactor);                
+    binnedVa = accumarray(timeBins,birthVa_trim2,[],@(x) {x});
     
     % 4.  convert bin # to absolute time
     timeVector = linspace(1, max(timeBins), max(timeBins));
@@ -77,15 +91,15 @@ for condition = 1:totalCond
     
     
     % 5.  calculate average and s.e.m. per timebin
-    meanVc = cellfun(@mean,binnedVc);
-    countVc = cellfun(@length,binnedVc);
-    stdVc = cellfun(@std,binnedVc);
-    semVc = stdVc./sqrt(countVc);
-    
-    meanVe = cellfun(@mean,binnedVe);
-    countVe = cellfun(@length,binnedVe);
-    stdVe = cellfun(@std,binnedVe);
-    semVe = stdVe./sqrt(countVe);
+%     meanVc = cellfun(@mean,binnedVc);
+%     countVc = cellfun(@length,binnedVc);
+%     stdVc = cellfun(@std,binnedVc);
+%     semVc = stdVc./sqrt(countVc);
+%     
+%     meanVe = cellfun(@mean,binnedVe);
+%     countVe = cellfun(@length,binnedVe);
+%     stdVe = cellfun(@std,binnedVe);
+%     semVe = stdVe./sqrt(countVe);
     
     meanVa = cellfun(@mean,binnedVa);
     countVa = cellfun(@length,binnedVa);
@@ -119,29 +133,29 @@ for condition = 1:totalCond
     % 7. plot pdfs from steady-state
     
     % i. isolate data from stabilized timepoints
-    stableBirthVc = birthVc(birthTimes > 3);
-    stableBirthVe = birthVe(birthTimes > 3);
-    stableBirthVa = birthVa(birthTimes > 3);
+%     stableBirthVc = birthVc(birthTimes > 3);
+%     stableBirthVe = birthVe(birthTimes > 3);
+%    stableBirthVa = birthVa(birthTimes > 3);
     
     % ii. bin birth volumes
-    binStable_Vc = ceil(stableBirthVc*10);
-    binnedVc = accumarray(binStable_Vc,stableBirthVc,[],@(x) {x});
-    binCounts_Vc = cellfun(@length,binnedVc);
+%     binStable_Vc = ceil(stableBirthVc*10);
+%     binnedVc = accumarray(binStable_Vc,stableBirthVc,[],@(x) {x});
+%     binCounts_Vc = cellfun(@length,binnedVc);
+%     
+%     binStable_Ve = ceil(stableBirthVe*10);
+%     binnedVe = accumarray(binStable_Ve,stableBirthVe,[],@(x) {x});
+%     binCounts_Ve = cellfun(@length,binnedVe);
     
-    binStable_Ve = ceil(stableBirthVe*10);
-    binnedVe = accumarray(binStable_Ve,stableBirthVe,[],@(x) {x});
-    binCounts_Ve = cellfun(@length,binnedVe);
-    
-    binStable_Va = ceil(stableBirthVa*10);
-    binnedVa = accumarray(binStable_Va,stableBirthVa,[],@(x) {x});
+    binStable_Va = ceil(birthVa_trim2*10);
+    binnedVa = accumarray(binStable_Va,birthVa_trim2,[],@(x) {x});
     binCounts_Va = cellfun(@length,binnedVa);
     
     
     % iii. normalize bin quantities by total births 
-    stableVa_counts = length(stableBirthVa);
+    stableVa_counts = length(birthVa_trim2);
     
-    normalizedVc = binCounts_Vc/stableVa_counts;
-    normalizedVe = binCounts_Ve/stableVa_counts;
+%     normalizedVc = binCounts_Vc/stableVa_counts;
+%     normalizedVe = binCounts_Ve/stableVa_counts;
     normalizedVa = binCounts_Va/stableVa_counts;
     
     
@@ -169,7 +183,7 @@ for condition = 1:totalCond
     figure(4)
     subplot(totalCond,1,condition)
     bar(normalizedVa,0.4)
-    axis([0,200,0,0.06])
+    axis([0,200,0,0.15])
     hold on
     xlabel('size at birth (um)')
     ylabel('pdf')
