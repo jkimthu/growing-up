@@ -21,8 +21,10 @@
 %               8.  create a vector that converts timebin value to real time 
 %               9.  plot average biovolume production rate over time
 %              10.  isolate data to stabilized regions of growth
-%              11.  plot distribution of biovolume production rate
-%     12.  repeat for all conditions
+%              11.  bin biovol production rates by time
+%              12.  normalize bin quantities by total data points
+%              13.  plot distribution of biovolume production rate
+%     14.  repeat for all conditions
 
 
 % OK! Lez go!
@@ -92,6 +94,7 @@ for condition = 1:totalCond
     ylabel('biovolume production rate (cubic um/hr)')
     legend('fluc','1/1000 LB','ave','1/50 LB');
     
+    
     % 10. isolate data to stabilized regions of growth
     minTime = meta(condition,3);  % hr
     maxTime = meta(condition,4);
@@ -102,16 +105,17 @@ for condition = 1:totalCond
     times_trim2 = times_trim1(times_trim1 <= maxTime);
     bioProdRate_trim2 = bioProdRate_trim1(times_trim1 <= maxTime);
     
+    
     % 11. bin biovol production rates by time
     binAssignments = ceil(bioProdRate_trim2*100);
     binnedTrimmed = accumarray(binAssignments,bioProdRate_trim2,[],@(x) {x});
     binnedTrimmed_counts = cellfun(@length,binnedTrimmed);
     
-    % iii. normalize bin quantities by total births 
+    % 12. normalize bin quantities by total data points 
     countStable = length(bioProdRate_trim2);
     pdf_biovolProdRates = binnedTrimmed_counts/countStable;
     
-    % 12. plot distribution of biovolume production rate
+    % 13. plot distribution of biovolume production rate
     figure(2)
     subplot(totalCond,1,condition)
     bar(pdf_biovolProdRates,0.4)
@@ -121,41 +125,11 @@ for condition = 1:totalCond
     ylabel('pdf')
     legend(num2str(condition));
     
-    % 13. repeat for all conditions
+    % 14. repeat for all conditions
 end
  
 
 
-
-
-%%
-    
-    % ii. remove data from cell cycles that last less that 15 mins
-    shorties = birthDurations_trim2(birthDurations_trim2 < 13);
-    % condition 1, 26 cell cycles are shorter than 15 mins. non
-    % physiological...??? the occurrence of these increases with ave mu investigate!
-    
-    taus = birthDurations_trim2(birthDurations_trim2 >= 1);
-    Va_nots = birthVa_trim2(birthDurations_trim2 >= 1);
-    final_birthTimes = birthTimes_trim2(birthDurations_trim2 >= 1);
-    
-    
-    % iv. assign data to appropriate bin
-    vaPerCC = Va_nots./taus;
-    %notNum = isnan(vaPerCC);
-    %sum(notNum)
-  
-    
-    % 8. plot Vo vs tau, color different conditions differently
-    figure(3)
-    plot(taus,Va_nots,'o')
-    hold on
-    xlabel('Length of cell cycle (min)')
-    ylabel('Volume at birth (cubic um)')
-    legend('fluc','1/1000 LB','ave','1/50 LB');
-   
-    % 9. repeat for all conditions
-end
 
 
 
