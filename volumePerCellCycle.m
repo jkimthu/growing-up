@@ -95,9 +95,9 @@ for condition = 1:totalCond
     % condition 1, 26 cell cycles are shorter than 15 mins. non
     % physiological...??? the occurrence of these increases with ave mu investigate!
     
-    taus = birthDurations_trim2(birthDurations_trim2 >= 13);
-    Va_nots = birthVa_trim2(birthDurations_trim2 >= 13);
-    final_birthTimes = birthTimes_trim2(birthDurations_trim2 >= 13);
+    taus = birthDurations_trim2(birthDurations_trim2 >= 1);
+    Va_nots = birthVa_trim2(birthDurations_trim2 >= 1);
+    final_birthTimes = birthTimes_trim2(birthDurations_trim2 >= 1);
     
     % iii. convert birthTimes into timebins
     timeBins = ceil(final_birthTimes*binFactor);
@@ -125,7 +125,7 @@ for condition = 1:totalCond
     
    
     % 6.  plot 
-    figure(2)
+    figure(1)
     errorbar(timeVector,meanVaPerCC,semVaPerCC)
     axis([0,10.5,0,1])
     hold on
@@ -138,23 +138,17 @@ for condition = 1:totalCond
     % 7. plot pdfs from steady-state
     
     % i. isolate data from stabilized timepoints
-%     stableBirthVc = birthVc(birthTimes > 3);
-%     stableBirthVe = birthVe(birthTimes > 3);
-%    stableBirthVa = birthVa(birthTimes > 3);
     
     % ii. bin birth volumes per cc
     binStable_VoPerCC = ceil(vaPerCC*100);
     binned = accumarray(binStable_VoPerCC,vaPerCC,[],@(x) {x});
     binCounts_VoPerCC = cellfun(@length,binned);
     
-    
     % iii. normalize bin quantities by total births 
     stableVoPerCC_counts = length(vaPerCC);
     normalizedVoPerCC = binCounts_VoPerCC/stableVoPerCC_counts;
     
-    
-    
-    figure(5)
+    figure(2)
     subplot(totalCond,1,condition)
     bar(normalizedVoPerCC,0.4)
     axis([0,100,0,0.4])
@@ -163,8 +157,25 @@ for condition = 1:totalCond
     ylabel('pdf')
     legend(num2str(condition));
     
+    
+    % 8. plot Vo vs tau, color different conditions differently
+    figure(3)
+    plot(taus,Va_nots,'o')
+%     if condition == 1
+%         plot(taus,Va_nots,'o','color','blue')
+%     elseif condition == 2
+%         plot(taus,Va_nots,'o','color','red')
+%     elseif condition == 3
+%         plot(taus,Va_nots,'o','color','green')
+%     else
+%         plot(taus,Va_nots,'o','color','magenta')
+%     end
+    hold on
+    xlabel('Length of cell cycle (min)')
+    ylabel('Volume at birth (cubic um)')
+    legend('fluc','1/1000 LB','ave','1/50 LB');
    
-    % 8. repeat for all conditions
+    % 9. repeat for all conditions
 end
 
                
