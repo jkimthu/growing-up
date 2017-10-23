@@ -62,7 +62,7 @@ for condition = 1:totalCond
     
     % 3. isolate volume (Va), mu (mu_va) and time data from current condition
     volumes = interestingData(:,15);        % col 15 = calculated va_vals (cubic um)
-    mus = interestingData(:,18)/60;      % col 18 = calculated mu_vals
+    mus = interestingData(:,18);         % col 18 = calculated mu_vals
     timestamps = interestingData(:,2)/3600; % time in seconds converted to hours
     
     % 4. remove data for which mu = 0, as these were the edges of tracks that never get calculated
@@ -91,7 +91,7 @@ for condition = 1:totalCond
     figure(1)
     errorbar(rtVector,mean_bioProdRate,sem_BioProdRate)
     %axis([0,10.5,0,0.3]) % fluc
-    axis([0,10.5,0,0.7])
+    axis([0,10.5,0,40])
     hold on
     xlabel('Time (hr)')
     ylabel('biovolume production rate (cubic um/hr)')
@@ -111,7 +111,7 @@ for condition = 1:totalCond
     
     
     % 11. bin biovol production rates by time
-    binAssignments = ceil(bioProdRate_trim2*100);
+    binAssignments = ceil(bioProdRate_trim2*10);
     binnedTrimmed = accumarray(binAssignments,bioProdRate_trim2,[],@(x) {x});
     binnedTrimmed_counts = cellfun(@length,binnedTrimmed);
     
@@ -123,10 +123,10 @@ for condition = 1:totalCond
     figure(2)
     subplot(totalCond,1,condition)
     bar(pdf_biovolProdRates,0.4)
-    %xlim([0,100])
-    axis([0,100,0,0.6])
+    %xlim([0,600])
+    axis([0,600,0,0.11])
     hold on
-    xlabel('biovolume production rate (cubic um/hr)')
+    xlabel('biovolume production rate*10 (cubic um/hr)')
     ylabel('pdf')
     legend(num2str(condition));
     
