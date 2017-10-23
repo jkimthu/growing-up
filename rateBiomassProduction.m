@@ -37,12 +37,14 @@ clc
 clear
 
 % trimmed dataset
-load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
-load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','M_va');
+%load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
+%load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','M_va');
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
+load('lb-monod-2017-09-26-window5-va-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','M_va');
 dataMatrix = buildDM(D5,M,M_va,T);
 
 load('meta.mat');
-meta = meta_2017oct10;
+meta = meta_2017sep26;
 
 % 0. initialize binning parameters
 expHours = 10;          % duration of experiment in hours                      
@@ -88,11 +90,13 @@ for condition = 1:totalCond
     % 9. plot average biovolume production rate over time
     figure(1)
     errorbar(rtVector,mean_bioProdRate,sem_BioProdRate)
-    axis([0,10.5,0,0.3])
+    %axis([0,10.5,0,0.3]) % fluc
+    axis([0,10.5,0,0.7])
     hold on
     xlabel('Time (hr)')
     ylabel('biovolume production rate (cubic um/hr)')
-    legend('fluc','1/1000 LB','ave','1/50 LB');
+    %legend('fluc','1/1000 LB','ave','1/50 LB');
+    legend('full LB','1/8 LB','1/32 LB','1/100 LB','1/1000 LB','1/10000 LB');
     
     
     % 10. isolate data to stabilized regions of growth
@@ -119,7 +123,8 @@ for condition = 1:totalCond
     figure(2)
     subplot(totalCond,1,condition)
     bar(pdf_biovolProdRates,0.4)
-    axis([0,100,0,0.2])
+    %xlim([0,100])
+    axis([0,100,0,0.6])
     hold on
     xlabel('biovolume production rate (cubic um/hr)')
     ylabel('pdf')
