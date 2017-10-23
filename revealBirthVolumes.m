@@ -7,7 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Oct 13
+%  Last edit: Jen Nguyen, 2017 Oct 23
 
 
 
@@ -15,28 +15,35 @@
 %
 %      0.  initialize data and binning parameters
 %      1.  specify current condition of interest
-%               2.  isolate data from current condition
-%               3.  accumulate volume at birth data by timebin
-%               4.  convert bin # to absolute time
-%               5.  calculate average and s.e.m. per timebin
-%               6.  plot!
-%      7.  repeat for all conditions
+%               2.  isolate all data from current condition
+%               3.  isolate volume, drop and timestamp data from current condition
+%               4.  keep data from rows where isDrop = 1,
+%                   constraining analysis to birth events
+%               5.  bin volumes at birth by time of birth
+%               6.  calculate average and s.e.m. of Vo per timebin
+%               7.  convert bin # to absolute time (for plotting)
+%               8.  plot time evolution of mean Vo
+%               9.  trim data to limit analysis for time frames of stabilized growth
+%              10.  bin birth volumes by size
+%              11.  normalize bin quantities by total births
+%              12.  plot pdf of birth volume
+%     13.  repeat for all conditions
 
 
 % OK! Lez go!
 
-%%
-%   Initialize.
+%% Initialize.   
 
 % 0. initialze data
 clc
 clear
 
 % trimmed dataset
-load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
-dataMatrix = buildDM(D5,M,T);
+load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
+load('lb-monod-2017-09-26-window5-va-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','M_va');
+dataMatrix = buildDM(D5,M,M_va,T);
 load('meta.mat');
-meta = meta_2017oct10;
+meta = meta_2017sep26;
 
 % 0. initialize binning parameters
 expHours = 10;          % duration of experiment in hours                      
@@ -49,29 +56,44 @@ totalCond = max(dataMatrix(:,35)); % col 35 = condition value
 
 for condition = 1:totalCond
     
-    % 2.  isolate data from current condition
+    % 2. isolate all data from current condition
     interestingData = dataMatrix(dataMatrix(:,35) == condition,:);
     
-    % 3.  accumulate size at birth data by timebin
-    
-    % i. isolate volume and time data
-    allVc = interestingData(:,13); % col 13 = calculated vc_vals (cubic um)
-    allVe = interestingData(:,14); % col 14 = calculated ve_vals (cubic um)
+    % 3. isolate volume, drop and timestamp data from current condition
     allVa = interestingData(:,15); % col 15 = calcalated va_vals (cubic um)
     timestamps = interestingData(:,2)/3600; % time in seconds converted to hours
-    
-    % ii. select rows where isDrop = 1
     isDrop = interestingData(:,5);
+
+    % 4. keep data from rows where isDrop = 1, constraining analysis to birth events
     birthTimes = timestamps(isDrop == 1);
-    birthVc = allVc(isDrop == 1);
-    birthVe = allVe(isDrop == 1);
     birthVa = allVa(isDrop == 1);
     
+    % 5. bin volumes at birth by time of birth
+    timeBins = ceil(birthTimes*binFactor);                
+    binnedVa = accumarray(timeBins,birthVa,[],@(x) {x});
     
-    % 3.  trim data to only account for stabilized growth
+    % 6.  calculate average and s.e.m. of Vo per timebin
+    meanVa = cellfun(@mean,binnedVa);
+    countVa = cellfun(@length,binnedVa);
+    stdVa = cellfun(@std,binnedVa);
+    semVa = stdVa./sqrt(countVa);
     
-    % i. remove data not in stabilized region
-    minTime = meta(condition,3);  % hr
+    % 7.  convert bin # to absolute time
+    timeVector = linspace(1, max(timeBins), max(timeBins));
+    timeVector = hrPerBin*timeVector';
+    
+    % 8. plot time evolution of mean Vo 
+    figure(1)
+    errorbar(timeVector,meanVa,semVa)
+    axis([0,10.5,0,12])
+    hold on
+    xlabel('Time (hr)')
+    ylabel('Volume at birth + s.e.m. (cubic um)')
+    legend('full LB','1/8 LB','1/32 LB','1/100 LB','1/1000 LB','1/10000 LB');
+    
+    
+    % 9. trim data to limit analysis for time frames of stabilized growth
+    minTime = 6; %meta(condition,3);  % hr
     maxTime = meta(condition,4);
     
     birthVa_trim1 = birthVa(birthTimes >= minTime);
@@ -80,117 +102,27 @@ for condition = 1:totalCond
     birthVa_trim2 = birthVa_trim1(birthTimes_trim1 <= maxTime);
     birthTimes_trim2 = birthTimes_trim1(birthTimes_trim1 <= maxTime);
     
-    
-    % iii. convert birthTimes into timebins
-    timeBins = ceil(birthTimes_trim2*binFactor);                
-    binnedVa = accumarray(timeBins,birthVa_trim2,[],@(x) {x});
-    
-    % 4.  convert bin # to absolute time
-    timeVector = linspace(1, max(timeBins), max(timeBins));
-    timeVector = hrPerBin*timeVector'; 
-    
-    
-    % 5.  calculate average and s.e.m. per timebin
-%     meanVc = cellfun(@mean,binnedVc);
-%     countVc = cellfun(@length,binnedVc);
-%     stdVc = cellfun(@std,binnedVc);
-%     semVc = stdVc./sqrt(countVc);
-%     
-%     meanVe = cellfun(@mean,binnedVe);
-%     countVe = cellfun(@length,binnedVe);
-%     stdVe = cellfun(@std,binnedVe);
-%     semVe = stdVe./sqrt(countVe);
-    
-    meanVa = cellfun(@mean,binnedVa);
-    countVa = cellfun(@length,binnedVa);
-    stdVa = cellfun(@std,binnedVa);
-    semVa = stdVa./sqrt(countVa);
-    
-    
-    % 6.  plot 
-%     figure()
-%     errorbar(timeVector,meanVc,semVc,'Color',[0.25 0.25 0.9]) % dark blue
-%     hold on
-%     errorbar(timeVector,meanVe,semVe,'Color',[0 0.7 0.7]) % teal
-%     hold on
-%     errorbar(timeVector,meanVa,semVa,'Color',[1 0.6 0]) % orange
-%     axis([0,10.5,0,12])
-%     xlabel('Time (hr)')
-%     ylabel('Birth volume + s.e.m. (cubic microns)')
-%     legend('full LB, Vc','Ve','Va');
-%     
-    
-    figure(1)
-    errorbar(timeVector,meanVa,semVa)
-    axis([0,10.5,0,12])
-    hold on
-    xlabel('Time (hr)')
-    ylabel('Volume at birth + s.e.m. (cubic um)')
-    legend('full LB','1/2 LB','1/4 LB','1/8 LB','1/16 LB','1/32 LB');
-    
-    
-    
-    % 7. plot pdfs from steady-state
-    
-    % i. isolate data from stabilized timepoints
-%     stableBirthVc = birthVc(birthTimes > 3);
-%     stableBirthVe = birthVe(birthTimes > 3);
-%    stableBirthVa = birthVa(birthTimes > 3);
-    
-    % ii. bin birth volumes
-%     binStable_Vc = ceil(stableBirthVc*10);
-%     binnedVc = accumarray(binStable_Vc,stableBirthVc,[],@(x) {x});
-%     binCounts_Vc = cellfun(@length,binnedVc);
-%     
-%     binStable_Ve = ceil(stableBirthVe*10);
-%     binnedVe = accumarray(binStable_Ve,stableBirthVe,[],@(x) {x});
-%     binCounts_Ve = cellfun(@length,binnedVe);
-    
+    % 10. bin birth volumes by size
     binStable_Va = ceil(birthVa_trim2*10);
     binnedVa = accumarray(binStable_Va,birthVa_trim2,[],@(x) {x});
     binCounts_Va = cellfun(@length,binnedVa);
     
-    
-    % iii. normalize bin quantities by total births 
+    % 11. normalize bin quantities by total births 
     stableVa_counts = length(birthVa_trim2);
-    
-%     normalizedVc = binCounts_Vc/stableVa_counts;
-%     normalizedVe = binCounts_Ve/stableVa_counts;
     normalizedVa = binCounts_Va/stableVa_counts;
     
     
-    
-%     figure(3)
-%     subplot(3,1,1)
-%     bar(normalizedVc,0.4,'FaceColor',[0.25 0.25 0.9])
-%     axis([0,200,0,0.06])
-%     legend('Vc')
-%     hold on
-%     subplot(3,1,2)
-%     bar(normalizedVe,0.4,'FaceColor',[0 0.7 0.7])
-%     axis([0,200,0,0.06])
-%     legend('Ve')
-%     hold on
-%     subplot(3,1,3)
-%     bar(normalizedVa,0.4,'FaceColor',[1 0.6 0])
-%     axis([0,200,0,0.06])
-%     legend('Va')
-%     xlabel('Volume at birth (um)')
-%     ylabel('pdf')
-%     
-    
-    
-    figure(4)
+    % 12. plot pdf of birth volume 
+    figure(2)
     subplot(totalCond,1,condition)
     bar(normalizedVa,0.4)
     axis([0,200,0,0.15])
     hold on
-    xlabel('size at birth (um)')
+    xlabel('volume at birth (cubic um)')
     ylabel('pdf')
     legend(num2str(condition));
     
-   
-    % 8. repeat for all conditions
+    % 13. repeat for all conditions
 end
 
                
