@@ -69,7 +69,7 @@ end
 % Initialize
 clear;
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
-load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
+load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M_va','T');
 
 %%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
@@ -79,20 +79,20 @@ conditions = [1 10; 11 20; 21 30; 31 40];% 41 50; 51 60];
 for i = 1:length(conditions) %number of conditions
     
     %    Condition One    %
-    mu_elongation = [];
+    mu_va = [];
     Time_cond = [];
     
     
     for n = conditions(i,1):conditions(i,2)
-        for m = 1:length(M{n})
+        for m = 1:length(M_va{n})
             
             %  assemble all instantaneous growth rates into a single vector
-            mu_elongation = [mu_elongation; M{n}(m).mu];
+            mu_va = [mu_va; M_va{n}(m).mu_va];
 
             
             %  assemble a corresponding timestamp vector
             %vectorLength = length(M6{n}(m).Parameters(:,1));
-            vectorLength = length(M{n}(m).mu);
+            vectorLength = length(M_va{n}(m).mu_va);
 
             trackFrames = D5{n}(m).Frame(3:vectorLength+2);
             Time_cond = [Time_cond; T{n}(trackFrames)];
@@ -104,7 +104,7 @@ for i = 1:length(conditions) %number of conditions
     Time_cond = Time_cond/3600;
     
     %  eliminate negative growth rates
-    mu_elongation(mu_elongation<0)=NaN;
+    mu_va(mu_va<0)=NaN;
     
     %  determine size of time bins
     BinsPerHour = 2;                              % multiplying by 10 gives bins of 0.1 hr
@@ -112,8 +112,8 @@ for i = 1:length(conditions) %number of conditions
     %plotUntil = floor(conditions(xy,3)*BinsPerHour);
     
     %  accumulate growth rates by bin, and calculate mean and std dev
-    mu_Elong_Means = accumarray(Bins,mu_elongation,[],@nanmean);
-    mu_Elong_STDs = accumarray(Bins,mu_elongation,[],@nanstd);
+    mu_va_Means = accumarray(Bins,mu_va,[],@nanmean);
+    mu_va_STDs = accumarray(Bins,mu_va,[],@nanstd);
     %mu_Elong_Counts = accumarray(Bins,mu_elongation,[],@nanlength);
     
 
@@ -139,10 +139,10 @@ for i = 1:length(conditions) %number of conditions
 %    counts = cellfun(@length,mu_Elong_Means);
 
     %   2. divide standard dev by square root of tracks per bin
-    mu_Elong_sems = mu_Elong_STDs./sqrt(Mu_Counts');
+    mu_Elong_sems = mu_va_STDs./sqrt(Mu_Counts');
 
     figure(2)
-    errorbar(mu_Elong_Means,mu_Elong_sems)
+    errorbar(mu_va_Means,mu_Elong_sems)
     hold on
     grid on
     axis([0,21,0,4])
