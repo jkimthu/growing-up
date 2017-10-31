@@ -35,14 +35,14 @@
 
 
 
-%  Last modified (jen): 2017 Oct 12
+%  Last modified (jen): 2017 Oct 30
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
 
 %% 1. create directory of movies
 
-xyDirectory = dir('lb-fluc-2017-10-10_xy*.nd2');
+xyDirectory = dir('lb-fluc-2017-10-24_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -90,7 +90,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1:30%NSeries
+for ii = 1:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -98,7 +98,7 @@ for ii = 1:30%NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-15.1724, -1]; %threshold for 2017-10-10      
+    Threshold =  [-215.172, -1]; %threshold for 2017-10-24      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -129,9 +129,11 @@ for ii = 1:30%NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    %UpperBound = 1.7;     % upper bound for condition 4
-    UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
-    
+    if ii < 31
+        UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
+    else
+        UpperBound = 1.7;     % upper bound for condition 4
+    end
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
     figure(8); clf; ParticlePropOverlay_ND2(reader,P_Trim2,AnalysisNumber,ImType,'MinAx',FilterParameters,[])
@@ -161,7 +163,7 @@ for ii = 1:30%NSeries
 end
 
 
-save('lb-fluc-2017-10-10-c123-width1p4-c4-width1p7.mat','Dcombo','T')
+save('lb-fluc-2017-10-24-c123-width1p4-c4-width1p7.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
