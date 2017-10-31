@@ -18,7 +18,7 @@
 %                               i. define row numbers for first window
 %                              ii. calculate number of windows in current track
 %                             iii. initialize current window to begin calculations
-%                        6. per window, isolate effective length and curve #
+%                        6. per window, isolate effective time, length, volume, and curve #
 %                        7. if curve # changes,
 %                                i. double length values after change
 %                               ii. use effective length to calculate mu
@@ -142,7 +142,8 @@ for n = 1:length(D5)
         %  6. per window
         for w = 1:numWindows
             
-            % 6. isolate current window's time, volume, and curve #
+            % 6. isolate current window's time, length, volume, and curve #
+            wLength = trackLengths(currentWindow);
             wVolume = trackVolumes(currentWindow);
             wCurves = curveNum(currentWindow);
             wTime = trackTimes(currentWindow);
@@ -154,39 +155,50 @@ for n = 1:length(D5)
                 % i. find point of drop
                 dropPoint = find(isDrop ~= 0);
               
-                % ii. double length values after change
+                % ii. double length or volume values after change
                 multiplier = NaN(windowSize,1);
                 minCurve = min(wCurves);
                 maxCurve = max(wCurves);
                 multiplier(wCurves == minCurve) = 1;
                 multiplier(wCurves == maxCurve) = 2;
                 
+                wLength_adjusted = wLength.*multiplier;
                 wVolume_adjusted = wVolume.*multiplier;
                 
-                % iii. use effective length to calculate mu (see below for comments)
+                % iii. use effective length or volume to calculate mu (see below for comments)
+                ln_length = log(wLength_adjusted);
+                fitLine_l = polyfit(wTime,ln_length,1);
+                mu_l = fitLine_l(1)/log(2);
+                
                 ln_volume = log(wVolume_adjusted);
-                fitLine = polyfit(wTime,ln_volume,1);
-                mu_va = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+                fitLine_va = polyfit(wTime,ln_volume,1);
+                mu_va = fitLine_va(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
                 
                 
                 %  8. if no change in curve #, use effective length to calculate mu
             else
-                % i. ln(effective length) vs time
+                % i. ln(effective length or volume) vs time
+                ln_length = log(wLength);
                 ln_volume = log(wVolume);
                 
-                % ii. fit linear slope to ln(eL) vs time
-                fitLine = polyfit(wTime,ln_volume,1);
+                % ii. fit linear slope to ln(eL or eV) vs time
+                fitLine_l = polyfit(wTime,ln_length,1);
+                fitLine_va = polyfit(wTime,ln_volume,1);
                 % where:   slope = fitLine(1)
                 %          y-int = fitLine(2)
                 
                 % iii. mu = slope / ln(2)
-                mu_va = fitLine(1)/log(2);         % divide by log(2), as eqn raises 2 by mu*t
+                mu_l = fitLine_l(1)/log(2);  
+                mu_va = fitLine_va(1)/log(2);      % divide by log(2), as eqn raises 2 by mu*t
                 
             end
             
-            % 9. save mu and y-intercept
-            slidingData(w,1) = mu_va;
-            slidingData(w,2) = fitLine(2); % log(initial length), y-int
+            % 9. save mus and y-intercept
+            slidingData_l(w,1) = mu_l;
+            slidingData_l(w,2) = fitLine_l(2); % log(initial length), y-int
+            
+            slidingData_va(w,1) = mu_va;
+            slidingData_va(w,2) = fitLine_va(2); % log(initial volume), y-int
             
             % 10. repeat for all windows
             currentWindow = currentWindow + 1;
@@ -196,11 +208,13 @@ for n = 1:length(D5)
         end
         
         % 11. save data and repeat for all tracks
+        trackData_l = struct('mu',slidingData_l(:,1),'yInt',slidingData_l(:,2));
+        M{n}(track) = trackData_l;
         
-        trackData = struct('mu_va',slidingData(:,1),'yInt',slidingData(:,2));
-        M_va{n}(track) = trackData;
+        trackData_va = struct('mu_va',slidingData_va(:,1),'yInt',slidingData_va(:,2));
+        M_va{n}(track) = trackData_va;
         
-        clear slidingData trackData;
+        clear slidingData_l slidingData_va trackData_l trackData_va;
         
         disp(['Track ', num2str(track), ' from xy ', num2str(n), ' complete!'])
         
@@ -210,7 +224,7 @@ for n = 1:length(D5)
 end
 
 
-save('lb-fluc-2017-10-24-window5-va-width1p4v1p7-jiggle-0p5.mat', 'D','D5', 'M_va', 'T','rejectD') %'D'
+save('lb-fluc-2017-10-24-window5combo-width1p4v1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks
@@ -223,9 +237,9 @@ load('mopsvnc-2017-05-26-revisedTrimmer-jiggle0p4.mat','D5','D','T','rejectD');
 % re-create volume track with y-int
 
 % initialize calculated mu and y-intercept data
-slidingData = M_va{n}(track);
-mus = slidingData.mu_va;
-yInts = slidingData.yInt;
+slidingData_va = M_va{n}(track);
+mus = slidingData_va.mu_va;
+yInts = slidingData_va.yInt;
 
 % trim original data to length of mu data
 volumes = trackVolumes(3:length(mus)+2);

@@ -87,8 +87,9 @@ for n = 1:length(D5)
     %  2. per track, isolate length, width, frame and time data
     for track = 1:numTracks
         trackLengths = D5{n}(track).MajAx;
+        trackWidths = D5{n}(track).MinAx;
         trackFrames = D5{n}(track).Frame;
-        trackTimes = T{n}(trackFrames)/3600;
+        trackTimes = T{n}(trackFrames)/3600; % in sec converted to hr
 
         %  4. build an array that identifies curve #
         
