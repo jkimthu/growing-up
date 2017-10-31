@@ -219,9 +219,9 @@ for n = 1:length(D5)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
             
         %% 13, 14, 15. volumes
-        v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder
+        v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder = pi * r^2 * h
         v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
-        vol_smallCylinder = (pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack) );
+        vol_smallCylinder = pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack);
         vol_sphere = 4/3 * pi * (widthTrack/2).^3;
         v_anupam = vol_smallCylinder + vol_sphere;                         % approx. volume as cylinder with spherical caps
         
