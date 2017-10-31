@@ -155,8 +155,8 @@ for condition = 1:totalCond
     % 14. plot mean birth volume vs mean mu
     figure(3)
     % errorbar(x,y,yneg,ypos,xneg,xpos,'o')
-    errorbar(meanMu_stable,meanVa_stable,semVa_stable,semVa_stable,'o')
-    %axis([0,200,0,0.15])
+    errorbar(meanMu_stable,meanVa_stable,semVa_stable,semVa_stable,'o','MarkerSize',10)
+    axis([0,4,1,9])
     hold on
     xlabel('mu (1/hr)')
     ylabel('volume at birth (cubic um)')
@@ -248,7 +248,7 @@ for condition = 1:totalCond
     hold on
     xlabel('Time (hr)')
     ylabel('Volume at birth + s.e.m. (cubic um)')
-    legend('fluc','1/50 LB','ave','1/1000 LB');
+    legend('fluc','1/1000 LB','ave','1/50 LB');
     
     figure(2)
     errorbar(timeVector_mu,meanMu,semMu,'-')
@@ -256,7 +256,7 @@ for condition = 1:totalCond
     hold on
     xlabel('Time (hr)')
     ylabel('Mu + s.e.m. (1/hr)')
-    legend('fluc','1/50 LB','ave','1/1000 LB');
+    legend('fluc','1/1000 LB','ave','1/50 LB');
     
     
     % 11. trim data to limit analysis for time frames of stabilized growth
@@ -293,12 +293,12 @@ for condition = 1:totalCond
     % 14. plot mean birth volume vs mean mu
     figure(3)
     % errorbar(x,y,yneg,ypos,xneg,xpos,'o')
-    errorbar(meanMu_stable,meanVa_stable,semVa_stable,semVa_stable,'o')
-    %axis([0,200,0,0.15])
+    errorbar(meanMu_stable,meanVa_stable,semVa_stable,semVa_stable,'o','MarkerSize',10)
+    axis([0,4,1,9])
     hold on
     xlabel('mu (1/hr)')
     ylabel('volume at birth (cubic um)')
-    legend('fluc','1/50 LB','ave','1/1000 LB');
+    legend('fluc','1/1000 LB','ave','1/50 LB');
     
     % 13. repeat for all conditions
 end
