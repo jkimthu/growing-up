@@ -32,7 +32,7 @@
 %       12. repeat for all movies
 
 
-% last update: jen, 2017 Oct 22
+% last update: jen, 2017 Oct 31
 
 % OK lez go!
 
@@ -41,7 +41,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2017-09-26';
+experiment = '2017-10-24';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -50,7 +50,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D','D5','T','rejectD');
+load('lb-fluc-2017-10-24-width1p4v1p7-jiggle-0p5.mat','D','D5','T','rejectD');
 numMovies = length(D5);
 
 
@@ -210,7 +210,7 @@ for n = 1:length(D5)
 end
 
 
-save('lb-monod-2017-09-26-window5-va-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat', 'D','D5', 'M_va', 'T','rejectD') %'D'
+save('lb-fluc-2017-10-24-window5-va-width1p4v1p7-jiggle-0p5.mat', 'D','D5', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks
