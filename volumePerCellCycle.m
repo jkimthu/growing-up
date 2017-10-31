@@ -47,6 +47,7 @@ clear
 load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
 load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','M_va');
 dataMatrix = buildDM(D5,M,M_va,T);
+clear D5 M M_va T;
 
 load('meta.mat');
 meta = meta_2017oct10;

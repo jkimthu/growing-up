@@ -7,8 +7,7 @@
    
 
 
-%  Last edit: Jen Nguyen, 2017 Oct 23
-
+%  Last edit: Jen Nguyen, 2017 Oct 27
 
 
 % Strategy:
@@ -27,7 +26,8 @@
 %              10.  bin birth volumes by size
 %              11.  normalize bin quantities by total births
 %              12.  plot pdf of birth volume
-%     13.  repeat for all conditions
+%              13.  plot pdf of all volumes (a check)
+%     14.  repeat for all conditions
 
 
 % OK! Lez go!
@@ -41,7 +41,11 @@ clear
 % trimmed dataset
 load('lb-monod-2017-09-26-window5-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','D5','M','T');
 load('lb-monod-2017-09-26-window5-va-jiggle-c12-0p1-c3456-0p5-bigger1p8.mat','M_va');
+%load('lb-fluc-2017-10-10-window5-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M','T');
+%load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','M_va');
 dataMatrix = buildDM(D5,M,M_va,T);
+clear D5 M M_va T;
+
 load('meta.mat');
 meta = meta_2017sep26;
 
@@ -93,7 +97,7 @@ for condition = 1:totalCond
     
     
     % 9. trim data to limit analysis for time frames of stabilized growth
-    minTime = 6; %meta(condition,3);  % hr
+    minTime = meta(condition,3);  % hr
     maxTime = meta(condition,4);
     
     birthVa_trim1 = birthVa(birthTimes >= minTime);
@@ -122,7 +126,23 @@ for condition = 1:totalCond
     ylabel('pdf')
     legend(num2str(condition));
     
-    % 13. repeat for all conditions
+    % 13. plot pdf of all volumes
+    vaBins = ceil(allVa*10);
+    binned_va_all = accumarray(vaBins,allVa,[],@(x) {x});
+    binCounts_va_all = cellfun(@length,binned_va_all);
+    totalCount = length(allVa);
+    normalizedCounts_all = binCounts_va_all./totalCount;
+    
+    figure(3)
+    subplot(totalCond,1,condition)
+    bar(normalizedCounts_all,0.4)
+    xlabel('all volumes (cubic um)')
+    ylabel('pdf')
+    axis([0,200,0,0.1])
+    
+    
+    
+    % 14. repeat for all conditions
 end
 
                
