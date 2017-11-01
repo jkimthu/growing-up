@@ -15,48 +15,8 @@
 %
 % 
 
-% last updated: jen, 2017 Oct 12
+% last updated: jen, 2017 Nov 1
 
-%%
-%
-%  VISUAL CHECK: plot raw data and mu over time
-%
-
-% Load workspace from SlidingFits.m    
-load('t300_2017-01-16-neighbors-window5-jiggle0p4.mat','D5','M','T');
-
-counter =0;
-for n = 1:10:40
-    counter = counter +1;
-    m = 10;
-    
-    % Extracted mu
-    Mu_track = M{n}(m).mu;
-    vectorLength = length(Mu_track);
-    
-    % Original length data (microns)
-    lengthTrack = D5{n}(m).MajAx(3:vectorLength+2);                                  % trimmed length trajectory to match Mu
-    
-    % Time data (hours)
-    %dT = mean(mean(diff(T)));                                              % mean time between frames (seconds)
-    %Ttrack = D6{n}(m).Frame(3:Num_mu+2);                                   % original frame # in trajectory
-    %timeTrack = T{n}/(60*60);
-    timeTrack = T{n}/(3600);
-    
-    figure(1)
-    
-    subplot(4,1,counter)
-    plot(timeTrack(3:vectorLength+2),lengthTrack,'.',timeTrack(3:vectorLength+2),Mu_track,'r');                          
-    grid on;
-    %axis([0,9,-0.05,.45])
-    xlabel('Time (hours)')
-    ylabel('Cell Length (um)')
-    legend('Length','Mu');
-
-
-    clear Mu_track Num_mu lengthTrack Ttrack hr;
-
-end
  
 
 %% CHECK FOUR: plot average growth rate over time
@@ -69,16 +29,18 @@ end
 % Initialize
 clear;
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
-load('lb-fluc-2017-10-10-window5va-width1p4v1p7-jiggle-0p5-bigger1p8.mat','D5','M_va','T');
+load('lb-fluc-2017-10-30-window5combo-width1p4v1p7-jiggle-0p5.mat','D5','M','M_va','T');
 
-%%
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40];% 41 50; 51 60];
+binsPerHour = 2;
+
 %%
 
 for i = 1:length(conditions) %number of conditions
     
-    %    Condition One    %
+    %  initialize data concatenation
+    mu_l = [];
     mu_va = [];
     Time_cond = [];
     
@@ -87,13 +49,12 @@ for i = 1:length(conditions) %number of conditions
         for m = 1:length(M_va{n})
             
             %  assemble all instantaneous growth rates into a single vector
+            mu_l = [mu_l; M{n}(m).mu];
             mu_va = [mu_va; M_va{n}(m).mu_va];
 
             
             %  assemble a corresponding timestamp vector
-            %vectorLength = length(M6{n}(m).Parameters(:,1));
             vectorLength = length(M_va{n}(m).mu_va);
-
             trackFrames = D5{n}(m).Frame(3:vectorLength+2);
             Time_cond = [Time_cond; T{n}(trackFrames)];
             
@@ -103,104 +64,46 @@ for i = 1:length(conditions) %number of conditions
     %  convert all timestamps from seconds to hours
     Time_cond = Time_cond/3600;
     
-    %  eliminate negative growth rates
-    mu_va(mu_va<0)=NaN;
+    %  eliminate zero and negative growth rates
+    true_mu_l = mu_l(mu_va>=0);
+    true_mu_va = mu_va(mu_va>=0);
+    true_time = Time_cond(mu_va>=0);
     
-    %  determine size of time bins
-    BinsPerHour = 2;                              % multiplying by 10 gives bins of 0.1 hr
-    Bins = ceil(Time_cond*BinsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
-    %plotUntil = floor(conditions(xy,3)*BinsPerHour);
+    %  assign timestamps to time bins
+    Bins = ceil(true_time*binsPerHour);            % multiplying by 200 gives time bins of 0.005 hr
+    
     
     %  accumulate growth rates by bin, and calculate mean and std dev
-    mu_va_Means = accumarray(Bins,mu_va,[],@nanmean);
-    mu_va_STDs = accumarray(Bins,mu_va,[],@nanstd);
-    %mu_Elong_Counts = accumarray(Bins,mu_elongation,[],@nanlength);
+    mu_l_Means = accumarray(Bins,true_mu_l,[],@mean);
+    mu_l_STDs = accumarray(Bins,true_mu_l,[],@std);
+    mu_l_Counts = accumarray(Bins,true_mu_l,[],@length);
     
-
-
+    mu_va_Means = accumarray(Bins,true_mu_va,[],@mean);
+    mu_va_STDs = accumarray(Bins,true_mu_va,[],@std);
+    mu_va_Counts = accumarray(Bins,true_mu_va,[],@length);
     
-    %   to calculate s.e.m.
-    %   1. count number of total tracks in each bin
-    for j = 1:max(Bins)
-        currentBin_count = find(Bins==j);
-        counter = 1;
-        
-        for i = 2:length(currentBin_count)
-            if currentBin_count(i) == currentBin_count(i-1)+1;
-                counter = counter;
-            else
-                counter = counter + 1;
-            end
-        end
-        Mu_Counts(j) = counter;
-        clear i counter;
-    end
-    
-%    counts = cellfun(@length,mu_Elong_Means);
 
     %   2. divide standard dev by square root of tracks per bin
-    mu_Elong_sems = mu_va_STDs./sqrt(Mu_Counts');
+    mu_l_sems = mu_l_STDs./sqrt(mu_l_Counts);
+    mu_va_sems = mu_va_STDs./sqrt(mu_va_Counts);
 
-    figure(2)
-    errorbar(mu_va_Means,mu_Elong_sems)
+    figure(1)
+    errorbar(mu_l_Means,mu_l_sems)
     hold on
-    grid on
     axis([0,21,0,4])
-    xlabel('Time')
-    ylabel('Elongation rate (1/hr)')
+    xlabel('Time (hr)')
+    ylabel('doubling rate of length (1/hr)')
     legend('fluc','1/1000 LB','ave', '1/50 LB')
-    %legend('xy10','xy60')
     
+    figure(2)
+    errorbar(mu_va_Means,mu_va_sems)
+    hold on
+    axis([0,21,0,4])
+    xlabel('Time (hr)')
+    ylabel('doubling rate of volume (1/hr)')
+    legend('fluc','1/1000 LB','ave', '1/50 LB')
+
     %clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     %clear Mu_cond Time_cond plotUntil;
     
 end
-
-%% checks
-
-% plot length and mu for individial tracks of interest
-
-clear
-load('letstry-2017-06-1-neighbors-window5-jiggle-varied.mat','D5','M','T');
-
-%%
-n=30;
-data = D5{n};
-
-% these tracks were the few left green at the end of xy1 (2017-06-12) with
-% a jiggle threshold of 0.1p. do these together make sense for the gradual
-% drop to a the low growth rate seen in the seeingMus plot?
-interestingTracks = [49,59,75,81,87];
-
-for i = 1:length(data)
-    ID(i,1) = data(i).TrackID(1);
-end
-
-for it = 1:length(interestingTracks)
-
-    track = find(ID == interestingTracks(it));
-    
-    trackLengths = D5{n}(track).MajAx;
-    trackFrames = D5{n}(track).Frame;
-    trackTimes = T{n}(trackFrames)/3600;
-    trackMus = M{n}(track).mu;
-    
-    figure(it)
-    plot(trackFrames, trackLengths,'o')
-    hold on
-    plot(trackFrames, trackLengths,'r')
-    grid on
-    xlim([0 202])
-    title(track);
-    
-    hold on
-    plot(trackFrames(3:end-2),trackMus,'ok');
-    xlim([0 202])
-    title(interestingTracks(it)); %label plot with TrackID
-
-end
-
-%hold on
-%plot(trackFrames(3:end-2),trackMus*4,'Color',[1 0.5 0],'Marker','o'); 
-%hold on
-%plot(trackFrames(3:end-2),trackMus*4,'Color',[0.5 0 0.5]); 
