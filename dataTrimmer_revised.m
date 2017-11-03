@@ -22,7 +22,7 @@
 
 
 
-% last edit: Nov 2, 2017
+% last edit: Nov 3, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-fluc-2017-10-31-c123-width1p4-c4-width1p7.mat');
+load('lb-fluc-2017-11-01-c123-width1p4-c4-width1p7.mat');
 
 
 % reject data matrix
@@ -396,7 +396,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-fluc-2017-10-31-width1p4v1p7-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-fluc-2017-11-01-width1p4v1p7-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
