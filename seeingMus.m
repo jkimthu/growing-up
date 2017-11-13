@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2017 Nov 3
+% last updated: jen, 2017 Nov 12
 
  
 
@@ -29,10 +29,10 @@
 % Initialize
 clear;
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
-load('lb-fluc-2017-11-01-window5combo-width1p4v1p7-jiggle-0p5.mat','D5','M','M_va','T');
+load('lb-control-2017-11-09-window5-width1p4-jiggle-0p5.mat','D5','M','M_va','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
-conditions = [1 10; 11 20; 21 30; 31 40];% 41 50; 51 60];
+conditions = [1 10; 11 20; 21 30];%; 31 40];% 41 50; 51 60];
 binsPerHour = 2;
 
 %%
@@ -93,7 +93,8 @@ for i = 1:length(conditions) %number of conditions
     axis([0,21,0,4])
     xlabel('Time (hr)')
     ylabel('doubling rate of length (1/hr)')
-    legend('fluc','1/1000 LB','ave', '1/50 LB')
+    %legend('fluc','1/1000 LB','ave', '1/50 LB')
+    legend('fluc','1/100-f','1/100+f');
     
     figure(2)
     errorbar(mu_va_Means,mu_va_sems)
@@ -101,7 +102,7 @@ for i = 1:length(conditions) %number of conditions
     axis([0,21,0,4])
     xlabel('Time (hr)')
     ylabel('doubling rate of volume (1/hr)')
-    legend('fluc','1/1000 LB','ave', '1/50 LB')
+    legend('fluc','1/100-f','1/100+f');
 
     %clear vectorLength trackFrams Mu_Means Mu_STDs Mu_sems Bins hr dT Mu_Counts n m j;
     %clear Mu_cond Time_cond plotUntil;
