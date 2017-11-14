@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-control-2017-11-09-width1p4.mat');
+load('lb-fluc-2017-11-12-width1p4.mat');
 
 
 % reject data matrix
@@ -396,7 +396,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-control-2017-11-09-width1p4-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 

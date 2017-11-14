@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2017 Nov 12
+%  Last modified (jen): 2017 Nov 13
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -43,7 +43,7 @@
 %% 1. create directory of movies
 clear
 
-xyDirectory = dir('lb-control-2017-11-09_xy*.nd2');
+xyDirectory = dir('lb-fluc-2017-11-12_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -99,7 +99,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-23.4483, -1]; %threshold for 2017-11-09      
+    Threshold =  [-28.1379, -1]; %threshold for 2017-11-12      
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -164,7 +164,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-control-2017-11-09-width1p4.mat','D','T')
+save('lb-fluc-2017-11-12-width1p4.mat','D','T')
 
 
    %% Section Three (E): clear section variables.
