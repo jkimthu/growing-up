@@ -22,7 +22,7 @@
 
 
 
-% last edit: Nov 12, 2017
+% last edit: Nov 16, 2017
 
 % OK lez go!
 
@@ -30,7 +30,7 @@
 
 % particle tracking data
 clear
-load('lb-fluc-2017-11-12-width1p4.mat');
+load('lb-fluc-2017-11-15-c123-width1p4-c4-width1p7.mat');
 
 
 % reject data matrix
@@ -313,23 +313,35 @@ for n = 1:length(D)
     % 9. determine which tracks fall under jiggle threshold
     belowThreshold = find(nonDropRatio <= jiggleThreshold);
     
-    % 10. report!
-    X = ['Removing ', num2str(length(belowThreshold)), ' jiggly tracks from D4(', num2str(n), ')...'];
-    disp(X)
-    
-    % 11. remove jiggly structures based on row # (in reverse order)
-    counter = 0;
-    for toRemove = 1:length(belowThreshold)
+    if ~isempty(belowThreshold)
         
-        r = length(belowThreshold) - counter;            % reverse order
-        jigglers(r,1) = D4{n}(belowThreshold(r));        % store data for reject data matrix
-        D4{n}(belowThreshold(r)) = [];                   % deletes data
-        counter = counter + 1;
+        % 10. report!
+        X = ['Removing ', num2str(length(belowThreshold)), ' jiggly tracks from D4(', num2str(n), ')...'];
+        disp(X)
+        
+        % 11. remove jiggly structures based on row # (in reverse order)
+        counter = 0;
+        for toRemove = 1:length(belowThreshold)
+            
+            r = length(belowThreshold) - counter;            % reverse order
+            jigglers(r,1) = D4{n}(belowThreshold(r));        % store data for reject data matrix
+            D4{n}(belowThreshold(r)) = [];                   % deletes data
+            counter = counter + 1;
+            
+        end
+        
+        % 13. save sub-threshold tracks into reject data matrix
+        rejectD{criteria_counter,n} = jigglers;
+    else
+        
+        % 14. repeat for all movies
+        clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor belowThreshold
+        clear toRemove binaryTrack r X jigglers
+        
+        continue
         
     end
-
-    % 13. save sub-threshold tracks into reject data matrix
-    rejectD{criteria_counter,n} = jigglers;
+    
     
     % 14. repeat for all movies
     clear nonDropRatio lengthTrack diffTrack dropTrack nonDropNegs squiggleFactor belowThreshold
@@ -396,7 +408,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-fluc-2017-11-15-c123-width1p4-c4-1p7-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
