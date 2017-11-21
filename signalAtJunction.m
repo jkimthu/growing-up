@@ -5,56 +5,111 @@
 %           2. enable comparison with downstream signal
 
 
-% last updated: jen, 2017 Nov 19
+% last updated: jen, 2017 Nov 21
 
 % strategy: 
-%           0. initialize image data: vertical crop of channel just after junction
-%                                     crop dimensions: 538 x 88 pixels
-%           1. for each image, load image
-%                   2. calculate mean pixel intensity in x direction and timestamp
-%                   3. plot intensity in y direction over time
-%                   4. save plot as timepoint
-%           5. repeat for all images
-%
+%           0. initialize image series of signals to compare: 
+%                   i. channel only crop of junc at start
+%                  ii. channel only crop of junc at end
+%           1. for each image series, go to directory and initialize images
+%                   2. for each image in current series, load image
+%                          3. calculate mean pixel intensity in x direction and timestamp
+%                          4. plot intensity in y direction over time
+%                          5. save plot as timepoint
+%                          6. calculate sum intensity of entire image, save
+%                   6. repeat for all images
+%           7. plot sum intensity over time
+%           8. repeat for all series, holding sum intensity data
 
 
 % OK let's go!
 
-%% 0. initialize image data
+%% 0. initialize image series
 clear
 
-xyDirectory = dir('test_final_junc_20x*');
-names = {xyDirectory.name};
+exptFolder = '/Users/jen/Documents/StockerLab/Data/LB/2017-11-15';
+cd(exptFolder);
 
-% initialize timestamp info
-t0 = 0.74; % first timestamp in seconds
-deltaTime = 0.21; % time between frames in seconds
+timestamps = xlsread('2017-11-15-timestamps.xlsx');
 
-% for each image
-for img = 1:length(xyDirectory)
+series = {
+    'test_start_channelonly';          % i. channel only crop of junc at start
+    'test_final_junc_20x_channelonly'  % ii. channel only crop of junc at end
+    };
+
+crops = {
+    'test_start*';
+    'test_final_junc_20x*'
+    };
+
+%% 1. for each image series, go to directory and initialize images
+
+for s = 1:length(series)
     
-    %% 1. read in image
-    I=imread(names{img});
+    % 1. open corresponding directory
+    newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/2017-11-15/',series{s});%,'  (t300)');
+    cd(newFolder);
+
+    % initialize image data
+    xyDirectory = dir(crops{s});
+    names = {xyDirectory.name};
     
-    % figure(1)
-    % imshow(I)
-    % imtool(I), displays image in grayscale with range
-    % imshow(I, 'DisplayRange',[2000 8000]);
+    % initialize sum intensity vector
+    sumIntensity = zeros(1,length(xyDirectory));
     
-    %% 2. calculate mean pixel intensity in x direction and timestamp
-    meanIntensity = mean(I,2);
-    timestamp = t0 + (img-1)*deltaTime;
+    % for each image
+    for img = 1:length(xyDirectory)
+        
+        %% 1. read in image
+        I=imread(names{img});
+        
+        % figure(1)
+        % imshow(I)
+        % imtool(I), displays image in grayscale with range
+        % imshow(I, 'DisplayRange',[2000 8000]);
+        
+        %% 2. calculate mean pixel intensity in x direction and timestamp
+        meanIntensity = mean(I,2);
+        
+        seriesTimestamps = timestamps(:,s);
+        timeVector = seriesTimestamps(~isnan(seriesTimestamps));
+        
+        %% 3. plot intensity in y direction over time
+        %figure(1)
+        %plot(meanIntensity)
+        %axis([1 414 1.6*10^4 3.6*10^4])
+        %axis([1 505 1.6*10^4 3.6*10^4])
+        %text(340,3.45*10^4, strcat(num2str(timestamp),'  sec'),'Color',[0 0 0],'FontSize',15);
+        
+        %% 4. save plot as timepoint
+        %filename = strcat('intensityPlot-junc-20x-frame',num2str(img),'.tif');
+        %saveas(gcf,filename)
+        
+        %% 5. calculate sum intensity of entire image, save sum in vector
+        sumIntensity_x = sum(I,2);
+        sumIntensity(img) = sum(sumIntensity_x);
+        
+        % 6. repeat for all images
+    end
     
-    %% 3. plot intensity in y direction over time
+    % 7. plot normalized intensity over time
+    lowInt = min(sumIntensity);
+    normIntensity = sumIntensity/lowInt;
+    
     figure(1)
-    plot(meanIntensity)
-    %axis([1 538 1.6*10^4 3.6*10^4])
-    axis([1 505 1.6*10^4 3.6*10^4])
-    text(430,3.45*10^4, strcat(num2str(timestamp),'  sec'),'Color',[0 0 0],'FontSize',15);
+    if s == 1
+        yyaxis left
+        plot(timeVector, normIntensity)
+        hold on
+        xlim([10 70])
+    else
+        yyaxis right
+        plot(timeVector, normIntensity)
+    end
     
-    %% 4. save plot as timepoint
-    filename = strcat('intensityPlot-junc-20x-frame',num2str(img),'.tif');
-    saveas(gcf,filename)
-
-% repeat for all images    
+    clear sumIntensity
 end
+
+legend('start','end')
+xlabel('time (sec)')
+ylabel('normalized signal intensity')
