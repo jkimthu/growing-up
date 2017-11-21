@@ -33,13 +33,13 @@ cd(exptFolder);
 timestamps = xlsread('2017-11-15-timestamps.xlsx');
 
 series = {
-    'test_start_channelonly';          % i. channel only crop of junc at start
-    'test_final_junc_20x_channelonly'  % ii. channel only crop of junc at end
+    'test_final_junc_60x';          % i. 60x mag of junc at end
+    'test_final_xy10'              % ii. 60x mag of xy10 at end
     };
 
 crops = {
-    'test_start*';
-    'test_final_junc_20x*'
+    'test_final_junc_60x*';
+    'test_final_xy10*'
     };
 
 %% 1. for each image series, go to directory and initialize images
@@ -71,7 +71,7 @@ for s = 1:length(series)
         %% 2. calculate mean pixel intensity in x direction and timestamp
         meanIntensity = mean(I,2);
         
-        seriesTimestamps = timestamps(:,s);
+        seriesTimestamps = timestamps(:,s+2);
         timeVector = seriesTimestamps(~isnan(seriesTimestamps));
         
         %% 3. plot intensity in y direction over time
@@ -92,24 +92,14 @@ for s = 1:length(series)
         % 6. repeat for all images
     end
     
-    % 7. plot normalized intensity over time
-    lowInt = min(sumIntensity);
-    normIntensity = sumIntensity/lowInt;
-    
+    % 7. plot raw intensity over time
     figure(1)
-    if s == 1
-        yyaxis left
-        plot(timeVector, normIntensity)
-        hold on
-        xlim([10 70])
-    else
-        yyaxis right
-        plot(timeVector, normIntensity)
-    end
+    plot(timeVector, sumIntensity)
+    hold on
     
     clear sumIntensity
 end
 
-legend('start','end')
+legend('junc 60x','xy10 60x')
 xlabel('time (sec)')
-ylabel('normalized signal intensity')
+ylabel('raw signal intensity')
