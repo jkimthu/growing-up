@@ -30,11 +30,10 @@
 
 % particle tracking data
 clear
-load('lb-fluc-2017-10-10-c123-width1p4-c4-width1p7.mat');
+load('lb-fluc-2017-11-01-c123-width1p4-c4-width1p7.mat');
 
 
 % reject data matrix
-D = Dcombo;
 rejectD = cell(4,length(D));
 
 % criteria counter
@@ -409,7 +408,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save('lb-fluc-2017-10-10-c123-width1p4-c4-1p7-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save('lb-fluc-2017-11-01-c123-width1p4-c4-1p7-jiggle-0p5.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
