@@ -114,7 +114,7 @@ for e = 1:length(dataIndex)
         [a,trackID]=hist(track_trim3,unique(track_trim3));
         trackLength = a';
         
-        % limit analysis to tracks >= 30 points long
+        % limit analysis to tracks ~ 20-30 mins long
         finalTracks = trackID(trackLength>=10);
         
         % calculate mean for each track
@@ -152,16 +152,27 @@ end
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 save('measuredData.mat','measuredData')
 
-%% 10. plot ave mu_va vs concentration
+%% 10. plot ave mu_va vs log concentration
 clc
 clear
 
 load('storedMetaData.mat')
 load('measuredData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
+numExperiments = length(dataIndex);
 
+% initialize data vector for fitting
+counter = 0;
+summaryMeans = zeros(1,(numExperiments-1)*3 + 6);
+summaryStds = zeros(1,(numExperiments-1)*3 + 6);
+summarySems = zeros(1,(numExperiments-1)*3 + 6);
+
+% one experiment (2017-09-26) is a monod with 6 conditions
+% the rest have three stable conditions
+summaryConcentrations = zeros(1,(numExperiments-1)*3 + 6); 
+                                                           
 % for each experiment, load data
-for e = 1:length(dataIndex)
+for e = 1:numExperiments
     
     % identify experiment by date
     index = dataIndex(e);
@@ -194,6 +205,12 @@ for e = 1:length(dataIndex)
         if ischar(timescale)
             errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color','k','MarkerSize',10);
             hold on
+
+            % for stable conditions, accumulate data into summary vector
+            counter = counter + 1;
+            summaryMeans(counter) = data_individuals{c}.muMean;
+            summaryConcentrations(counter) = concentration(c);
+
         elseif timescale == 30 && c == 1
             errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
             hold on
@@ -207,6 +224,11 @@ for e = 1:length(dataIndex)
         else
             errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color','k','MarkerSize',10);
             hold on
+            
+            % for stable conditions, accumulate data into summary vector
+            counter = counter + 1;
+            summaryMeans(counter) = data_individuals{c}.muMean;
+            summaryConcentrations(counter) = concentration(c);
         end
     end
     legend('30 sec','5 min','15 min','stable')
@@ -238,5 +260,52 @@ end
                
 %% 11. calculate and plot monod fit for data
 
+for i = 1:2
+    
+    % trim out lower concentrations since they seem messy?
+    if i == 1
+        conc = summaryConcentrations;
+        mu = summaryMeans;
+    else
+        conc = summaryConcentrations(summaryConcentrations >= 0.01);
+        mu = summaryMeans(summaryConcentrations >= 0.01);
+    end
+    
+    % calculate fit using nonlinear regression
+    michaelisMenten = @(b,x)( (b(1)*x) ./ (b(2)+x) );
+    beta0 = [2,0.001];
+    beta = nlinfit(conc,mu,michaelisMenten,beta0);
+    
+    % generate fit data
+    Vo = beta(1);
+    Km = beta(2);
+    substrate = 0:0.0001:1;
+    for s = 1:10001
+        Vmax(s) = Vo* ( substrate(s) / (Km + substrate(s)) );
+    end
+    
+    if i == 1
+        figure(5)
+        plot(substrate,Vmax,'r')
+        hold on
+        plot(summaryConcentrations, summaryMeans, 'o')
+        
+        figure(6)
+        plot(log(substrate),Vmax,'r')
+        hold on
+        plot(log(summaryConcentrations),summaryMeans,'o')
+    else
+        figure(5)
+        plot(substrate,Vmax,'k')
+        legend('fit','data','partial fit')
+        
+        figure(6)
+        plot(log(substrate),Vmax,'k')
+        legend('fit','data','partial fit')
+    end
+    xlabel('strength LB (fraction of full)')
+    ylabel('mu (1/hr)')
+end
+%% plot fit onto full data
 
-%%
+% performed manually
