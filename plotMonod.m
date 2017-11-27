@@ -67,7 +67,9 @@ for e = 1:length(dataIndex)
     
     % initialize structures for data storage
     compiledTrackMeans = cell(1,totalConditions);
+    compiledTrackStats = cell(1,totalConditions);
     compiledIndividualStats= cell(1,totalConditions);
+    
     
     for c = 1:totalConditions
         
@@ -126,7 +128,12 @@ for e = 1:length(dataIndex)
         
         % 7. accumulate data for storage
         compiledTrackMeans{c} = trackMeans;
-        compiledIndividualStats{c}.muMean = muMean; 
+        compiledTrackStats{c}.muMean = mean(trackMeans);
+        compiledTrackStats{c}.muStd = std(trackMeans);
+        compiledTrackStats{c}.muCounts = length(trackMeans);
+        compiledTrackStats{c}.muSem = std(trackMeans)./sqrt(length(trackMeans));
+        
+        compiledIndividualStats{c}.muMean = muMean;
         compiledIndividualStats{c}.muStd = muStd;
         compiledIndividualStats{c}.muCounts = muCounts;
         compiledIndividualStats{c}.muSem = muSem;
@@ -135,8 +142,9 @@ for e = 1:length(dataIndex)
         clear time_trim1 time_trim2 trackLength trackID a currentTrack
     end
     
-    % 8. store data from all conditions into measured data structure
+    % 8. store data from all conditions into measured data structure        
     measuredData{index}.tracks = compiledTrackMeans;
+    measuredData{index}.trackStats = compiledTrackStats;
     measuredData{index}.individuals = compiledIndividualStats;
     
 end
@@ -176,8 +184,8 @@ for e = 1:length(dataIndex)
         hold on
         legend(h(:),date)
     end
-    xlabel('mu, individual (1/hr)')
-    ylabel('log fold LB dilution')
+    ylabel('mu, individual (1/hr)')
+    xlabel('log fold LB dilution')
     
     % plot individual data, labeled by stable vs fluc
     figure(2)
@@ -202,8 +210,8 @@ for e = 1:length(dataIndex)
         end
     end
     legend('30 sec','5 min','15 min','stable')
-    xlabel('mu, individual (1/hr)')
-    ylabel('log fold LB dilution')
+    ylabel('mu, individual (1/hr)')
+    xlabel('log fold LB dilution')
     
     % plot track data, labeled by experiment date
     figure(3)
@@ -222,59 +230,13 @@ for e = 1:length(dataIndex)
         end
         axis([-10 2 0 4])
     end
-    xlabel('mu, track (1/hr)')
-    ylabel('log fold LB dilution')
+    ylabel('mu, track (1/hr)')
+    xlabel('log fold LB dilution')
     
 end
 
-%
-%                      10. calculate and plot fit curve (model: quadratic)
-%              11. repeat for all conditions
-%      12.  repeat for all experiments
                
-%%
+%% 11. calculate and plot monod fit for data
 
-    
-    for c = 1:max(conditions)
- 
-        
-        % 8. plot ave mu_va vs concentration
-        figure(1)
-        if e == 1
-            errorbar(concentrationList{e,c},muMean,muSem,'o','Color',[0 0.7 0.7],'MarkerSize',10)
-            axis([0,1.1,0,4])
-            grid on
-            hold on
-            xlabel('Concentration (Fraction LB)')
-            ylabel('doubling rate of volume (hr-1)')  
-        else
-            errorbar(concentrationList{e,c},muMean,muSem,'o','Color',[1 0.6 0],'MarkerSize',10)
-            axis([0,1.1,0,4])
-            hold on 
-        end
-        legend('expt1-1','expt1-1/8','expt1-1/32','expt1-1/100','expt1-1/1000','expt1-1/10000','fluc1','low1','ave1','high1')
-        
-        % 9. plot ave mu_va vs log(concentration)
-        figure(2)
-        if e == 1
-            errorbar(log10(concentrationList{e,c}),muMean,muSem,'o','Color',[0 0.7 0.7],'MarkerSize',10)
-            axis([-4,0.1,0,4])
-            grid on
-            hold on
-            xlabel('log concentration (Fraction LB)')
-            ylabel('doubling rate of volume (hr-1)')
-        else
-            errorbar(log10(concentrationList{e,c}),muMean,muSem,'o','Color',[1 0.6 0],'MarkerSize',10)
-            axis([-4,0.1,0,4])
-            hold on 
-        end
-        legend('expt1-1','expt1-1/8','expt1-1/32','expt1-1/100','expt1-1/1000','expt1-1/10000','fluc1','low1','ave1','high1')
 
-        
-    end
-    clear exptData M D5 T
-end
 %%
-% 10. calculate and plot fit (model: quadratic)
-qFit = fit(x,y,'smoothingspline','Exclude',2);
-figure(4); hold on; plot(qFit,x,y);
