@@ -10,12 +10,13 @@
 %                       3. isolate condition specific Mu_va and time data
 %                       4. remove mu data with timestamps prior to and after stabilization
 %                       5. remove zeros (always two at start and end of track) and negatives
-%                       6. calculate mean and sem
-%                       7. plot ave mu_va vs concentration
-
-%                       5. plot mu vs log(concentration)
-%               6. repeat for all conditions
-%       7.  repeat for all experiments
+%                       6. calculate: biovolume production rate = V(t) * mu(t) * ln(2)
+%                       7. isolate data to stabilized regions of growth
+%                       8. calculate average and s.e.m. per timebin
+%                       9. accumulate data for storage / plotting
+%               10. store data from all conditions into measured data structure
+%      11.  save stored data into data structure
+%      12.  plot average biovolume production rate over time
 %
 
 
