@@ -17,15 +17,17 @@
 %           7. woohoo!
 
 
-% last edit: jen, 2017 Oct 12
+% last edit: jen, 2017 Nov 29
 
 % OK LEZ GO!
-%%
+
+
+%% Initialize experiment data
 
 % 0. initialize data
 clear
 clc
-experiment = '2017-10-10';
+experiment = '2017-10-31';
 
 
 % TRACKING DATA
@@ -36,13 +38,14 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-fluc-2017-10-10-window5-jiggle-0p5-bigger1p8.mat','D5','D','M','T','rejectD');
+load('lb-fluc-2017-10-31-window5-width1p4-1p7-jiggle-0p5.mat');
 
 
 
-%%
+%% Assemble all data from experiment
+
 % build data matrix from fully trimmed data
-survivorDM = buildDM(D5,M,T);
+survivorDM = buildDM(D5,M,M_va,T);
 
 % build data matrix for each rejected track
 totalDM = buildRejectDM(D,T);
@@ -52,14 +55,13 @@ reject3_DM = buildRejectDM(rejectD(3,:),T);
 reject4_DM = buildRejectDM(rejectD(4,:),T);
 
 
+%% Initialize image data
 
-%%
-% IMAGE DATA
 % movie (xy position) of interest
-n = 31;
-movieNum = 31; % in case different than n
+n = 10;
+movieNum = 10; % in case different than n
 
-img_prefix = strcat('lb-fluc-2017-10-10_xy', num2str(movieNum), 'T'); 
+img_prefix = strcat('lb-fluc-2017-10-31_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -70,7 +72,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('lb-fluc-2017-10-10_xy*.tif');
+imgDirectory = dir('lb-fluc-2017-10-31_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
@@ -79,8 +81,8 @@ finalFrame = length(imgDirectory);
 clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
 
-%%
-% 1. isolate ellipse data from movie (stage xy) of interest
+%% 1. isolate ellipse data from movie (stage xy) of interest
+% 
 dm_survivors = survivorDM(survivorDM(:,31) == n,:);
 
 dm_total = totalDM(totalDM(:,31) == n,:);
@@ -128,7 +130,6 @@ end
 clear fr;
 
 
-%%
 % for each image
 for img = 1:length(names)
     
@@ -140,7 +141,7 @@ for img = 1:length(names)
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[2000 8000]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[2000 14000]); %lowering right # increases num sat'd pxls
     
     
     % 3. if no particles to display, save and skip
