@@ -27,7 +27,7 @@
 % 0. initialize data
 clear
 clc
-experiment = '2017-10-31';
+experiment = '2017-11-12';
 
 
 % TRACKING DATA
@@ -38,7 +38,7 @@ cd(newFolder);
 % FROM DATA TRIMMER
 % particle tracking data
 clear
-load('lb-fluc-2017-10-31-window5-width1p4-1p7-jiggle-0p5.mat');
+load('lb-fluc-2017-11-12-window5-width1p4-1p7-jiggle-0p5.mat');
 
 
 
@@ -61,7 +61,7 @@ reject4_DM = buildRejectDM(rejectD(4,:),T);
 n = 10;
 movieNum = 10; % in case different than n
 
-img_prefix = strcat('lb-fluc-2017-10-31_xy', num2str(movieNum), 'T'); 
+img_prefix = strcat('lb-fluc-2017-11-12_xy', num2str(movieNum), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 % open folder for images of interest (one xy position of experiment)
@@ -72,7 +72,7 @@ cd(img_folder);
 conversionFactor = 6.5/60;      %  scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 
 % image names in chronological order
-imgDirectory = dir('lb-fluc-2017-10-31_xy*.tif');
+imgDirectory = dir('lb-fluc-2017-11-12_xy*.tif');
 names = {imgDirectory.name};
 
 % total frame number
