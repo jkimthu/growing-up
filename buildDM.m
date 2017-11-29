@@ -46,13 +46,6 @@ vcAdded_incremental_sinceBirth = [];
 veAdded_incremental_sinceBirth = [];
 vaAdded_incremental_sinceBirth = [];
 
-allDurations = [];
-allDeltas = [];
-allTimestamps = [];
-
-birthSizes = [];
-birthTimes = [];
-
 curveDurations = [];  % col 8
 addedDelta = [];      % col 11
 addedVC = [];
@@ -286,13 +279,6 @@ lengthAdded_incremental_sinceBirth = NaN(length(angle),1);
 vcAdded_incremental_sinceBirth = NaN(length(angle),1);
 veAdded_incremental_sinceBirth = NaN(length(angle),1);
 vaAdded_incremental_sinceBirth = NaN(length(angle),1);
-
-allDurations = NaN(length(angle),1);
-allDeltas = NaN(length(angle),1);
-allTimestamps = NaN(length(angle),1);
-
-birthSizes = NaN(length(angle),1);
-birthTimes = NaN(length(angle),1);
 
 addedVC = NaN(length(angle),1);
 addedVE = NaN(length(angle),1);
