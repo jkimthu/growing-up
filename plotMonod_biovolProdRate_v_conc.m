@@ -20,7 +20,7 @@
 %
 
 
-% last updated: 2017 November 28
+% last updated: 2017 Dec 1
 
 %% 0. initialize experiment data
 clear
