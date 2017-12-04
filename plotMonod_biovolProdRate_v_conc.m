@@ -20,7 +20,7 @@
 %
 
 
-% last updated: 2017 Dec 1
+% last updated: 2017 Dec 4
 
 %% 0. initialize experiment data
 clear
@@ -125,6 +125,7 @@ for e = 1:experimentCount
     % 10. store data from all conditions into measured data structure        
     bioProdRateData{index} = compiledbioProdRate;
     
+    clear compiledbioProdRate
 end
 
 
@@ -212,3 +213,54 @@ for e = 1:experimentCount
     
 end
 
+%% 13. calculate and plot monod fit for data
+
+for i = 1:2
+    
+    % trim out lower concentrations since they seem messy?
+    if i == 1
+        conc = summaryConcentrations;
+        mu = summaryMeans;
+    else
+        conc = summaryConcentrations(summaryConcentrations >= 0.01);
+        mu = summaryMeans(summaryConcentrations >= 0.01);
+    end
+    
+    % lowest growth rate as y-intercept
+    C = min(summaryMeans);
+    
+    % calculate fit using nonlinear regression
+    michaelisMenten = @(b,x)( (b(1)*x) ./ (b(2)+x) + C);
+    beta0 = [15,0.05];
+    beta = nlinfit(conc,mu,michaelisMenten,beta0);
+    
+    % generate fit data
+    Vo = beta(1);
+    Km = beta(2);
+    substrate = 0:0.0001:1;
+    for s = 1:10001
+        Vmax(s) = Vo* ( substrate(s) / (Km + substrate(s)) );
+    end
+    
+    if i == 1
+        figure(5)
+        plot(substrate,Vmax,'r')
+        hold on
+        plot(summaryConcentrations, summaryMeans, 'o')
+        
+        figure(6)
+        plot(log(substrate),Vmax,'r')
+        hold on
+        plot(log(summaryConcentrations),summaryMeans,'o')
+    else
+        figure(5)
+        plot(substrate,Vmax,'k')
+        legend('fit','data','partial fit')
+        
+        figure(6)
+        plot(log(substrate),Vmax,'k')
+        legend('fit','data','partial fit')
+    end
+    xlabel('strength LB (fraction of full)')
+    ylabel('biovol production rate (um3/hr)')
+end
