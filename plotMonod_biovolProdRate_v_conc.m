@@ -20,7 +20,7 @@
 %
 
 
-% last updated: 2017 Dec 4
+% last updated: 2017 Dec 5
 
 %% 0. initialize experiment data
 clear
@@ -215,55 +215,49 @@ end
 
 %% 13. calculate and plot monod fit for data
 
-for i = 1:2
-    
-    % trim out lower concentrations since they seem messy?
-    if i == 1
-        conc = summaryConcentrations;
-        mu = summaryMeans;
-    else
-        conc = summaryConcentrations(summaryConcentrations >= 0.01);
-        mu = summaryMeans(summaryConcentrations >= 0.01);
-    end
-    
-    % lowest growth rate as y-intercept
-    C = min(summaryMeans);
-    
-    % calculate fit using nonlinear regression
-    michaelisMenten = @(b,x)( (b(1)*x) ./ (b(2)+x) + C);
-    beta0 = [15,0.05];
-    beta = nlinfit(conc,mu,michaelisMenten,beta0);
-    
-    % generate fit data
-    Vo = beta(1);
-    Km = beta(2);
-    substrate = 0:0.0001:1;
-    for s = 1:10001
-        Vmax(s) = Vo* ( substrate(s) / (Km + substrate(s)) );
-    end
-    
-    if i == 1
-        figure(5)
-        plot(substrate,Vmax,'r')
-        hold on
-        plot(summaryConcentrations, summaryMeans, 'o')
-        
-        figure(6)
-        plot(log(substrate),Vmax,'r')
-        hold on
-        plot(log(summaryConcentrations),summaryMeans,'o')
-    else
-        figure(5)
-        plot(substrate,Vmax,'k')
-        legend('fit','data','partial fit')
-        
-        figure(6)
-        plot(log(substrate),Vmax,'k')
-        legend('fit','data','partial fit')
-    end
-    xlabel('strength LB (fraction of full)')
-    ylabel('biovol production rate (um3/hr)')
+
+% initialize concentration and biovol production rate data for stable
+% environments only
+conc = summaryConcentrations;
+bioVolProdRate = summaryMeans;
+
+% lowest growth rate as y-intercept
+C = min(summaryMeans);
+
+% highest growth rate as Vmax
+Vmax = max(summaryMeans);
+
+% calculate fit using nonlinear regression
+michaelisMenten = @(b,x)( (Vmax*x) ./ (b+x) + C);
+beta0 = 0.01;
+beta = nlinfit(conc,bioVolProdRate,michaelisMenten,beta0);
+
+% generate fit data
+Km = beta;
+substrate = 0:0.0001:1;
+for s = 1:10001
+    V(s) = Vmax* ( substrate(s) / (Km + substrate(s)) ) + C;
 end
+
+
+figure(5)
+plot(substrate,V,'r')
+hold on
+plot(summaryConcentrations, summaryMeans, 'o')
+legend('fit','data')
+xlabel('strength LB (fraction of full)')
+ylabel('biovol production rate (um3/hr)')
+
+figure(6)
+plot(log(substrate),V,'r')
+hold on
+plot(log(summaryConcentrations),summaryMeans,'o')
+legend('fit','data')
+xlabel('log LB dilution')
+ylabel('biovol production rate (um3/hr)')
+
+
+
 
 %%
 
