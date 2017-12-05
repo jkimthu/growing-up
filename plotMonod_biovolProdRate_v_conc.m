@@ -264,3 +264,20 @@ for i = 1:2
     xlabel('strength LB (fraction of full)')
     ylabel('biovol production rate (um3/hr)')
 end
+
+%%
+
+highMeans = summaryMeans(summaryConcentrations == 0.02);
+aveMeans = summaryMeans(summaryConcentrations == 0.0105);
+lowMeans = summaryMeans(summaryConcentrations == 0.001);
+
+figure(7)
+errorbar(1, mean(lowMeans), std(lowMeans),'o')
+hold on
+errorbar(2, mean(aveMeans), std(aveMeans),'o')
+hold on
+errorbar(3, mean(highMeans),std(highMeans),'o')
+xlabel('condition')
+ylabel('mean biovolume prod rate with st dev')
+legend('stable low','stable ave','stable high')
+axis([0 4 0 16])
