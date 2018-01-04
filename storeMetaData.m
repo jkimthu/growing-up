@@ -6,6 +6,9 @@
 %               1. experiment date
 %               2. fluctuating timescale
 %               3. bubble occurrence? 0 (no) or time in hours (yes)
+%               4. concentrations
+%               5. xys per condition: each row represents a condition
+%               6. signal timestamp: first printed line of signal onset
 %
 %       each field is stored in a structure, contained in a matrix of cells,
 %       such that:
@@ -15,7 +18,7 @@
 %                       3. 900 sec (15 min)
 %                       4. none    (monod)
 %               2. each row is a different experimental replicate
-%
+
 
 
 % strategy:
@@ -32,12 +35,14 @@
 %       7. prompt user for bubbles in ave
 %       8. prompt user for bubbles in high
 %       9. assign bubble appearance times to field (bubbletime)
-%      10. assign data structure to new (experiment-specific cell)
-%      11. save stored meta data
+%      10. prompt user for signal timestamp
+%      11. assign data structure to new (experiment-specific cell)
+%      12. save stored meta data
 
 
 
-% last updated: 2017 Dec 1
+% last updated: 2017 Jan 4
+% commit message: added signal timestamp to stored variable list
 
 % OK let's go!
 
@@ -113,8 +118,14 @@ bubbles_condition3 = input(prompt);
 %metadata(1).bubbletime = [haltFluc; haltLow; haltAve; haltHigh];
 metadata(1).bubbletime = [bubbles_condition1; bubbles_condition2; bubbles_condition3];
 
-%% 10. assign data structure to new (experiment-specific cell)
+% 10. prompt user for signal timestamp
+prompt = 'Enter signal timestamp (enter NaN if non-existent or not applicable): ';
+signal_timestamp = input(prompt);
+metadata(1).signal_timestamp = signal_timestamp;
+
+%% 11. assign data structure to new (experiment-specific cell)
+% note, manually enter row to store
 storedMetaData{2,column} = metadata;
 
-% 11. save storedMetaData
+% 12. save storedMetaData
 save('storedMetaData.mat','storedMetaData')
