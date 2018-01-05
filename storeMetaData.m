@@ -19,8 +19,6 @@
 %                       4. none    (monod)
 %               2. each row is a different experimental replicate
 
-
-
 % strategy:
 %
 %       0. initialize dimensions of current data structure
@@ -39,10 +37,13 @@
 %      11. assign data structure to new (experiment-specific cell)
 %      12. save stored meta data
 
+%      13. to add new variables to previously saved cells:
 
 
-% last updated: 2017 Jan 4
-% commit message: added signal timestamp to stored variable list
+% last updated: 2017 Jan 5
+% commit message: add section to insert new variable into already saved
+%                 cells of experiment meta data
+
 
 % OK let's go!
 
@@ -124,8 +125,50 @@ signal_timestamp = input(prompt);
 metadata(1).signal_timestamp = signal_timestamp;
 
 %% 11. assign data structure to new (experiment-specific cell)
-% note, manually enter row to store
-storedMetaData{2,column} = metadata;
+
+% prompt user for row number
+prompt = 'Enter row number of new experiment replicate: ';
+row = input(prompt);
+storedMetaData{row,column} = metadata;
 
 % 12. save storedMetaData
 save('storedMetaData.mat','storedMetaData')
+
+%% 13. add new variable to pre-existing cell of experiment meta data
+
+clear
+clc
+
+cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+load('storedMetaData.mat')
+
+% initialize summary vectors for calculated data
+dataIndex = find(~cellfun(@isempty,storedMetaData));
+bioProdRateData = cell(size(storedMetaData));
+experimentCount = length(dataIndex);
+
+copyMD = storedMetaData;
+
+% a. for all cells with values
+for e = 1:experimentCount
+    
+    % b. print date
+    index = dataIndex(e);
+    date = storedMetaData{index}.date;
+      
+    % c. prompt user to enter value of variable
+    prompt = strcat('Enter value of new variable (signal timestamp of .', date,' data): ');
+    signal_timestamp = input(prompt);
+
+    % d. store variable
+    currentStructure = copyMD{index};
+    currentStructure.signal_timestamp = signal_timestamp;
+    
+    copyMD{index} = currentStructure;
+
+% f. loop through all experiments
+end
+%%
+storedMetaData = copyMD;
+save('storedMetaData.mat','storedMetaData')
+
