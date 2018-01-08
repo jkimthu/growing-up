@@ -40,9 +40,8 @@
 %      13. to add new variables to previously saved cells:
 
 
-% last updated: 2017 Jan 5
-% commit message: add section to insert new variable into already saved
-%                 cells of experiment meta data
+% last updated: 2017 Jan 8
+% commit message: create new cell for experiment 2018-01-04, 30 sec
 
 
 % OK let's go!
@@ -78,46 +77,52 @@ metadata(1).date = date;
 
 % 4. generate data structure to assign to new cell
 %    i. designate concentrations
-% lowConc = 1/1000;
-% aveConc = 105/10000;
-% highConc = 1/50;
-% flucConc = aveConc;
-% metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
-metadata(1).concentrations = [1/100; 1/100; 1/100];
+lowConc = 1/1000;
+aveConc = 105/10000;
+highConc = 1/50;
+flucConc = aveConc;
+metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
+
 
 %   ii. designate xy positions
-% xyfluc = 1:10;
-% xylow = 11:20;
-% xyave = 21:30;
-% xyhigh = 31:40;
-% metadata(1).xys = [xyfluc; xylow; xyave; xyhigh];
-metadata(1).xys = [1:10; 11:20; 21:30];
+xyfluc = 1:10;
+xylow = 11:20;
+xyave = 21:30;
+xyhigh = 31:40;
+metadata(1).xys = [xyfluc; xylow; xyave; xyhigh];
+
 
 % 5. prompt user for bubbles in fluc, assign to field
-% prompt = 'Enter time at which bubbles appeared in fluc (enter 0 if perfect): ';
-% haltFluc = input(prompt);
-prompt = 'Enter time at which bubbles appeared in condition 1 (enter 0 if perfect): ';
-bubbles_condition1 = input(prompt);
+prompt = 'Enter time at which bubbles appeared in fluc (enter 0 if perfect): ';
+haltFluc = input(prompt);
+
+% for monod / controls
+% prompt = 'Enter time at which bubbles appeared in condition 1 (enter 0 if perfect): ';
+% bubbles_condition1 = input(prompt);
 
 % 6. prompt user for bubbles in low, assign to field
-% prompt = 'Enter time at which bubbles appeared in low (enter 0 if perfect): ';
-% haltLow = input(prompt);
-prompt = 'Enter time at which bubbles appeared in condition 2 (enter 0 if perfect): ';
-bubbles_condition2 = input(prompt);
+prompt = 'Enter time at which bubbles appeared in low (enter 0 if perfect): ';
+haltLow = input(prompt);
+
+% for monod / controls
+% prompt = 'Enter time at which bubbles appeared in condition 2 (enter 0 if perfect): ';
+% bubbles_condition2 = input(prompt);
 
 % 7. prompt user for bubbles in ave, assign to field
-% prompt = 'Enter time at which bubbles appeared in ave (enter 0 if perfect): ';
-% haltAve = input(prompt);
-prompt = 'Enter time at which bubbles appeared in condition 3 (enter 0 if perfect): ';
-bubbles_condition3 = input(prompt);
+prompt = 'Enter time at which bubbles appeared in ave (enter 0 if perfect): ';
+haltAve = input(prompt);
+
+% for monod / controls
+% prompt = 'Enter time at which bubbles appeared in condition 3 (enter 0 if perfect): ';
+% bubbles_condition3 = input(prompt);
 
 % 8. prompt user for bubbles in high, assign to field
-% prompt = 'Enter time at which bubbles appeared in high (enter 0 if perfect): ';
-% haltHigh = input(prompt);
+prompt = 'Enter time at which bubbles appeared in high (enter 0 if perfect): ';
+haltHigh = input(prompt);
 
 % 9. assign bubble appearance times to field (bubbletime)
-%metadata(1).bubbletime = [haltFluc; haltLow; haltAve; haltHigh];
-metadata(1).bubbletime = [bubbles_condition1; bubbles_condition2; bubbles_condition3];
+metadata(1).bubbletime = [haltFluc; haltLow; haltAve; haltHigh];
+%metadata(1).bubbletime = [bubbles_condition1; bubbles_condition2; bubbles_condition3];
 
 % 10. prompt user for signal timestamp
 prompt = 'Enter signal timestamp (enter NaN if non-existent or not applicable): ';
@@ -131,7 +136,7 @@ prompt = 'Enter row number of new experiment replicate: ';
 row = input(prompt);
 storedMetaData{row,column} = metadata;
 
-% 12. save storedMetaData
+%% 12. save storedMetaData
 save('storedMetaData.mat','storedMetaData')
 
 %% 13. add new variable to pre-existing cell of experiment meta data
