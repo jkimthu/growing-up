@@ -6,6 +6,8 @@
 %
 %       0. initialize experiment data
 %       1. for each experiment...load data
+%               -  identify date
+%               -  continue to exclude outlier: 2017-10-31
 %               2. for each condition in experiment...
 %                       3. isolate condition specific Mu_va and time data
 %                       4. remove mu data with timestamps prior to and after stabilization
@@ -20,7 +22,10 @@
 %
 
 
-% last updated: 2017 Dec 5
+% last updated: 2017 Jan 8
+% commit: update bvp monod to include 2018-01-04, also added exclusion of
+%         outlier experiments (2017-10-31)
+
 
 %% 0. initialize experiment data
 clear
@@ -142,6 +147,7 @@ load('storedMetaData.mat')
 load('bioProdRateData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 experimentCount = length(dataIndex);
+latestExpt = '2018-01-04';
 
 % initialize summary stats for fitting
 counter = 0;
@@ -153,7 +159,17 @@ for e = 1:experimentCount
     
     % identify experiment by date
     index = dataIndex(e);
-    date{e} = storedMetaData{index}.date;
+    date = storedMetaData{index}.date;
+    
+    % exclude outlier from analysis
+    if strcmp(date, '2017-10-31') == 1
+        disp(strcat(date,': excluded from analysis'))
+        continue
+    end
+    disp(strcat(date, ': analyze!'))
+    
+%     % collect analyzed dates for legend
+%     analyzedDates{e} = date;
     
     % load timescale
     timescale = storedMetaData{index}.timescale;
@@ -167,10 +183,10 @@ for e = 1:experimentCount
     % plot, labeled by experiment date
     figure(1)
     for c = 1:length(concentration)
-        h(e) = errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[0 1 1]*e*.1,'MarkerSize',10);
+        h(e) = errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[1 1 1]*e*.1,'MarkerSize',10);
         hold on
-        legend(h(:),date)
-    end
+    end 
+    legend(e)
     ylabel('biomass prodution rate (cubic um/hr)')
     xlabel('log fold LB dilution')
     
