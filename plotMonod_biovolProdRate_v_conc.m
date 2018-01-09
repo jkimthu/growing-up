@@ -27,7 +27,9 @@
 %         outlier experiments (2017-10-31)
 
 
-%% 0. initialize experiment data
+%% Add NEW experiment to bioProdRate data structure 
+
+% 0. initialize experiment data
 clear
 clc
 
@@ -40,7 +42,7 @@ bioProdRateData = cell(size(storedMetaData));
 % initialize summary vectors for calculated data
 experimentCount = length(dataIndex);
 
-%% 1. for each experiment, move to folder and load data
+% 1. for each experiment, move to folder and load data
 
 for e = 1:experimentCount
     
@@ -134,7 +136,7 @@ for e = 1:experimentCount
 end
 
 
-%% 11. save stored data into data structure
+%% 11. Save new data into stored data structure
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 save('bioProdRateData.mat','bioProdRateData')
 
@@ -273,9 +275,7 @@ xlabel('log LB dilution')
 ylabel('biovol production rate (um3/hr)')
 
 
-
-
-%%
+%% Calculating mean growth at each stable concentration across experiments
 
 highMeans = summaryMeans(summaryConcentrations == 0.02);
 aveMeans = summaryMeans(summaryConcentrations == 0.0105);
