@@ -41,7 +41,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-01-04';
+experiment = '2018-01-11';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -224,7 +224,7 @@ for n = 1:length(D5)
 end
 
 
-save('lb-fluc-2018-01-04-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+save('lb-fluc-2018-01-11-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks

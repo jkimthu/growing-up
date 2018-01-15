@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2018 Jan 4
+%  Last modified (jen): 2018 Jan 15
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -43,7 +43,7 @@
 %% 1. create directory of movies
 clear
 
-xyDirectory = dir('fluc-2018-01-04_xy*.nd2');
+xyDirectory = dir('lb-fluc-2018-01-11_xy*.nd2');
 names = {xyDirectory.name};
 
 
@@ -91,7 +91,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1:7 %11:NSeries
+for ii = 8:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -99,7 +99,7 @@ for ii = 1:7 %11:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-33.1034, -1]; %threshold for 2018-01-04     
+    Threshold =  [-19.3103, -1]; %threshold for 2018-01-11     
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -164,7 +164,7 @@ for ii = 1:7 %11:NSeries
 end
 
 
-save('lb-fluc-2018-01-04-c123-width1p4-c4-width1p7.mat','D','T')
+save('lb-fluc-2018-01-11-c123-width1p4-c4-width1p7.mat','D','T')
 
 
    %% Section Three (E): clear section variables.

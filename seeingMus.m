@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2018 Jan 08
+% last updated: jen, 2018 Jan 11
 
  
 
@@ -29,7 +29,7 @@
 % Initialize
 clear;
 clc;
-date = '2018-01-04';
+date = '2018-01-11';
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
 load(strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat'),'D5','M','M_va','T');
 
