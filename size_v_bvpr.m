@@ -1,7 +1,7 @@
 % size_v_bvpr
 
 % goal: plot cell size at birth against biovolume production rate,
-%       for a specific concentration
+%       for a specific concentration (i.e. average)
 
 % strategy:
 %
@@ -22,9 +22,13 @@
 %
 
 
-% last updated: 2017 November 28
+% last updated: 2018 Jan 19
+% commit: update to include new experiments, Jan 4, 11, 12, 16 and 17
+%         add experimental date to point plotted  
+
 
 % OK let's go!!
+
 %% 0. initialize data
 
 clear
@@ -42,7 +46,7 @@ experimentCount = length(dataIndex);
 % determine target concentration
 targetConcentration = 0.0105; % average
 
-%% 1. create a directory of experiments with target concentration
+%% 1. create a directory of conditions with target concentration
 targetConditions = cell(1,experimentCount);
 
 for e = 1:experimentCount
@@ -51,6 +55,7 @@ for e = 1:experimentCount
     index = dataIndex(e);
     concentrations = storedMetaData{index}.concentrations;
     
+    % each cell represents an experiment, each value a condition of target concentration
     targetConditions{e} = find(concentrations == targetConcentration);
     
 end
@@ -63,12 +68,20 @@ for e = 1:experimentCount
     if isempty(targetConditions{e})
         continue
     end
+    
 
     % 3. move to experiment folder and build data matrix
     
     % identify experiment by date
     index = dataIndex(e);
     date = storedMetaData{index}.date;
+    
+    % exclude outlier from analysis
+%     if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
+%         disp(strcat(date,': excluded from analysis'))
+%         continue
+%     end
+%     disp(strcat(date, ': analyze!'))
     
     experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
     cd(experimentFolder)
@@ -151,11 +164,14 @@ end
 
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('bioProdRateData.mat')
+
+% measuredData is a variable created in plotMonod.m
 load('measuredData.mat')
 
 %%
 % initialize data vector for easy plotting
 counter = 0;
+summaryDates = cell(1,(experimentCount-1)*2);
 summarySizes = zeros(1,(experimentCount-1)*2);
 summaryStds = zeros(1,(experimentCount-1)*2);
 summarySems = zeros(1,(experimentCount-1)*2);
@@ -163,45 +179,60 @@ summaryBVPRs = zeros(1,(experimentCount-1)*2);
 summaryMus = zeros(1,(experimentCount-1)*2);
 summaryTimescales = cell(1,(experimentCount-1)*2);
 
-%%
+
 for e = 1:experimentCount
     
     % identify conditions with target concentration
     index = dataIndex(e);
+    date = storedMetaData{index}.date;
+    
+    % exclude outlier from analysis
+%     if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
+%         disp(strcat(date,': excluded from analysis'))
+%         continue
+%     end
+%     disp(strcat(date, ': analyze!'))
     
     for i = 1:length(targetConditions{e})
         c = targetConditions{e}(i);
         
         counter = counter + 1;
+        summaryDates{counter} = date;
         summarySizes(counter) = birthSizeData{index}{c}.mean;
         summaryStds(counter) = birthSizeData{index}{c}.std;
         summarySems(counter) = birthSizeData{index}{c}.sem;
         summaryBVPRs(counter) = bioProdRateData{index}{c}.mean;
         summaryMus(counter) = measuredData{index}.individuals{c}.muMean;
         
+        
         summaryTimescales{counter} = birthSizeData{index}{c}.timescale;
     end
 end
 
 %%
+shift = 0.1;
 
 figure(1)
 for p = 1:counter
     
     if mod(p,2) == 0
         h(p) = errorbar(summaryBVPRs(p),summarySizes(p),summarySems(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
    
     elseif summaryTimescales{p} == 30
         h(p) = errorbar(summaryBVPRs(p),summarySizes(p),summarySems(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
 
     elseif summaryTimescales{p} == 300
         h(p) = errorbar(summaryBVPRs(p),summarySizes(p),summarySems(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     elseif summaryTimescales{p} == 900
         h(p) = errorbar(summaryBVPRs(p),summarySizes(p),summarySems(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     end
@@ -217,19 +248,23 @@ for p = 1:counter
     
     if mod(p,2) == 0
         h(p) = errorbar(summaryMus(p),summarySizes(p),summarySems(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         axis([0 4 1 5])
         hold on
    
     elseif summaryTimescales{p} == 30
         h(p) = errorbar(summaryMus(p),summarySizes(p),summarySems(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
 
     elseif summaryTimescales{p} == 300
         h(p) = errorbar(summaryMus(p),summarySizes(p),summarySems(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     elseif summaryTimescales{p} == 900
         h(p) = errorbar(summaryMus(p),summarySizes(p),summarySems(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        text(summaryBVPRs(p)+.2,summarySizes(p)+.2, summaryDates(p),'FontSize',10);
         hold on
         
     end

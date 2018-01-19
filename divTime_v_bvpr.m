@@ -22,9 +22,10 @@
 %
 
 
-% last updated: 2017 November 28
+% last updated: 2018 January 19
 
 % OK let's go!!
+
 %% 0. initialize data
 
 clear
@@ -161,10 +162,10 @@ load('measuredData.mat')
 % initialize data vector for easy plotting
 counter = 0;
 summaryDurations = zeros(1,(experimentCount-1)*2);
-summaryStds = zeros(1,(experimentCount-1)*2);
-summarySems = zeros(1,(experimentCount-1)*2);
-summaryBVPRs = zeros(1,(experimentCount-1)*2);
-summaryMus = zeros(1,(experimentCount-1)*2);
+summaryStds_durations = zeros(1,(experimentCount-1)*2);
+summarySems_durations = zeros(1,(experimentCount-1)*2);
+summaryBVPRs_durations = zeros(1,(experimentCount-1)*2);
+summaryMus_durations = zeros(1,(experimentCount-1)*2);
 summaryTimescales = cell(1,(experimentCount-1)*2);
 
 
@@ -178,10 +179,10 @@ for e = 1:experimentCount
         
         counter = counter + 1;
         summaryDurations(counter) = ccDurationsData{index}{c}.mean/60;
-        summaryStds(counter) = ccDurationsData{index}{c}.std;
-        summarySems(counter) = ccDurationsData{index}{c}.sem;
-        summaryBVPRs(counter) = bioProdRateData{index}{c}.mean;
-        summaryMus(counter) = measuredData{index}.individuals{c}.muMean;
+        summaryStds_durations(counter) = ccDurationsData{index}{c}.std;
+        summarySems_durations(counter) = ccDurationsData{index}{c}.sem;
+        summaryBVPRs_durations(counter) = bioProdRateData{index}{c}.mean;
+        summaryMus_durations(counter) = measuredData{index}.individuals{c}.muMean;
         
         summaryTimescales{counter} = ccDurationsData{index}{c}.timescale;
     end
@@ -193,19 +194,19 @@ figure(1)
 for p = 1:counter
     
     if mod(p,2) == 0
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        h(p) = errorbar(summaryBVPRs_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
         hold on
    
     elseif summaryTimescales{p} == 30
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        h(p) = errorbar(summaryBVPRs_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0 0],'MarkerSize',10); % red
         hold on
 
     elseif summaryTimescales{p} == 300
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        h(p) = errorbar(summaryBVPRs_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
         hold on
         
     elseif summaryTimescales{p} == 900
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        h(p) = errorbar(summaryBVPRs_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
         hold on
         
     end
@@ -220,20 +221,20 @@ figure(2)
 for p = 1:counter
     
     if mod(p,2) == 0
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        h(p) = errorbar(summaryMus_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
         axis([0.5 3 -20 70])
         hold on
    
     elseif summaryTimescales{p} == 30
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        h(p) = errorbar(summaryMus_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0 0],'MarkerSize',10); % red
         hold on
 
     elseif summaryTimescales{p} == 300
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        h(p) = errorbar(summaryMus_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
         hold on
         
     elseif summaryTimescales{p} == 900
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        h(p) = errorbar(summaryMus_durations(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
         hold on
         
     end
