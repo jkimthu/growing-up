@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2018 Jan 17
+%  Last modified (jen): 2018 Jan 18
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -43,7 +43,7 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-01-16';
+experiment = '2018-01-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -106,7 +106,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-17.5172, -1]; %threshold for 2018-01-16     
+    Threshold =  [-15.8621, -1]; %threshold for 2018-01-17     
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -171,7 +171,7 @@ for ii = 1:NSeries
 end
 
 
-save('lb-fluc-2018-01-16-c123-width1p4-c4-width1p7.mat','D','T')
+save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')
 
 
    %% Section Three (E): clear section variables.
