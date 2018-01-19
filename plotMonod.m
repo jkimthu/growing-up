@@ -20,7 +20,7 @@
 %   
 
 
-% last updated: 2017 November 24
+% last updated: 2018 January 19
 
 %% 0. initialize experiment data
 clear
@@ -191,7 +191,7 @@ for e = 1:numExperiments
     % plot individual data, labeled by experiment date
     figure(1)
     for c = 1:length(concentration)
-        h(e) = errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0 1 1]*e*.1,'MarkerSize',10);
+        h(e) = errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0 1 1]*e*.05,'MarkerSize',10);
         hold on
         legend(h(:),date)
     end
@@ -244,7 +244,7 @@ for e = 1:numExperiments
     
     for c = 1:length(concentration)
         if ~isempty(data_tracks{c})
-            p(e) = errorbar(log(concentration(c)), expMeans(c), expSems(c),'o','Color',[0 1 1]*e*.1,'MarkerSize',10);
+            p(e) = errorbar(log(concentration(c)), expMeans(c), expSems(c),'o','Color',[0 1 1]*e*.05,'MarkerSize',10);
             hold on
             legend(p(:),date)
         else
