@@ -22,9 +22,8 @@
 %
 
 
-% last updated: 2017 Jan 8
-% commit: update bvp monod to include 2018-01-04, also added exclusion of
-%         outlier experiments (2017-10-31)
+% last updated: 2017 Jan 19
+% commit: update bvp monod to include new experiment, Jan 17
 
 
 %% Add NEW experiment to bioProdRate data structure 
@@ -185,7 +184,7 @@ for e = 1:experimentCount
     % plot, labeled by experiment date
     figure(1)
     for c = 1:length(concentration)
-        h(e) = errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[1 1 1]*e*.1,'MarkerSize',10);
+        h(e) = errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[1 1 1]*e*.05,'MarkerSize',10);
         hold on
     end 
     legend(e)
