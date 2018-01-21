@@ -1,7 +1,5 @@
 % singlePeriodMus
 
-
-
 %  Goal: plot average of mus, binned by period fraction
 
 
@@ -18,9 +16,10 @@
 
 
 
-%  Last edit: jen, 2017 Jan 8
-%  Commit: add section that aligns all curves according to signal timestamp
-%  and normalizes fluctuating signal with mean of stable ave
+%  Last edit: jen, 2017 Jan 21
+
+%  commit: re-do analysis up to 2018-01-17 experiments with 20 bins instead
+%  of 40 per period
 
 
 %% original, single experiment plots with high pulse in center
@@ -201,7 +200,7 @@ clc
 clear
 
 % 0. initialize analysis parameters
-binsPerPeriod = 40;
+binsPerPeriod = 20;
 
 % 0. initialize complete meta data
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
