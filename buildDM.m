@@ -4,12 +4,12 @@
 % ideal for smaller inputs that take less time to process.
 
 % last updated: jen, 2018 Jan 25
-% commit: remove unneeded parameters from dataMatrix and update comments
+% commit: edit function to receive inputs for which xy positions (start and end n values) to loop through
 
 
-function [dm] = buildDM(D5,M,M_va,T)
+function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end)
 %% initialize all values
- 
+
 condVals = [];     % col 28
 
 trackID = [];      % col 1
@@ -53,7 +53,7 @@ angle = [];       % col 26
 
 %% loop through all xy positions and all tracks for data concatenation
 
-for n = 1:length(D5)
+for n = xy_start:xy_end
 
     for m = 1:length(D5{n})                                                
         
