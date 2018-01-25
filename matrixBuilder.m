@@ -7,6 +7,7 @@
 %        organized matrix
 %
 %  Last edit: Jen Nguyen, Sept 25 2017
+%  retired on 2018 Jan 25
 
 %  NOTE!!!
 %  code is only updated for 34 columns.
