@@ -4,111 +4,102 @@
 % ideal for smaller inputs that take less time to process.
 
 % last updated: jen, 2018 Jan 25
-% commit: include addedVa, the volume (Va) added per cell cycle, to assembled matrix
+% commit: remove unneeded parameters from dataMatrix and update comments
 
 
 function [dm] = buildDM(D5,M,M_va,T)
 %% initialize all values
  
-condVals = [];    % col 35 (of 35 columns)
+condVals = [];     % col 28
 
-trackID = [];     % col 1
-trackNum = [];    % col 34, total track number for entire experiment
+trackID = [];      % col 1
+Time = [];         % col 2
+lengthVals = [];   % col 3
+trackNum = [];     % col 27, total track number for entire experiment
 tn_counter = 0;
 
-Time = [];        % col 2
+widthVals = [];   % col 11
+vcVals = [];      % col 12
+veVals = [];      % col 13
+vaVals = [];      % col 14
 
-x_pos = [];       % col 28
-y_pos = [];       % col 29
-orig_frame = [];  % col 30
-stage_num = [];   % col 31
-eccentricity = [];
-angle = [];
-
-lengthVals = [];  % col 3
-widthVals = [];   % col 12
-vcVals = [];      % col 13
-veVals = [];      % col 14
-vaVals = [];      % col 15
-
-muVals = [];     % col 4
+muVals = [];      % col 4
 mu_vcVals = [];
 mu_veVals = [];
-mu_vaVals = [];  % col 18
+mu_vaVals = [];   % col 17
 
-bioProdRate = []; % col 36
+bioProdRate = []; % col 29
 
-isDrop = [];      % col 5
-dropThreshold = -0.75;                                                     % consider greater negatives a division event
-
-curveFinder = [];                                                        
-
-timeSinceBirth = [];
-lengthAdded_incremental_sinceBirth = [];
-vcAdded_incremental_sinceBirth = [];
-veAdded_incremental_sinceBirth = [];
-vaAdded_incremental_sinceBirth = [];
+dropThreshold = -0.75;  % consider greater negatives a division event
+isDrop = [];            % col 5
+                                                   
+curveFinder = [];     % col 6                                                       
+timeSinceBirth = [];  % col 7
 
 curveDurations = [];  % col 8
-addedLength = [];      % col 11
+addedLength = [];     % col 10
 addedVC = [];
 addedVE = [];
-addedVA = [];         % col 24, added Va per cell cycle (same total volume added repeated)
+addedVA = [];         % col 20, added Va per cell cycle (same total volume added repeated)
 
-addedLength_incremental = [];
-addedVC_incremental = [];
-addedVE_incremental = [];
-addedVA_incremental = [];
+x_pos = [];       % col 21
+y_pos = [];       % col 22
+orig_frame = [];  % col 23
+stage_num = [];   % col 24
+eccentricity = [];% col 25
+angle = [];       % col 26
+
+
 
 %% loop through all xy positions and all tracks for data concatenation
 
 for n = 1:length(D5)
-%%
+
     for m = 1:length(D5{n})                                                
         
-        %% 1. track ID                                                        
+        %% track ID                                                        
         lengthCurrentTrack = length(D5{n}(m).TrackID);
         Track = D5{n}(m).TrackID;
         trackID = [trackID; Track];
         
-        %% 34. track number
+        %% track number
         tn_counter = tn_counter + 1;
         tnTrack = ones(length(Track),1)*tn_counter;
         trackNum = [trackNum; tnTrack];
         
-        %% 30. frame number in original image
+        %% frame number in original image
         frameTrack = D5{n}(m).Frame;
         %frameTrack = D5{n}(m).Frame(3:lengthCurrentTrack+2); % trimming to fit mu
         orig_frame = [orig_frame; frameTrack];
         
-        %% 2. time
+        %% time
         %timeTrack = T(3:lengthCurrentTrack+2,n)/(60*60);                  % collect timestamp (hr)
         timeTrack = T{n}(frameTrack(1):lengthCurrentTrack+frameTrack(1)-1);%(7:lengthCurrentTrack+6)./(3600);                                                         % data format, if all ND2s were processed individually
         Time = [Time; timeTrack];                                          %concat=enate timestamp
         
-        %% 3. lengths
+        %% lengths
         lengthTrack = D5{n}(m).MajAx;%(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
-        %% 4. mu
+        %% mu
         muTrack = zeros(lengthCurrentTrack,1);
         measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
         muTrack(3:length(measuredMus)+2) = measuredMus;
         muVals = [muVals; muTrack];                                        % concatenate growth rates
         
-        %% 18. mu_Va
+        %% mu_Va
         mu_vaTrack = zeros(lengthCurrentTrack,1);
         measuredMus_va = M_va{n}(m).mu_va(:,1);
         mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
         mu_vaVals = [mu_vaVals; mu_vaTrack];   
         
-        %% 5. drop?
+        %% drop?
         dropTrack = diff(lengthTrack);
         trackDrops = dropTrack < dropThreshold;                                % converts different to a Boolean based on dropThreshold
         trackDrops = [0; trackDrops];                                              % * add zero to front, to even track lengths
         isDrop = [isDrop; trackDrops];
         
-        %% 6. curve finder                                                 % identifying full curves for cell cycle stats
+        %% curve finder: identifying full curves for cell cycle stats
         numberFullCurves = sum(trackDrops) - 1;                                % all curves start and end with a division, isDrop = 1                                      
         curveTrack = zeros(length(trackDrops),1);
         
@@ -130,11 +121,11 @@ for n = 1:length(D5)
         clear curveCounter i
         
         
-        %% 12. widths
+        %% widths
         widthTrack = D5{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
             
-        %% 13, 14, 15. volumes
+        %% volumes
         v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder = pi * r^2 * h
         v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
         vol_smallCylinder = pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack);
@@ -148,24 +139,26 @@ for n = 1:length(D5)
         clear v_ellipse v_cylinder vol_sphere vol_smallCylinder
         clear widthTrack
         
-        %% 7 & 8. time since birth and curve duration                                                
+        %% time since birth, size added per cell cycle and curve duration                                                
+        
+        % initialize data vectors
+        tsbPerTrack = zeros(lengthCurrentTrack,1);
         durationsPerTrack = zeros(numberFullCurves,1); 
         lengthPerTrack = zeros(numberFullCurves,1);
         vaPerTrack = zeros(numberFullCurves,1);
         
         durationVector = zeros(lengthCurrentTrack,1);   % a vector of cell cycle durations (completion time per cell cycle)
-        
         lengthVector = zeros(lengthCurrentTrack,1);     % for compiling length added per cell cycle in current track
-        vaVector = zeros(lengthCurrentTrack,1);          % for compiling Va added per cell cycle in current track
+        vaVector = zeros(lengthCurrentTrack,1);         % for compiling Va added per cell cycle in current track
         
-        tsbPerTrack = zeros(lengthCurrentTrack,1);
         
         % stratgey: per individual curve...
         %       i.   identify events bounding each curve
         %       ii.  isolate timepoints in between events for calculations specific to that curve
         %       iii. time since birth = isolated timepoints minus time of birth
-        %       iv.  added mass since birth = length(at timepoints) minus length at birth
-        %       v.   final added mass and total curve duration = values at division event
+        %       iv.  added length since birth = length(at timepoints) minus length at birth
+        %       v.   added volume since birth = Va(at timepoints) minus Va at birth
+        %       vi.  accumulate added mass per cell cycle in a vector representing full track
         
         for currentCurve = 1:numberFullCurves;
             
@@ -174,33 +167,32 @@ for n = 1:length(D5)
             eventTimes = isolateEvents(isolateEvents~=0);
             clear isolateEvents
             
+            % ii. isolate timepoints in between events for calculations specific to that curve
             currentBirthRow = find(timeTrack == eventTimes(currentCurve)); % row in which current curve begins
             nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));
             currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
             
-            % ii. incremental time
+            % iii. time since birth = isolated timepoints minus time of birth
             tsbPerCurve = currentTimes - timeTrack(currentBirthRow);       % time since birth, per timestep of curve
             tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve;
             
-            % incremental length
+            % iv. added length since birth = length(at timepoints) minus length at birth
             lsbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
             lsbPerTrack(currentBirthRow:nextBirthRow-1,1) = lsbPerCurve;
             
-            
-            % incremental volume (Va, volume approximated as a cylinder with spherical caps)
+            % v. added volume since birth (Va, volume approximated as a cylinder with spherical caps)
             vsbPerCurve = v_anupam(currentBirthRow:nextBirthRow-1) - v_anupam(currentBirthRow);
             vsbPerTrack(currentBirthRow:nextBirthRow-1,1) = vsbPerCurve;
             clear currentBirthRow
             
-            % final duration and size
+            % vi.  calculate mass added in current cell cycle
             durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
             lengthPerTrack(currentCurve) = lsbPerCurve(end);               % lsb = length added since birth
             vaPerTrack(currentCurve) = vsbPerCurve(end);
         end
-        %clear tsbPerCurve lsbPerCurve currentCurve currentTimes eventTimes
-        %clear currentBirthRow nextBirthRow numberFullCurves toBool timeTrack
+
         
-        % 7. time since birth
+        % TIME SINCE BIRTH
         if numberFullCurves <= 0
             noCurves = zeros(lengthCurrentTrack,1);
             timeSinceBirth = [timeSinceBirth; noCurves];   
@@ -209,9 +201,9 @@ for n = 1:length(D5)
         end
         
         
+        % LENGTH or VOLUME ADDED PER CELL CYCLE
         
-        % create vector of added size with a value for each timepoint in track
-        
+        % create vector of added size with a value for each cell cycle in track
         % for all timepoints in current track:
         for j = 1:length(curveTrack)
             if curveTrack(j) == 0 % if timepoint is NOT part of a full curve, move on so value remains zero
@@ -224,45 +216,46 @@ for n = 1:length(D5)
         end
         clear durationsPerTrack lengthPerTrack curveTrack j
         
-        %% 8. curve duration (total time of current cell cycle)
+        
+        % CURVE DURATION (total time of current cell cycle)
         curveDurations = [curveDurations; durationVector];
         clear durationVector
         
-        %% 11. added length (total added length in current cell cycle)
+        %% added length (total added length in current cell cycle)
         addedLength = [addedLength; lengthVector];
         clear lengthVector
         
-        %% 24. addedVa = volume added per cell cycle
+        %% addedVa = volume added per cell cycle
         addedVA = [addedVA; vaVector];
         clear vaVector
         
         
-        %% 28. x positions in original image
+        %% x positions in original image
         xTrack = D5{n}(m).X;%(7:lengthCurrentTrack+6); 
         x_pos = [x_pos; xTrack];
         clear xTrack
         
-        %% 29. y positions in original image
+        %% y positions in original image
         yTrack = D5{n}(m).Y;%(7:lengthCurrentTrack+6);
         y_pos = [y_pos; yTrack];
         clear yTrack
         
-        %% 31. trim stage in dataTrimmer
+        %% trim stage in dataTrimmer
         trimTrack = ones(length(Track),1)*n;
         stage_num = [stage_num; trimTrack];
         clear Track trimTrack
         
-        %% 32. eccentricity of ellipses used in particle tracking
+        %% eccentricity of ellipses used in particle tracking
         eccTrack = D5{n}(m).Ecc;%(7:lengthCurrentTrack+6);
         eccentricity = [eccentricity; eccTrack];
         clear eccTrack
         
-        %% 33. angle of ellipses used in particle tracking
+        %% angle of ellipses used in particle tracking
         angTrack = D5{n}(m).Ang;%(7:lengthCurrentTrack+6);
         angle = [angle; angTrack];
         clear angTrack
                                                                           
-        %% 35. CONDITION
+        %% CONDITION
         % assign condition based on xy number
         condition = ceil(n/10);
         
@@ -271,7 +264,7 @@ for n = 1:length(D5)
         condVals = [condVals; condTrack];
         clear condTrack
         
-        %% 36. biovolume production rate = V(t) * mu(t) * ln(2)
+        %% biovolume production rate = V(t) * mu(t) * ln(2)
         bioProdRate_track = v_anupam .* mu_vaTrack * log(2); % log(2) in matlab = ln(2)
         bioProdRate = [bioProdRate; bioProdRate_track];
         clear bioProdRate_track v_anupam
@@ -286,25 +279,14 @@ end % for n
 %% fill in NaN for all non-present data
 mu_vcVals = NaN(length(angle),1);
 mu_veVals = NaN(length(angle),1);
-                                                   
-lengthAdded_incremental_sinceBirth = NaN(length(angle),1);
-vcAdded_incremental_sinceBirth = NaN(length(angle),1);
-veAdded_incremental_sinceBirth = NaN(length(angle),1);
-vaAdded_incremental_sinceBirth = NaN(length(angle),1);
 
 addedVC = NaN(length(angle),1);
 addedVE = NaN(length(angle),1);
 
-% these should be removed at some point...
-addedLength_incremental = NaN(length(angle),1);
-addedVC_incremental = NaN(length(angle),1);
-addedVE_incremental = NaN(length(angle),1);
-addedVA_incremental = NaN(length(angle),1);
-
 ccFraction = NaN(length(angle),1);
 
 %% Compile data into single matrix
-dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction lengthAdded_incremental_sinceBirth addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals vcAdded_incremental_sinceBirth veAdded_incremental_sinceBirth vaAdded_incremental_sinceBirth addedVC addedVE addedVA addedVC_incremental addedVE_incremental addedVA_incremental x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate];
+dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
@@ -314,33 +296,26 @@ dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDura
 % 7. timeSinceBirth
 % 8. curveDurations
 % 9. ccFraction 
-% 10. lengthAdded_incremental_sinceBirth
-% 11. addedLength
-% 12. widthVals
-% 13. vcVals
-% 14. veVals
-% 15. vaVals
-% 16. mu_vcVals
-% 17. mu_veVals
-% 18. mu_vaVals
-% 19. vcAdded_incremental_sinceBirth
-% 20. veAdded_incremental_sinceBirth
-% 21. vaAdded_incremental_sinceBirth
-% 22. addedVC
-% 23. addedVE
-% 24. addedVA
-% 25. addedVC_incremental
-% 26. addedVE_incremental
-% 27. addedVA_incremental
-% 28. x_pos
-% 29. y_pos
-% 30. orig_frame
-% 31. stage_num
-% 32. eccentricity
-% 33. angle
-% 34. trackNum  =  total track number (vs ID which is xy based)
-% 35. condVals
-% 36. biovolProductionRate
+% 10. addedLength
+% 11. widthVals
+% 12. vcVals
+% 13. veVals
+% 14. vaVals
+% 15. mu_vcVals
+% 16. mu_veVals
+% 17. mu_vaVals
+% 18. addedVC
+% 19. addedVE
+% 20. addedVA
+% 21. x_pos
+% 22. y_pos
+% 23. orig_frame
+% 24. stage_num
+% 25. eccentricity
+% 26. angle
+% 27. trackNum  =  total track number (vs ID which is xy based)
+% 28. condVals
+% 29. biovolProductionRate
 
 
 end
