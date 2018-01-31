@@ -22,7 +22,7 @@
 
 
 
-% last edit: 2018 Jan 18
+% last edit: 2018 Jan 30
 
 % OK lez go!
 
@@ -31,7 +31,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-01-17';
+experiment = '2018-01-29';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');

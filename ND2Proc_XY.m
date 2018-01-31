@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2018 Jan 18
+%  Last modified (jen): 2018 Jan 30
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -43,14 +43,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-01-17';
+experiment = '2018-01-29';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_take2_xy*.nd2'));
 names = {xyDirectory.name};
 
 
@@ -98,7 +98,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 1:NSeries
+for ii = 3:NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -106,7 +106,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-15.8621, -1]; %threshold for 2018-01-17     
+    Threshold =  [-8.10345, -1]; %threshold for 2018-01-29     
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -171,7 +171,7 @@ for ii = 1:NSeries
 end
 
 
-save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')
+%save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')
 
 
    %% Section Three (E): clear section variables.

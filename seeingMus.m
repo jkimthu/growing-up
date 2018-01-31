@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2018 Jan 18
+% last updated: jen, 2018 Jan 30
 
  
 
@@ -29,13 +29,13 @@
 % Initialize
 clear;
 clc;
-date = '2018-01-17';
+date = '2018-01-29';
 %load('lb-monod-2017-09-26-window5-jiggle-varied.mat','D5','M','T');
 load(strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat'),'D5','M','M_va','T');
 
 % defining conditions: col1 = first xy; col2 = final xy; col3 = time (hr) cutoff
 conditions = [1 10; 11 20; 21 30; 31 40];% 41 50; 51 60];
-binsPerHour = 2;
+binsPerHour = 30;
 
 %%
 
