@@ -20,7 +20,10 @@
 %   
 
 
-% last updated: 2018 January 19
+% last updated: 2018 January 31
+% commit: mu vs LB dilution, summary plot includes up to 2018-01-29
+% experiment. edited to reflect new buildDM output matrix structure (29
+% columns) and new timescale (and 5 column meta data)
 
 %% 0. initialize experiment data
 clear
@@ -56,7 +59,9 @@ for e = 1:length(dataIndex)
     
     % build experiment data matrix
     display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),')'))
-    exptData = buildDM(D5,M,M_va,T);
+    xy_start = 1;
+    xy_end = length(D5);
+    exptData = buildDM(D5,M,M_va,T,xy_start,xy_end);
     
     clear D5 M M_va T filename experimentFolder
     
@@ -74,10 +79,10 @@ for e = 1:length(dataIndex)
     for c = 1:totalConditions
         
         % 3. isolate condition specific Mu_va and time data
-        condition = exptData(exptData(:,35) == c,:); % col 35 = condition
-        mu_va = condition(:,18); % col 18 = calculated mu_vals
-        time = condition(:,2)/3600; % col 2 = timestamps in sec, covert to hr
-        track = condition(:,34); % col 34 = track count, not ID from tracking
+        condition = exptData(exptData(:,28) == c,:); % col 28 = condition
+        mu_va = condition(:,17);                     % col 17 = calculated mu_vals
+        time = condition(:,2)/3600;                  % col 2 = timestamps in sec, covert to hr
+        track = condition(:,27);                     % col 27 = track count (trackNum), not ID from tracking
         clear condition
         
         % 4. remove mu data with timestamps prior to and after stabilization
@@ -155,7 +160,7 @@ save('measuredData.mat','measuredData')
 %% 10. plot ave mu_va vs log concentration
 clc
 clear
-
+cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 load('measuredData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
@@ -212,14 +217,17 @@ for e = 1:numExperiments
             summaryConcentrations(counter) = concentration(c);
 
         elseif timescale == 30 && c == 1
-            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0.25 0.25 0.9],'MarkerSize',10); % cobalt blue
             hold on
         elseif timescale == 300 && c == 1
-            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0 .7 .7],'MarkerSize',10);
+            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[0 .7 .7],'MarkerSize',10); % green
             hold on
             legend('5 min')
         elseif timescale == 900 && c == 1
-            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[1 0.6 0],'MarkerSize',10);
+            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[1 0.6 0],'MarkerSize',10); % orange
+            hold on
+        elseif timescale == 3600 && c == 1
+            errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color',[1 0.5 0.5],'MarkerSize',10); %peach       % avocado[0.3  0.8  0]
             hold on
         else
             errorbar(log(concentration(c)), data_individuals{c}.muMean, data_individuals{c}.muSem,'o','Color','k','MarkerSize',10);
@@ -231,7 +239,7 @@ for e = 1:numExperiments
             summaryConcentrations(counter) = concentration(c);
         end
     end
-    legend('30 sec','5 min','15 min','stable')
+    legend('30 sec','5 min','15 min','60 min','stable')
     ylabel('mu, individual (1/hr)')
     xlabel('log fold LB dilution')
     
