@@ -22,8 +22,9 @@
 %
 
 
-% last updated: 2017 Jan 19
-% commit: update bvp monod to include new experiment, Jan 17
+% last updated: 2017 Jan 31
+% commit: update bvp monod to include new experiment, 2018 Jan 29, new dataMatrix structure, and new
+% timescale, 60 min period
 
 
 %% Add NEW experiment to bioProdRate data structure 
@@ -66,7 +67,9 @@ for e = 1:experimentCount
     
     % build experiment data matrix
     display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),')'))
-    exptData = buildDM(D5,M,M_va,T);
+    xy_start = 1;
+    xy_end = length(D5);
+    exptData = buildDM(D5,M,M_va,T,xy_start,xy_end);
     
     clear D5 M M_va T filename experimentFolder
    
@@ -78,11 +81,11 @@ for e = 1:experimentCount
     for c = 1:totalConditions
         
         % 3. isolate all data from current condition
-        conditionData = exptData(exptData(:,35) == c,:);
+        conditionData = exptData(exptData(:,28) == c,:);
         
         % 4. isolate volume (Va), mu (mu_va) and time data from current condition
-        volumes = conditionData(:,15);        % col 15 = calculated va_vals (cubic um)
-        mus = conditionData(:,18);            % col 18 = calculated mu_va 
+        volumes = conditionData(:,14);        % col 14 = calculated va_vals (cubic um)
+        mus = conditionData(:,17);            % col 17 = calculated mu_va 
         timestamps = conditionData(:,2)/3600; % time in seconds converted to hours
         clear conditionData
         
@@ -148,7 +151,7 @@ load('storedMetaData.mat')
 load('bioProdRateData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 experimentCount = length(dataIndex);
-latestExpt = '2018-01-04';
+latestExpt = '2018-01-31';
 
 % initialize summary stats for fitting
 counter = 0;
@@ -214,6 +217,9 @@ for e = 1:experimentCount
         elseif timescale == 900 && c == 1
             errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[1 0.6 0],'MarkerSize',10);
             hold on
+        elseif timescale == 3600 && c == 1
+            errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color',[1 0.5 0.5],'MarkerSize',10);
+            hold on
         else
             errorbar(log(concentration(c)), experimentData{c}.mean, experimentData{c}.sem,'o','Color','k','MarkerSize',10);
             hold on
@@ -224,9 +230,10 @@ for e = 1:experimentCount
             summaryConcentrations(counter) = concentration(c);
         end
     end
-    legend('30 sec','5 min','15 min','stable')
+    legend('30 sec','5 min','15 min','60 min','stable')
     ylabel('biomass prod rate (cubic um/hr)')
     xlabel('log fold LB dilution')
+    title(strcat('up to :',latestExpt))
     
 end
 
