@@ -22,7 +22,7 @@
 
 
 
-% last edit: 2018 Jan 30
+% last edit: 2018 Jan 31
 
 % OK lez go!
 
@@ -37,8 +37,8 @@ experiment = '2018-01-29';
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
-
+%load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
+load(strcat('lb-fluc-',experiment,'-xy1and2.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -415,7 +415,8 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+%save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-xy1and2-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 

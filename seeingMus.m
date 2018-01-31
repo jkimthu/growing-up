@@ -15,7 +15,7 @@
 %
 % 
 
-% last updated: jen, 2018 Jan 30
+% last updated: jen, 2018 Jan 31
 
  
 
@@ -92,7 +92,7 @@ for i = 1:length(conditions) %number of conditions
     figure(1)
     errorbar(mu_l_Means,mu_l_sems)
     hold on
-    axis([0,21,0,4])
+    axis([0,binsPerHour*10+1,0,4])
     xlabel('Time (hr)')
     ylabel('doubling rate of length (1/hr)')
     legend('fluc','1/1000 LB','ave', '1/50 LB')
@@ -102,7 +102,7 @@ for i = 1:length(conditions) %number of conditions
     figure(2)
     errorbar(mu_va_Means,mu_va_sems)
     hold on
-    axis([0,21,0,4])
+    axis([0,binsPerHour*10+1,0,4])
     xlabel('Time (hr)')
     ylabel('doubling rate of volume (1/hr)')
     legend('fluc','1/1000 LB','ave', '1/50 LB')

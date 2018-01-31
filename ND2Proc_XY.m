@@ -35,7 +35,7 @@
 
 
 
-%  Last modified (jen): 2018 Jan 30
+%  Last modified (jen): 2018 Jan 31
 %  Original script by the wondrous Vicente Fernandez
 
 %  OK lez go!
@@ -98,7 +98,7 @@ NSeries = length(names);
 %NSeries=reader.getSeriesCount();
 
 
-for ii = 3:NSeries
+for ii = 1:2%NSeries
 
     %% i. track all particles using adjusted parameters
     
@@ -171,7 +171,7 @@ for ii = 3:NSeries
 end
 
 
-%save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')
+save(strcat('lb-fluc-',experiment,'-xy1and2.mat'),'D','T')
 
 
    %% Section Three (E): clear section variables.

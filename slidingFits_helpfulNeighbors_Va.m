@@ -32,7 +32,7 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 Jan 30
+% last update: 2018 Jan 31
 
 % OK lez go!
 
@@ -50,7 +50,8 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
+%load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
+load(strcat('lb-fluc-',experiment,'-xy1and2-jiggle-0p5.mat'),'D','D5','T','rejectD');
 numMovies = length(D5);
 
 
@@ -224,8 +225,8 @@ for n = 1:length(D5)
 end
 
 
-save('lb-fluc-2018-01-29-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
-
+%save('lb-fluc-2018-01-29-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+save('lb-fluc-2018-01-29-xy1and2-window5.mat', 'D','D5','M','M_va','T','rejectD')
 
 %% checks
 % plot mu over time (like length) 
@@ -258,6 +259,39 @@ plot(times, mus, 'k-')
 legend('true volume','fit volume','mu')
 xlim([0 10])
 title(track);
+
+%% adding additional xys to D, etc
+% used to compile data from 2018-01-29 xy1 and xy2 into previously analyzed
+% matrixes for xy3-40
+
+clear
+clc
+load('lb-fluc-2018-01-29-xy1and2-window5.mat')
+
+D_12 = D;
+D5_12 = D5;
+M_12 = M;
+M_va_12 = M_va;
+rejectD_12 = rejectD;
+T_12 = T;
+
+clear D D5 M M_va rejectD T
+
+load('lb-fluc-2018-01-29-window5-width1p4-1p7-jiggle-0p5.mat')
+
+D(1:2) = D_12;
+D5(1:2) = D5_12;
+M(1:2) = M_12;
+M_va(1:2) = M_va_12;
+rejectD(:,1) = rejectD_12(:,1);
+rejectD(:,2) = rejectD_12(:,2);
+T(1:2) = T_12(1:2);
+
+%%
+save('lb-fluc-2018-01-29-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD')
+
+
+
 
 
 
