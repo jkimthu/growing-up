@@ -14,9 +14,10 @@
 %       such that:
 %               1. each column is a different timescale
 %                       1. 30 sec
-%                       2. 300 sec (5 min)
-%                       3. 900 sec (15 min)
-%                       4. none    (monod)
+%                       2. 300 sec  (5 min)
+%                       3. 900 sec  (15 min)
+%                       4. 3600 sec (60 min)
+%                       5. none    (monod)
 %               2. each row is a different experimental replicate
 
 % strategy:
@@ -40,8 +41,10 @@
 %      13. to add new variables to previously saved cells:
 
 
-% last updated: 2017 Jan 18
-% commit message: create new cell for new experiment: 2018-01-17 (15 min)
+% last updated: 2017 Jan 31
+% commit message: create new cell for new experiment: 2018-01-29 (60 min)
+%                 shifted monod experiments to column 5, giving 60 min
+%                 period column 4 in storedMetaData variable
 
 
 % OK let's go!
@@ -66,8 +69,10 @@ elseif timescale == 300
     column = 2;
 elseif timescale == 900
     column = 3;
-else
+elseif timescale == 3600
     column = 4;
+else
+    column = 5;
 end
 
 % 3. prompt user for experiment date, assign to field
