@@ -32,7 +32,7 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 Jan 31
+% last update: 2018 Feb 1
 
 % OK lez go!
 
@@ -41,7 +41,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-01-29';
+experiment = '2018-01-31';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -50,8 +50,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-%load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
-load(strcat('lb-fluc-',experiment,'-xy1and2-jiggle-0p5.mat'),'D','D5','T','rejectD');
+load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
 numMovies = length(D5);
 
 
@@ -205,7 +204,7 @@ for n = 1:length(D5)
             currentWindow = currentWindow + 1;
             
             clear wVolume wCurves mu fitLine ln_volume dropPoint isDrop maxCurve minCurve;
-            clear wVolume_adjusted multiplier experiment newFolder wTime;
+            clear wVolume_adjusted multiplier newFolder wTime;
         end
         
         % 11. save data and repeat for all tracks
@@ -225,8 +224,8 @@ for n = 1:length(D5)
 end
 
 
-%save('lb-fluc-2018-01-29-window5-width1p4-1p7-jiggle-0p5.mat', 'D','D5','M', 'M_va', 'T','rejectD') %'D'
-save('lb-fluc-2018-01-29-xy1and2-window5.mat', 'D','D5','M','M_va','T','rejectD')
+save(strcat('lb-fluc-',experiment,'-window5-width1p4-1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+
 
 %% checks
 % plot mu over time (like length) 
