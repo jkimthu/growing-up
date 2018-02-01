@@ -20,10 +20,8 @@
 %   
 
 
-% last updated: 2018 January 31
-% commit: mu vs LB dilution, summary plot includes up to 2018-01-29
-% experiment. edited to reflect new buildDM output matrix structure (29
-% columns) and new timescale (and 5 column meta data)
+% last updated: 2018 Feb 1
+% commit: mu vs LB dilution, summary plot includes up to 2018-01-31 experiment
 
 %% 0. initialize experiment data
 clear
