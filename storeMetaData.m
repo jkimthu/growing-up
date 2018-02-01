@@ -41,10 +41,8 @@
 %      13. to add new variables to previously saved cells:
 
 
-% last updated: 2017 Jan 31
-% commit message: create new cell for new experiment: 2018-01-29 (60 min)
-%                 shifted monod experiments to column 5, giving 60 min
-%                 period column 4 in storedMetaData variable
+% last updated: 2018 Feb 1
+% commit message: create new cell for new experiment: 2018-01-31 (60 min)
 
 
 % OK let's go!
