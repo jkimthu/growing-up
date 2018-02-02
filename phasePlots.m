@@ -26,9 +26,10 @@
 %
 
 
-% last updated: 2018 Jan 19
-% commit: merge seperate scripts plotting phase plots with size and cell cycle duration
-%         last used to generate phase plots of LB experiments up to Jan 17
+% last updated: 2018 Feb 2
+% commit: generate phase plots of LB experiments up to Jan 31, update column assignments for dataMatrix,
+%         adjust dataMatrix building to only target used conditions,
+%         include new 60 min timescale
 
 
 % OK let's go!!
@@ -102,24 +103,24 @@ for e = 1:experimentCount
         filename = 'lb-control-2017-11-09-window5-width1p4-jiggle-0p5.mat';
     end
     load(filename,'D5','M','M_va','T')
-    
-    % build experiment data matrix
-    display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),')'))
-    exptData = buildDM(D5,M,M_va,T);
-    
-    clear D5 M M_va T filename experimentFolder
-    
+      
     
     % 4. for each condition with target concentration...
     for i = 1:length(targetConditions{e})
         c = targetConditions{e}(i);
         
+        % build experiment data matrix
+        display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),'), condition: ', num2str(c)))
+        xy_start = storedMetaData{index}.xys(c,1);
+        xy_end = storedMetaData{index}.xys(c,end);
+        exptData = buildDM(D5, M, M_va, T, xy_start, xy_end);
+        
         % 5. isolate data from current condition
-        conditionData = exptData(exptData(:,35) == c,:);
+        conditionData = exptData(exptData(:,28) == c,:);
         
         % 6. isolate volume, duration, drop and time data
         durations = conditionData(:,8);       % col 8 = calculated curve durations (sec)
-        volumes = conditionData(:,15);        % col 15 = calculated va_vals (cubic um)
+        volumes = conditionData(:,14);        % col 14 = calculated va_vals (cubic um)
         drops = conditionData(:,5);           % col 5 = 1 at birth, zero otherwise
         timestamps = conditionData(:,2)/3600; % time in seconds converted to hours
         clear conditionData
@@ -186,7 +187,7 @@ for e = 1:experimentCount
         compiledDuration{c}.sem = sem_duration;
         
     end
-    
+    clear D5 M M_va T filename experimentFolder
     clear mean_birthSize std_birthSize count_birthSize sem_birthSize
     clear mean_duration std_duration count_duration sem_duration
     
@@ -285,12 +286,17 @@ for p = 1:counter
         text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
+    elseif summaryTimescales{p} == 3600
+        h(p) = errorbar(summaryBVPRs(p),summarySizes(p),summarySems_size(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryBVPRs(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+        
     end
     
 end
 xlabel('biovol prod rate (cubic um/hr)')
 ylabel('cell volume at birth (cubic um)')
-legend('30 sec','5 min','15 min','stable')
+legend('30 sec','5 min','15 min','60min','stable')
 axis([2 10 1 5])
 
 
@@ -318,13 +324,19 @@ for p = 1:counter
         text(summaryMus(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
+    elseif summaryTimescales{p} == 3600
+        h(p) = errorbar(summaryMus(p),summarySizes(p),summarySems_size(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryMus(p)+shift,summarySizes(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+        
     end
     
 end
 xlabel('doubling rate of volume (1/hr)')
 ylabel('cell volume at birth (cubic um)')
-legend('30 sec','5 min','15 min','stable')
+legend('30 sec','5 min','15 min','60 min','stable')
 axis([0.5 3 1 5])
+
 
 % figure 3. cell cycle duration vs. biovolume production rate
 figure(3) 
@@ -350,12 +362,17 @@ for p = 1:counter
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
+    elseif summaryTimescales{p} == 3600
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+        
     end
     
 end
 xlabel('biovol prod rate (cubic um/hr)')
 ylabel('cell cycle duration (min)')
-legend('30 sec','5 min','15 min','stable')
+legend('30 sec','5 min','15 min','60 min','stable')
 axis([2 10 0 60])
 
 
@@ -383,13 +400,18 @@ for p = 1:counter
         h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
-        
+
+    elseif summaryTimescales{p} == 3600
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+    
     end
     
 end
 xlabel('doubling rate of volume (1/hr)')
 ylabel('cell cycle duration (min)')
-legend('30 sec','5 min','15 min','stable')
+legend('30 sec','5 min','15 min','60 min','stable')
 axis([0.5 3 0 60])
 
 
