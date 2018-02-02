@@ -35,10 +35,8 @@
 %
 
 
-%  Last edit: jen, 2018 Jan 28
-%  commit: using only data from full cell cycles, plot single experiment
-%  distributions and all-experiment violin comparisons of cell size at birth,
-%  cell cycle duration, and added volume per cell cycle between fluc vs stable
+%  Last edit: jen, 2018 Feb 2
+%  commit: update to include new 60 min timescale, experiments up to 2018 Jan 31
 
 
 
