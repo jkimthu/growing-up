@@ -16,10 +16,9 @@
 
 
 
-%  Last edit: jen, 2017 Jan 21
+%  Last edit: jen, 2018 Feb 2
 
-%  commit: re-do analysis up to 2018-01-17 experiments with 20 bins instead
-%  of 40 per period
+%  commit: update summary plot section to include new 60 min timescale for experiments through 2018-01-31
 
 
 %% original, single experiment plots with high pulse in center
@@ -242,17 +241,18 @@ for e = 1:experimentCount
     filename = strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat');
     load(filename,'D','D5','M','M_va','T');
     
-    dataMatrix = buildDM(D5,M,M_va,T);
-    clear D D5 M M_va T
-    
+    condition = 3; % 3 = stable average condition
+    xy_start = storedMetaData{index}.xys(condition,1);
+    xy_end = storedMetaData{index}.xys(condition,end);
+    stableAveData = buildDM(D5, M, M_va, T, xy_start, xy_end);
+
 
     % 5. find average growth rate of stable average condition
-    condition = 3; % 3 = stable average condition
-    
+
     %    i. isolate data
-    stableAveData = dataMatrix(dataMatrix(:,35)== condition,:); 
-    stableMus = stableAveData(:,18); % col 18 = mu_va
-    stablebioVolPR = stableAveData(:,36); % col 36 = biovol production rate
+    %stableAveData = dataMatrix(dataMatrix(:,28)== condition,:); 
+    stableMus = stableAveData(:,17); % col 17 = mu_va
+    stablebioVolPR = stableAveData(:,29); % col 29 = biovol production rate
     stableTime = stableAveData(:,2)/3600; % col 2 = timestamps in sec, covert to hr
     
     %   ii. remove data not in stabilized region
@@ -284,14 +284,21 @@ for e = 1:experimentCount
     clear stableAveData stableMus stableMus_trim1 stableMus_trim2
     clear stablebioVolPR stableBVPR_trim1 stableBVPR_trim2 stableTime stableTime_trim1 stableTime_trim2
     
+    
+    
     % 6. for fluctuating condition...
     condition = 1; % 1 = fluctuating nutrient condition
+    xy_start = storedMetaData{index}.xys(condition,1);
+    xy_end = storedMetaData{index}.xys(condition,end);
+    flucData = buildDM(D5, M, M_va, T, xy_start, xy_end);
     
     %    i .isolate data of interest
-    flucData = dataMatrix(dataMatrix(:,35)== 1,:);
-    Mus = flucData(:,18); % col 18 = mu_va
-    bioVolPR = flucData(:,36); % col 36 = biovol production rate
+    %flucData = dataMatrix(dataMatrix(:,28)== 1,:);
+    Mus = flucData(:,17); % col 17 = mu_va
+    bioVolPR = flucData(:,29); % col 29 = biovol production rate
     Time = flucData(:,2)/3600; % col 2 = timestamps in sec, covert to hr
+    clear D D5 M M_va T
+    
     
     %    ii. normalize mu and bvpr data by mean of stable average condition
     normalizedMus = Mus/stableMean_mu;
