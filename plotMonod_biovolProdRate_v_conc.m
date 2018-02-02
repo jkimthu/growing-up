@@ -22,9 +22,8 @@
 %
 
 
-% last updated: 2017 Jan 31
-% commit: update bvp monod to include new experiment, 2018 Jan 29, new dataMatrix structure, and new
-% timescale, 60 min period
+% last updated: 2018 Feb 1
+% commit: update bvp monod to include new experiment, 2018 Jan 31
 
 
 %% Add NEW experiment to bioProdRate data structure 
