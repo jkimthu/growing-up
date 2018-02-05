@@ -20,8 +20,8 @@
 %   
 
 
-% last updated: 2018 Feb 1
-% commit: mu vs LB dilution, summary plot includes up to 2018-01-31 experiment
+% last updated: 2018 Feb 5
+% commit: mu vs LB dilution, summary plot includes up to 2018-02-01 experiment
 
 %% 0. initialize experiment data
 clear
