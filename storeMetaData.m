@@ -41,8 +41,8 @@
 %      13. to add new variables to previously saved cells:
 
 
-% last updated: 2018 Feb 1
-% commit message: create new cell for new experiment: 2018-01-31 (60 min)
+% last updated: 2018 Feb 5
+% commit message: create new cell for new experiment: 2018-02-01 (60 min)
 
 
 % OK let's go!
