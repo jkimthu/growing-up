@@ -22,8 +22,8 @@
 %
 
 
-% last updated: 2018 Feb 1
-% commit: update bvp monod to include new experiment, 2018 Jan 31
+% last updated: 2018 Feb 5
+% commit: update bvp monod to include new experiment, 2018 Feb 01
 
 
 %% Add NEW experiment to bioProdRate data structure 
