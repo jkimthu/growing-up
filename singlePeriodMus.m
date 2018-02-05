@@ -16,7 +16,7 @@
 
 
 
-%  Last edit: jen, 2018 Feb 2
+%  Last edit: jen, 2018 Feb 5
 
 %  commit: update summary plot section to include new 60 min timescale for experiments through 2018-01-31
 
