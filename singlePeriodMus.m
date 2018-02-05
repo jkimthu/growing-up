@@ -18,7 +18,7 @@
 
 %  Last edit: jen, 2018 Feb 5
 
-%  commit: update summary plot section to include new 60 min timescale for experiments through 2018-01-31
+%  commit: update summary plot section to experiments through 2018-02-01
 
 
 %% original, single experiment plots with high pulse in center
