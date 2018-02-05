@@ -35,8 +35,8 @@
 %
 
 
-%  Last edit: jen, 2018 Feb 2
-%  commit: update to include new 60 min timescale, experiments up to 2018 Jan 31
+%  Last edit: jen, 2018 Feb 5
+%  commit: update to include experiments up to 2018 Feb 1
 
 
 
