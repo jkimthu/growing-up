@@ -26,10 +26,8 @@
 %
 
 
-% last updated: 2018 Feb 2
-% commit: generate phase plots of LB experiments up to Jan 31, update column assignments for dataMatrix,
-%         adjust data accumulation to only target used conditions,
-%         include new 60 min timescale
+% last updated: 2018 Feb 5
+% commit: generate phase plots of LB experiments up to 2018-02-01
 
 
 % OK let's go!!
