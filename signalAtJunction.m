@@ -5,7 +5,7 @@
 %           2. enable comparison with downstream signal
 
 
-% last updated: jen, 2017 Nov 21
+
 
 % strategy: 
 %           0. initialize image series of signals to compare: 
@@ -21,6 +21,9 @@
 %           7. plot sum intensity over time
 %           8. repeat for all series, holding sum intensity data
 
+% last updated: jen, 2018 Feb 5
+
+% commit: retired, see now function calculateFluoresceinSignal.m
 
 % OK let's go!
 
@@ -33,13 +36,13 @@ cd(exptFolder);
 timestamps = xlsread('2017-11-15-timestamps.xlsx');
 
 series = {
-    'test_final_junc_60x';          % i. 60x mag of junc at end
-    'test_final_xy10'              % ii. 60x mag of xy10 at end
+    'test_start_cropped';          % i. 60x mag of junc at end
+    'test_final_junc_20x_channelonly'              % ii. 60x mag of xy10 at end
     };
 
 crops = {
-    'test_final_junc_60x*';
-    'test_final_xy10*'
+    'test_start*';
+    'test_final_junc_20x*'
     };
 
 %% 1. for each image series, go to directory and initialize images
@@ -71,7 +74,7 @@ for s = 1:length(series)
         %% 2. calculate mean pixel intensity in x direction and timestamp
         meanIntensity = mean(I,2);
         
-        seriesTimestamps = timestamps(:,s+2);
+        seriesTimestamps = timestamps(:,s);
         timeVector = seriesTimestamps(~isnan(seriesTimestamps));
         
         %% 3. plot intensity in y direction over time
@@ -100,6 +103,6 @@ for s = 1:length(series)
     clear sumIntensity
 end
 
-legend('junc 60x','xy10 60x')
+legend('start','end')
 xlabel('time (sec)')
 ylabel('raw signal intensity')
