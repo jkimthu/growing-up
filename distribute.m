@@ -23,20 +23,20 @@
 %                       8. remove data from cell cycles with added volume > 0
 %                       9. remove data from cell cycles with durations shorter than 10 min (zero values are incomplete)
 %                      10. trim data to stabilized / non-bubble timestamps
-%                      11. calculate count number of data points per bin
-%                      12. bin data and normalize bin counts by total counts
-%                      13. plot pdf and histograms per experiment
-
-%                       8. trim data to stabilized / non-bubble timestamps
-%                       9. calculate mean and s.e.m. of size, curve duration
-%                      10. accumulate data for storage and plotting
-%              11. store data from all conditions into measured data structure
-%      12.  plot average and s.e.m. against corresponding biovol production rate
+%                      11. trim outliers (those 3 std dev away from media) from final dataset
+%                      12. calculate count number of data points per bin
+%                      13. bin data and normalize bin counts by total counts
+%                      14. plot pdf and histograms per experiment
+%              15. repeat for each condition, storing fluc and stable data in their own variables
+%      16.  after assembling data from all experiments, plot violin plots
+%           comparing distrubtions between fluc and stable for each experiment
 %
 
 
-%  Last edit: jen, 2018 Feb 5
-%  commit: update to include experiments up to 2018 Feb 1
+%  Last edit: jen, 2018 Feb 13
+%  commit: remove data that is at least three standard deviations away from
+%          median of distribution. also expanded longest div time allowed
+%          to 90 mins (instead of 60)
 
 
 
@@ -96,7 +96,6 @@ for e = 1:experimentCount
         continue
     end
     
-
     % 3. move to experiment folder and load data
     
     % identify experiment by date
@@ -104,11 +103,11 @@ for e = 1:experimentCount
     date = storedMetaData{index}.date;
     
     % exclude outlier from analysis
-%     if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
-%         disp(strcat(date,': excluded from analysis'))
-%         continue
-%     end
-%     disp(strcat(date, ': analyze!'))
+    if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
+        disp(strcat(date,': excluded from analysis'))
+        continue
+    end
+    disp(strcat(date, ': analyze!'))
     
     experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
     cd(experimentFolder)
@@ -179,42 +178,52 @@ for e = 1:experimentCount
         
         % trim data after bubble appearance, if applicable (non-zero)
         if maxTime > 0
-            trueBirthVolumes_trim2 = finalBirthVolumes_trim1(birthTimes_fullCycle_trim1 <= maxTime);%
-            trueDurations_trim2 = finalDurations_trim1(birthTimes_fullCycle_trim1 <= maxTime);
-            trueAddedVolumes_trim2 = finalAddedVolumes_trim1(birthTimes_fullCycle_trim1 <= maxTime);
+            birthVolumes_trim2 = finalBirthVolumes_trim1(birthTimes_fullCycle_trim1 <= maxTime);%
+            durations_trim2 = finalDurations_trim1(birthTimes_fullCycle_trim1 <= maxTime);
+            addedVolumes_trim2 = finalAddedVolumes_trim1(birthTimes_fullCycle_trim1 <= maxTime);
         else
-            trueBirthVolumes_trim2 = finalBirthVolumes_trim1;
-            trueDurations_trim2 = finalDurations_trim1;
-            trueAddedVolumes_trim2 = finalAddedVolumes_trim1;
+            birthVolumes_trim2 = finalBirthVolumes_trim1;
+            durations_trim2 = finalDurations_trim1;
+            addedVolumes_trim2 = finalAddedVolumes_trim1;
         end
         clear birth_times_trim1 div_times_trim1 finalDurations_trim1 finalAddedVolumes_trim1
         
 
+        %%
+        % 11. trim outliers (those 3 std dev away from median) from final dataset
+        medianBirthVol = median(birthVolumes_trim2);
+        std_birthVol = std(birthVolumes_trim2);
+        birthVolumes_minusUpper3std = birthVolumes_trim2(birthVolumes_trim2 <= (medianBirthVol+std_birthVol*3));
+        trueBirthVolumes = birthVolumes_minusUpper3std(birthVolumes_minusUpper3std >= (medianBirthVol-std_birthVol*3));
+        
+        medianDuration = median(durations_trim2);
+        std_duration = std(durations_trim2);
+        durations_minusUpper3std = durations_trim2(durations_trim2 <= (medianDuration+std_duration*3));
+        trueDurationTimes = durations_minusUpper3std(durations_minusUpper3std >= (medianDuration-std_duration*3));
+        
+        medianAddedVol = median(addedVolumes_trim2);
+        std_addedVol = std(addedVolumes_trim2);
+        addedVol_minusUpper3std = addedVolumes_trim2(addedVolumes_trim2 <= (medianAddedVol+std_addedVol*3));
+        trueAddedVolumes = addedVol_minusUpper3std(addedVol_minusUpper3std >= (medianAddedVol-std_addedVol*3));
+        
         % 11. calculate count number of data points per bin
+        count_birthSize_true = length(trueBirthVolumes); % birth size
+        count_duration = length(trueDurationTimes);      % curve duration
+        count_addedVolume = length(trueAddedVolumes);    % added volume
         
-        % birth size
-        count_birthSize_true = length(trueBirthVolumes_trim2);%
         
-        % curve duration
-        count_duration = length(trueDurations_trim2);
+        %%
+        % 13. bin data and normalize bin counts by total counts
+        % 14. plot pdf and histograms per experiment
         
-        % added volume
-        count_addedVolume = length(trueAddedVolumes_trim2);
-
-        
-%% plotting!
-
-        % 12. bin data and normalize bin counts by total counts
-        % 13. plot pdf and histograms per experiment
-
         % birth size, for full cycles only
         binSize = 0.2; % cubic microns
         largestBirthSize = 10; % cubic microns
         
         binVector = linspace(0, largestBirthSize/binSize, largestBirthSize/binSize +1)' *0.2;
-        assignedBins = ( ceil(trueBirthVolumes_trim2 * 5) );
+        assignedBins = ( ceil(trueBirthVolumes * 5) );
         
-        binnedBirthVolumes_true = accumarray(assignedBins, trueBirthVolumes_trim2, [], @(x) {x});
+        binnedBirthVolumes_true = accumarray(assignedBins, trueBirthVolumes, [], @(x) {x});
         binCounts = cellfun(@length,binnedBirthVolumes_true);
         pdf_birthVolume = binCounts/count_birthSize_true;
         
@@ -224,30 +233,30 @@ for e = 1:experimentCount
         
         fig_birthSize_true = figure(1);
         if c == 1
-            birthVol_fluc{e} = trueBirthVolumes_trim2;
-            compiled_birthVol_fluc = [compiled_birthVol_fluc; trueBirthVolumes_trim2];
+            birthVol_fluc{e} = trueBirthVolumes;
+            compiled_birthVol_fluc = [compiled_birthVol_fluc; trueBirthVolumes];
             bar(binVector,pdf_birthVolume(1:length(binVector)),'FaceColor',[0 0.7 0.7])% green
             hold on
         else
-            birthVol_stable{e} = trueBirthVolumes_trim2;
-            compiled_birthVol_stable = [compiled_birthVol_stable; trueBirthVolumes_trim2];
+            birthVol_stable{e} = trueBirthVolumes;
+            compiled_birthVol_stable = [compiled_birthVol_stable; trueBirthVolumes];
             bar(binVector,pdf_birthVolume(1:length(binVector)),'FaceColor',[0.25 0.25 0.9])% purple
         end
         title(strcat(date,': n=',num2str(count_birthSize_true)))
         legend('fluc','stable')
         xlabel('cell volume at birth, full cycles only (cubic um)')
         ylabel('pdf')
-        axis([0 largestBirthSize 0 .2])
+        axis([0 largestBirthSize 0 .3])
         
 
         % cell cycle duration
         binSize = 2; % min
-        longestDivTime = 60; % min
+        longestDivTime = 90; % min
         
         binVector = linspace(0, longestDivTime/binSize, longestDivTime/binSize + 1)'*2;
-        assignedBins = ( ceil(trueDurations_trim2/2) );
+        assignedBins = ( ceil(trueDurationTimes/2) );
         
-        binnedDurations = accumarray(assignedBins, trueDurations_trim2, [], @(x) {x});
+        binnedDurations = accumarray(assignedBins, trueDurationTimes, [], @(x) {x});
         binCounts = cellfun(@length,binnedDurations);
         pdf_duration = binCounts/count_duration;
         
@@ -257,13 +266,13 @@ for e = 1:experimentCount
         
         fig_duration = figure(2);
         if c == 1
-            duration_fluc{e} = trueDurations_trim2;
-            compiled_durations_fluc = [compiled_durations_fluc; trueDurations_trim2];
+            duration_fluc{e} = trueDurationTimes;
+            compiled_durations_fluc = [compiled_durations_fluc; trueDurationTimes];
             bar(binVector,pdf_duration(1:length(binVector)),'FaceColor',[0 0.7 0.7])% green
             hold on
         else
-            duration_stable{e} = trueDurations_trim2;
-            compiled_durations_stable = [compiled_durations_stable; trueDurations_trim2];
+            duration_stable{e} = trueDurationTimes;
+            compiled_durations_stable = [compiled_durations_stable; trueDurationTimes];
             bar(binVector,pdf_duration(1:length(binVector)),'FaceColor',[0.25 0.25 0.9])% purple
         end
         title(strcat(date,': n=',num2str(count_duration)))
@@ -278,9 +287,9 @@ for e = 1:experimentCount
         greatestAdd = 10;
         
         binVector = linspace(0, greatestAdd/binSize, greatestAdd/binSize +1)' *0.2;
-        assignedBins = ( ceil(trueAddedVolumes_trim2 * 5) );
+        assignedBins = ( ceil(trueAddedVolumes * 5) );
         
-        binnedAddedVol = accumarray(assignedBins, trueAddedVolumes_trim2, [], @(x) {x});
+        binnedAddedVol = accumarray(assignedBins, trueAddedVolumes, [], @(x) {x});
         binCounts = cellfun(@length,binnedAddedVol);
         pdf_addedVol = binCounts/count_addedVolume;
         if length(pdf_addedVol) < length(binVector)
@@ -289,13 +298,13 @@ for e = 1:experimentCount
         
         fig_addedVol = figure(3);
         if c == 1
-            addedVol_fluc{e} = trueAddedVolumes_trim2;
-            compiled_addedVol_fluc = [compiled_addedVol_fluc; trueAddedVolumes_trim2];
+            addedVol_fluc{e} = trueAddedVolumes;
+            compiled_addedVol_fluc = [compiled_addedVol_fluc; trueAddedVolumes];
             bar(binVector,pdf_addedVol(1:length(binVector)),'FaceColor',[0 0.7 0.7])% green
             hold on
         else
-            addedVol_stable{e} = trueAddedVolumes_trim2;
-            compiled_addedVol_stable = [compiled_addedVol_stable; trueAddedVolumes_trim2];
+            addedVol_stable{e} = trueAddedVolumes;
+            compiled_addedVol_stable = [compiled_addedVol_stable; trueAddedVolumes];
             bar(binVector,pdf_addedVol(1:length(binVector)),'FaceColor',[0.25 0.25 0.9])% purple
         end
         title(strcat(date,': n=',num2str(count_addedVolume)))
@@ -304,10 +313,9 @@ for e = 1:experimentCount
         ylabel('pdf')
         axis([0 greatestAdd 0 .3])
         
-        
-        
-        
+        %15. repeat for each condition, storing fluc and stable data in their own variables
     end
+    
     saveas(fig_birthSize_true,strcat('pdf-birthSize-',date),'epsc')
     close(fig_birthSize_true)
     
@@ -318,18 +326,16 @@ for e = 1:experimentCount
     close(fig_addedVol)
     
     clear fig_birthSize fig_duration fig_addedVol
-    
-
     clear D5 M M_va T filename experimentFolder
     clear mean_birthSize std_birthSize count_birthSize sem_birthSize
     clear mean_duration std_duration count_duration sem_duration
     
-
 end
 
 cd('/Users/jen/Documents/StockerLab/Data_analysis/Monod compiled/LB')
-% violin summary plots
 
+% 16.  after assembling data from all experiments,
+%      plot violin plots comparing distrubtions between fluc and stable for each experiment
 
 % birth size
 violin_birthVol = figure(20);
@@ -339,7 +345,6 @@ ylim([0 largestBirthSize])
 ylabel('volume at birth (cubic microns)')
 saveas(violin_birthVol,strcat('violin-birthVol-upTil-',date),'epsc')
 
-
 % cell cycle duraiton
 violin_duration = figure(21);
 distributionPlot(duration_fluc,'widthDiv',[2 1],'histOri','left','color',[0 0.7 0.7],'showMM',2) % green
@@ -347,7 +352,6 @@ distributionPlot(gca,duration_stable,'widthDiv',[2 2],'histOri','right','color',
 ylim([0 longestDivTime])
 ylabel('cell cycle duration (min)')
 saveas(violin_duration,strcat('violin-duration-upTil-',date),'epsc')
-
 
 % added volume
 violin_addedVol = figure(22);
@@ -358,12 +362,4 @@ ylabel('volume added per cell cycle (cubic microns)')
 saveas(violin_addedVol,strcat('violin-addedVolume-upTil-',date),'epsc')
 
 
-% figure(21)
-% histogram(compiled_birthVol_fluc,'Normalization','pdf','BinWidth',0.2,'FaceColor',[0 0.7 0.7]) % green
-% hold on
-% histogram(compiled_birthVol_stable,'Normalization','pdf','BinWidth',0.2,'FaceColor',[0.25 0.25 0.9]) % purple
-% xlim([0 largestBirthSize])
-% legend('fluc','stable')
-% ylabel('pdf')
-% xlabel('cell volume at birth (cubic um)')
 
