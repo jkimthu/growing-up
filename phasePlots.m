@@ -26,8 +26,9 @@
 %
 
 
-% last updated: 2018 Feb 5
-% commit: generate phase plots of LB experiments up to 2018-02-01
+% last updated: 2018 Feb 13
+% commit: update such that phase plots do not include outliers (data points
+%         exceeding 3 std dev from median) in calculations of mean and error
 
 
 % OK let's go!!
@@ -73,20 +74,18 @@ for e = 1:experimentCount
     if isempty(targetConditions{e})
         continue
     end
-    
 
     % 3. move to experiment folder and build data matrix
-    
     % identify experiment by date
     index = dataIndex(e);
     date = storedMetaData{index}.date;
     
     % exclude outlier from analysis
-%     if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
-%         disp(strcat(date,': excluded from analysis'))
-%         continue
-%     end
-%     disp(strcat(date, ': analyze!'))
+    if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
+        disp(strcat(date,': excluded from analysis'))
+        continue
+    end
+    disp(strcat(date, ': analyze!'))
     
     experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
     cd(experimentFolder)
@@ -146,24 +145,38 @@ for e = 1:experimentCount
         
         if maxTime > 0
             volumes_trim2 = volumes_trim1(birth_times_trim1 <= maxTime);
-            trueDurations_trim2 = finalDurations_trim1(div_times_trim1 <= maxTime);
+            durations_trim2 = finalDurations_trim1(div_times_trim1 <= maxTime);
         else
             volumes_trim2 = volumes_trim1;
-            trueDurations_trim2 = finalDurations_trim1;
+            durations_trim2 = finalDurations_trim1;
         end
         clear birth_times_trim1 div_times_trim1
         
         
+        % 10. trim outliers (those 3 std dev away from sampled median) from final dataset
+        sigma = 3;
+        
+        medianBirthVol = median(volumes_trim2);
+        std_birthVol = std(volumes_trim2);
+        birthVolumes_minusUpper3std = volumes_trim2(volumes_trim2 <= (medianBirthVol+std_birthVol*sigma));
+        trueBirthVolumes = birthVolumes_minusUpper3std(birthVolumes_minusUpper3std >= (medianBirthVol-std_birthVol*sigma));
+        
+        medianDuration = median(durations_trim2);
+        std_duration = std(durations_trim2);
+        durations_minusUpper3std = durations_trim2(durations_trim2 <= (medianDuration+std_duration*sigma));
+        trueDurationTimes = durations_minusUpper3std(durations_minusUpper3std >= (medianDuration-std_duration*sigma));
+        
+        
         % 10. calculate mean and s.e.m. of size
-        mean_birthSize = mean(volumes_trim2);
-        count_birthSize = length(volumes_trim2);
-        std_birthSize = std(volumes_trim2);
+        mean_birthSize = mean(trueBirthVolumes);
+        count_birthSize = length(trueBirthVolumes);
+        std_birthSize = std(trueBirthVolumes);
         sem_birthSize = std_birthSize./sqrt(count_birthSize);
         
         % calculate mean and s.e.m. of curve duration
-        mean_duration = mean(trueDurations_trim2);
-        count_duration = length(trueDurations_trim2);
-        std_duration = std(trueDurations_trim2);
+        mean_duration = mean(trueDurationTimes);
+        count_duration = length(trueDurationTimes);
+        std_duration = std(trueDurationTimes);
         sem_duration = std_duration./sqrt(count_duration);
         
        
@@ -226,11 +239,11 @@ for e = 1:experimentCount
     date = storedMetaData{index}.date;
     
     % exclude outlier from analysis
-%     if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
-%         disp(strcat(date,': excluded from analysis'))
-%         continue
-%     end
-%     disp(strcat(date, ': analyze!'))
+    if strcmp(date, '2017-10-31') == 1 %|| strcmp (timescale, 'monod') == 1
+        disp(strcat(date,': excluded from analysis'))
+        continue
+    end
+    disp(strcat(date, ': analyze!'))
     
     for i = 1:length(targetConditions{e})
         c = targetConditions{e}(i);
@@ -254,8 +267,6 @@ for e = 1:experimentCount
         
     end
 end
-
-%%
 
 
 shift = 0.01;
