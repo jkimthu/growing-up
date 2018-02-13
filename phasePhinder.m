@@ -45,6 +45,7 @@
 % last edit: jen, 2018 Feb 13
 
 % commit: find amplitude and phase shift between junc and xy10 fluorescein
+% in all three experiments with appropriate datasets
 
 % OK lez go!
 
