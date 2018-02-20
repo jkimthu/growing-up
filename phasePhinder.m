@@ -21,10 +21,9 @@
 
 % thus, i'm using other solutions to quantify period, amplitude, and phase shift
 
-
-% ONE. strategy for fluorescein tests:
-%       
-%       0. initialize experiment parameters, includign intended signal period
+% ONE. strategy based on finding signal peaks:
+%     
+%       0. initialize experiment parameters, including intended signal period
 %       1. load signal and time data
 %       2. find time location of transitions (upshifts and downshifts) 
 %               i. find local max of signal derivative
@@ -41,15 +40,24 @@
 
 
 
+% TWO. strategy based on best alignment (overlap) between two signals
 
-% last edit: jen, 2018 Feb 13
+%       0. initialize experiment parameters, including intended signal period
+%       1. load signal and time data
 
-% commit: find amplitude and phase shift between junc and xy10 fluorescein
-% in all three experiments with appropriate datasets
+
+% last edit: jen, 2018 Feb 20
+
+% commit: adding new method to measure phase shift, using a normalized
+%         cross correlation to determine the time lag between junction and
+%         xy10. note: current fluorescein timeseries are imaged with "no
+%         delay", in other words: inconsistent frame rate. since
+%         cross-correlation works with indeces, it's not so effect for
+%         these.
 
 % OK lez go!
 
-%% ONE. between fluorescein signal at junction and xy10
+%% ONE. finding peaks of signal and derivative
 
 clear
 clc
@@ -85,7 +93,7 @@ for i = 1:3 % currently only three experiments with this type of test
     cd(exptFolder);
     [signals,timestamps] = calculateFluoresceinSignal(experiment); % 1st column = junc, 2nd column = xy10
     
-    %% CALCULATING PERIOD AND PHASE SHIFT
+    % CALCULATING PERIOD AND PHASE SHIFT
     
     % 2. find time location of transitions (upshifts and downshifts)
     %    by finding local max and min of signal derivative
@@ -156,7 +164,7 @@ for i = 1:3 % currently only three experiments with this type of test
     
    
     
-    %% CALCULATING AMPLITUDE
+    % CALCULATING AMPLITUDE
     
     % 5. find time location of local max and min of fluorescent signal
     
@@ -188,7 +196,7 @@ for i = 1:3 % currently only three experiments with this type of test
     
 
 end
-%%
+%
 % 7. plot data
 barWidth = 0.6;
 
@@ -228,15 +236,177 @@ set(gca,'xticklabel',{'2017-11-15','2018-01-31','2018-02-01'});
 title('measured amplitude and standard deviation')
 ylabel('mean signal amplitude (a.u.)')
 
+%% TWO. find shift that produces greatest overlap between reference and test signals (x-corr)
+
+%       0. initialize experiment parameters, including intended signal period
+%       1. load signal and time data
+%       2. perform cross-correlation between two signals
+
+clear
+clc
+
+i = 1;
+
+% 0. initialize experiment parameters, includign intended signal period
+if i == 1
+    
+    experiment = '2017-11-15';  % date of experiment
+    type = 'fluorescein';       % experiment type, fluorescein OR growth
+    period = 30;                % in seconds, period used in 2017-11-15 tests
+    scale = 5/6;
+    
+elseif i == 2
+    
+    experiment = '2018-01-31';  % date of experiment
+    type = 'fluorescein';       % experiment type, fluorescein OR growth
+    period = 10;                % in seconds, period used in 2018-01-31 tests
+    scale = 2/3;
+    
+elseif i == 3
+    
+    experiment = '2018-02-01';  % date of experiment
+    type = 'fluorescein';       % experiment type, fluorescein OR growth
+    period = 10;                % in seconds, period used in 2018-02-01 tests
+    scale = 2/3;
+    
+end
+
+% 1. load signal and time data
+exptFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
+cd(exptFolder);
+[signals,timestamps] = calculateFluoresceinSignal(experiment); % 1st column = junc, 2nd column = xy10
+%%
+clearvars -except signals experiment exptFolder period timestamps
+%%
+% 2. perform cross-correlation between two signals
+
+% initialize signals
+signal_lengths = cellfun(@length, signals);
+trimTo = min(signal_lengths);
+s1 = signals{1}(1:trimTo)'; % reference signal
+s2 = signals{2}(1:trimTo)'; % test signal
+
+t1 = timestamps(1:trimTo,1);   % timestamps for reference signal
+t2 = timestamps(1:trimTo,2);   % timestamps for test signal
+
+% plot signals in real time (un aligned)
+figure(1)
+plot(t1,s1)
+hold on
+plot(t2,s2)
+xlabel('Time (s)')
+ylabel('sum intensity (a.u.)')
+legend('reference','test')
+
+% cross correlate raw signals and find index of optimal correlation value
+[corr_results,lags] = xcorr(s2,s1);
+[~,index] = max(abs(corr_results)); % ~ does not keep val, vector of cross-correction values
+lagDiff = lags(index); % lagDiff = 0, when signals are identical, even if not in time
+
+% shift reference signal (s1) back in time by lag to visualize result
+shift = nan([-lagDiff 1],'double'); % +1 to lag diff to account for 1-based indexing used by Matlab
+s1_aligned = [shift; s1]; 
+t1_aligned = [t1; shift];
+
+figure(2)
+plot(t1_aligned,s1_aligned)
+hold on
+plot(t2,s2)
+xlabel('Time (s)')
+ylabel('sum intensity (a.u.)')
+legend('reference aligned','test')
+title('reference aligned to test')
+
+% normalized cross correlation
+[corr_results_normalized,lags_normalize] = xcorr(s2,s1,'coeff');
+[~,index_normalized] = max(abs(corr_results_normalized)); % ~ does not keep val, vector of cross-correction values
+lagDiff_normalized = lags_normalize(index_normalized); % lagDiff = 0, when signals are identical, even if not in time
+
+% shift reference signal (s1) back in time by lag to visualize result
+shift_normalized = nan([-lagDiff_normalized 1],'double'); % +1 to lag diff to account for 1-based indexing used by Matlab
+s1_aligned_normalized = [shift_normalized; s1]; 
+t1_aligned_normalized = [t1; shift_normalized];
+
+figure(3)
+plot(t1_aligned_normalized,s1_aligned_normalized)
+hold on
+plot(t2,s2)
+xlabel('Time (s)')
+ylabel('sum intensity (a.u.)')
+legend('reference aligned','test')
+title('reference aligned to test')
 
 
+% after confirming cross correlation result, calculate shift in time
+t0 = t1(1); % positive = y is shifter t time later than x
+t_shift = t1(-lagDiff+1);
 
 
+%% learning & testing cross-correlation function
+close all
+clc
 
+% two signals
+x = [0 0 1 5 1 -2 -3 -2 0 0 0 0]';
+y = [0 0 0 0 1 5 1 -2 -3 -2 0 0]';
 
+% timestep and index
+dt = 1.2;
+tx = [1 2 3 4 5 6 7 8 9 10 11 12]'*dt;
+ty = [1 2 3 4 5 6 7 8 9 10 11 12]'*dt;
 
+% visualize signals over time
+figure(1)
+subplot(2,1,1)
+plot(tx,x)
+title('reference signal')
 
+subplot(2,1,2)
+plot(ty,y)
+title('test signal')
+xlabel('Time (s)')
 
+% compute cross-correlation as signal y slides over x
+[corr_results,lags] = xcorr(x,y);
+[~,index] = max(abs(corr_results)); % ~ does not keep val, vector of cross-correction values
+lagDiff = lags(index); % lagDiff = 0, when signals are identical, even if not in time
+
+shift = nan([-lagDiff 1],'double'); % +1 to lag diff to account for 1-based indexing used by Matlab
+x_aligned = [shift; x]; 
+tx_aligned = [tx; shift];
+
+figure(2)
+plot(tx,x)
+hold on
+plot(ty,y)
+hold on
+plot(tx_aligned,x_aligned,'o')
+xlabel('Time (s)')
+ylabel('normalized intensity (a.u.)')
+legend('reference','test','reference aligned')
+title('reference aligned to test, normalized signals')
+
+t=-dt*lagDiff; % positive = y is shifter t time later than x
+
+%% when a non-normalized correlation can be more beneficial than a normalized one
+% adapted from a video by David Doran on YouTube, explaining and demo-ing normalized correlations
+
+t = (0:100-1)/100;
+s1 = cos(2*pi*1*t);
+s2 = cos(2*pi*4*t);
+s3 = cos(2*pi*10*t);
+
+% the following signals contain the three sinusoids above
+a = 2*s1 + 4*s2 + s3;
+b = s1 + s2;
+
+% comparing the results, it can be seen that non-normalized correlation is
+% useful for identifying how strongly resent one signal is in another
+corr_result_1 = sum(a.*s1)
+norm_corr_result_1 = sum(a.*s1)/sqrt((sum(a.^2).*sum(s1.^2)))
+
+corr_result_2 = sum(b.*s1)
+norm_corr_result_2 = sum(b.*s1)/sqrt((sum(b.^2).*sum(s1.^2)))
 
 
 
