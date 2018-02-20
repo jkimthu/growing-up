@@ -9,6 +9,7 @@
 %               4. concentrations
 %               5. xys per condition: each row represents a condition
 %               6. signal timestamp: first printed line of signal onset
+%               7. flow rate, in ul/min as measured from MPG
 %
 %       each field is stored in a structure, contained in a matrix of cells,
 %       such that:
@@ -35,14 +36,16 @@
 %       8. prompt user for bubbles in high
 %       9. assign bubble appearance times to field (bubbletime)
 %      10. prompt user for signal timestamp
-%      11. assign data structure to new (experiment-specific cell)
-%      12. save stored meta data
+%      11. prompt user for measured flow rate through MPG 
+%      12. assign data structure to new (experiment-specific cell)
+%      13. save stored meta data
 
-%      13. to add new variables to previously saved cells:
+%      14. to add new variables to previously saved cells:
+%           - for strategy, scroll to section
 
 
-% last updated: 2018 Feb 5
-% commit message: create new cell for new experiment: 2018-02-01 (60 min)
+% last updated: 2018 Feb 20
+% commit message: add measured flow rate (Q) through MPG as a meta data variable
 
 
 % OK let's go!
@@ -132,51 +135,71 @@ prompt = 'Enter signal timestamp (enter NaN if non-existent or not applicable): 
 signal_timestamp = input(prompt);
 metadata(1).signal_timestamp = signal_timestamp;
 
-%% 11. assign data structure to new (experiment-specific cell)
+% 11. prompt user for measured flow rate through MPG
+prompt = 'Enter flow rate in ul/min (enter NaN if non-existent or not applicable): ';
+flowRate = input(prompt);
+metadata(1).flow_rate = flowRate;
+
+
+%% 12. assign data structure to new (experiment-specific cell)
 
 % prompt user for row number
 prompt = 'Enter row number of new experiment replicate: ';
 row = input(prompt);
 storedMetaData{row,column} = metadata;
 
-%% 12. save storedMetaData
+%% 13. save storedMetaData
 save('storedMetaData.mat','storedMetaData')
 
-%% 13. add new variable to pre-existing cell of experiment meta data
+%% 14. add new variable to pre-existing cell of experiment meta data
+
+% last used: jen, 2018 Feb 20
+% for adding flow rate to all existing data sets
+
+
+% strategy:
+%           0. initialize existing meta data structure
+%           1. copy data structure -- safety first!
+%           2. collect summary info for existing data
+%           3. for all experiments (cells with data),
+%                 3. print experiment date
+%                 4. prompt user to enter value of new variable
+%                 5. store variable into copy of meta data
+%           6. if satisfied, save copy with new variable as true meta data
 
 clear
 clc
 
+% 0. initialize
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
-% initialize summary vectors for calculated data
+% 1. copy data structure -- safety first!
+copyMD = storedMetaData;
+
+% 2. collect summary info for existing data
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 bioProdRateData = cell(size(storedMetaData));
 experimentCount = length(dataIndex);
 
-copyMD = storedMetaData;
-
-% a. for all cells with values
+% for all experiments (cells with data)
 for e = 1:experimentCount
     
-    % b. print date
+    % 3. print experiment date
     index = dataIndex(e);
     date = storedMetaData{index}.date;
       
-    % c. prompt user to enter value of variable
-    prompt = strcat('Enter value of new variable (signal timestamp of .', date,' data): ');
-    signal_timestamp = input(prompt);
+    % 4. prompt user to enter value of new variable
+    prompt = strcat('Enter value of new variable (flow rate measured on .', date,' : ');
+    flowRate = input(prompt);
 
-    % d. store variable
+    % 5. store variable into copy of meta data
     currentStructure = copyMD{index};
-    currentStructure.signal_timestamp = signal_timestamp;
-    
+    currentStructure.flow_rate = flowRate;
     copyMD{index} = currentStructure;
 
-% f. loop through all experiments
 end
-%%
+%% (14) 6. save copy with new variable as true meta data
 storedMetaData = copyMD;
 save('storedMetaData.mat','storedMetaData')
 
