@@ -37,15 +37,19 @@
 %       9. assign bubble appearance times to field (bubbletime)
 %      10. prompt user for signal timestamp
 %      11. prompt user for measured flow rate through MPG 
+
 %      12. assign data structure to new (experiment-specific cell)
 %      13. save stored meta data
 
-%      14. to add new variables to previously saved cells:
-%           - for strategy, scroll to section
+%      14. add new variables to previously saved cells:
+%                - for strategy, scroll to section
+
+%      15. add x coordinates to previously saved cells
+%                - for strategy, scroll to section
 
 
-% last updated: 2018 Feb 20
-% commit message: add measured flow rate (Q) through MPG as a meta data variable
+% last updated: 2018 Feb 21
+% commit message: add x coordinates of cell positions and junction for all experiments
 
 
 % OK let's go!
@@ -199,7 +203,71 @@ for e = 1:experimentCount
     copyMD{index} = currentStructure;
 
 end
-%% (14) 6. save copy with new variable as true meta data
+%% (14) continued
+% 6. save copy with new variable as true meta data
 storedMetaData = copyMD;
 save('storedMetaData.mat','storedMetaData')
 
+%% 15. add x coordinates from cell positions and junc to existing data structure
+
+% last used: jen, 2018 Feb 21
+% for adding x-coordinates to all existing data sets (thru 2018-02-01)
+
+
+% strategy:
+%           0. initialize existing meta data structure
+%           1. copy data structure -- safety first!
+%           2. collect summary info for existing data
+%           3. load positions recorded on excel files
+%           4. for all experiments (cells with data),
+%                 4. print experiment date
+%                 5. assign cell positions to 10-value array and print
+%                 6. assign junc position and print
+%                 7. store variables into copy of meta data
+%           8. if satisfied, save copy with new variable as true meta data
+
+clear
+clc
+
+% 0. initialize
+cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+load('storedMetaData.mat')
+
+% 1. copy data structure -- safety first!
+copyMD = storedMetaData;
+
+% 2. collect summary info for existing data
+dataIndex = find(~cellfun(@isempty,storedMetaData));
+bioProdRateData = cell(size(storedMetaData));
+experimentCount = length(dataIndex);
+
+% 3. load positions recorded on excel files
+x_junc = xlsread('xPositions_junction.xlsx');
+x_cells = xlsread('xPositions_cells.xlsx');
+
+
+% for all experiments (cells with data)
+for e = 1:experimentCount
+    
+    % 4. print experiment date
+    index = dataIndex(e);
+    date = storedMetaData{index}.date
+    
+    % 5. assign cell positions to 10-value array
+    x_cellPositions = x_cells(3:12,index)
+    
+    % 6. assign junc position and print
+    x_juncPosition = x_junc(3,index)
+    
+    % 7. store variables into copy of meta data
+    currentStructure = copyMD{index};
+    currentStructure.x_cell = x_cellPositions;
+    currentStructure.x_junc = x_juncPosition;
+    copyMD{index} = currentStructure;
+    
+end
+
+%% (15) continued
+% 8. if satisfied, save copy with new variable as true meta data
+storedMetaData = copyMD;
+save('storedMetaData.mat','storedMetaData')
