@@ -16,9 +16,9 @@
 
 
 
-%  Last edit: jen, 2018 Feb 5
+%  Last edit: jen, 2018 Feb 22
 
-%  commit: update summary plot section to experiments through 2018-02-01
+%  commit: update comments to reflect strategy
 
 
 %% original, single experiment plots with high pulse in center
@@ -183,17 +183,30 @@ end
 
 %  Strategy:
 %
+%     0. initialize analysis parameters
 %     0. initialize complete meta data
 %     1. for all experiments in dataset:
-%           2. initialize collect experiment date and exclude outliers
+%           2. collect experiment date and exclude outliers (2017-10-31)
 %           3. initialize experiment meta data
-%           4. load measured data
-%           5. for each condition
-%                 6. isolate data of interest
-%                 7. remove data not in stabilized region
-%                 8. remove zeros from mu data (always bounding start and end of tracks)
-%                 9. accumulate data points by SHIFTED time bin (period fraction)
-%     7. plot for all isolated groups
+%           4. load measured data for stable condition
+%           5. find average growth rate of stable average condition
+%                       i. isolate data
+%                      ii. remove data not in stabilized region
+%                     iii. remove zeros from mu data (always bounding start and end of tracks)
+%                      iv. calculate mean value for of mu and bvpr in stable
+%           6. for fluctuating condition, load measured data
+%                       i. isolate data of interest
+%                      ii. normalize mu and bvpr data by mean of stable average condition
+%                     iii. remove data not in stabilized region
+%                      iv. remove zeros from mu data (always bounding start and end of tracks)
+%           7. accumulate data by shifted time bin (period fraction)
+%                       i. from original timestamp, subtract shift = period/4 + offset
+%                      ii. re-define period to begin at start of high nutrient pulse
+%                     iii. bin data by period fraction
+%           8.  convert bin # to absolute time (in seconds)
+%           9.  calculate average and s.e.m. per timebin
+%          10.  plot, with repeated high nutrient half period at end
+%    11. repeat for all fluctuating experiments
 
 clc
 clear
@@ -326,7 +339,8 @@ for e = 1:experimentCount
     nBVPR_trim3 = nBVPR_trim2(nMus_trim2 > 0);
     Time_trim3 = Time_trim2(nMus_trim2 > 0);
     
-    % 9. accumulate data by shifted time bin (period fraction)
+    
+    % 7. accumulate data by shifted time bin (period fraction)
     %       i. from original timestamp, subtract shift = period/4 + offset
     %          offset = signal timestamp - 900
     timeInSeconds = Time_trim3*3600;
@@ -351,12 +365,12 @@ for e = 1:experimentCount
     binnedMus = accumarray(assignedBin,nMus_trim3,[],@(x) {x});
     binnedBVPR = accumarray(assignedBin,nBVPR_trim3,[],@(x) {x});
     
-    % 10.  convert bin # to absolute time (in seconds)
+    % 8.  convert bin # to absolute time (in seconds)
     timePerBin = timescale/binsPerPeriod;  % in sec
     timeVector = linspace(1, binsPerPeriod, binsPerPeriod);
     timeVector = timePerBin*timeVector';
     
-    % 11.  calculate average and s.e.m. per timebin
+    % 9.  calculate average and s.e.m. per timebin
     meanVector = cellfun(@mean,binnedMus);
     countVector = cellfun(@length,binnedMus);
     stdVector = cellfun(@std,binnedMus);
@@ -367,7 +381,7 @@ for e = 1:experimentCount
     stdBVPR = cellfun(@std,binnedBVPR);
     semBVPR = stdBVPR./sqrt(countBVPR);
     
-    % 12. plot, with some repetition at ends
+    % 10.  plot, with repeated high nutrient half period at end
     addedFraction = binsPerPeriod/2;
     muSignal = [meanVector; meanVector(1:addedFraction)];
     stdSignal = [stdVector; stdVector(1:addedFraction)];
@@ -387,27 +401,7 @@ for e = 1:experimentCount
     timeSignal = [timeVector; additionalShiftedTimes];
     
     
-    %     figure(1)
-    %     errorbar(timeSignal,muSignal,semSignal)
-    %     hold on
-    %     grid on
-    %     axis([min(timeSignal),max(timeSignal),0.25,3.7])
-    %     title('summary plot: real time vs mu response')
-    %     xlabel('Time')
-    %     ylabel('doubling rate of volume (1/hr)')
-    %     legend(datesForLegend)
-    %
-    %     figure(2)
-    %     errorbar(timeSignal,bvpr_Signal,bvpr_semSignal)
-    %     hold on
-    %     grid on
-    %     axis([min(timeSignal),max(timeSignal),0.25,17])
-    %     title('summary plot: real time vs bvpr response')
-    %     xlabel('Time')
-    %     ylabel('biovolume production rate (cubic um/hr)')
-    %     legend(datesForLegend)
-    
-    figure(5)
+    figure(1)
     errorbar(periodFractionSignal,muSignal,semSignal)
     hold on
     grid on
@@ -419,7 +413,7 @@ for e = 1:experimentCount
     ylabel('doubling rate of volume (1/hr)')
     legend(datesForLegend)
     
-    figure(6)
+    figure(2)
     errorbar(periodFractionSignal,bvpr_Signal,bvpr_semSignal)
     hold on
     grid on
@@ -432,8 +426,7 @@ for e = 1:experimentCount
     legend(datesForLegend)
     
 
-
-
+% 11. repeat for all fluctuating experiments
 end
 clearvars -except dataIndex experimentCount exptCounter storedMetaData binsPerPeriod
 
