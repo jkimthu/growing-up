@@ -106,13 +106,13 @@ for n = xy_start:xy_end
         % find and number the full curves within a single track
         curveCounter = 0;                                                  
         for i = 1:length(trackDrops) 
-            if trackDrops(i) == 0                                              % 1. disregard incomplete first curve
-                curveTrack(i,1) = curveCounter;                            %    by starting count at 0   
+            if trackDrops(i) == 0                   % disregard incomplete first curve by starting count at 0 
+                curveTrack(i,1) = curveCounter;     
             elseif (trackDrops(i) == 1)
-                curveCounter = curveCounter + 1;                           % 2. how to disregard final incomplete segment? 
-                if curveCounter <= numberFullCurves                              %    stop when curveCount exceeds number of fullCurves
+                curveCounter = curveCounter + 1;        % how to disregard final incomplete segment? 
+                if curveCounter <= numberFullCurves     % stop when curveCount exceeds number of fullCurves
                     curveTrack(i,1) = curveCounter;
-                else                                                       % all incomplete curves are filled with 0
+                else                                    % all incomplete curves are filled with 0
                     break                                                  
                 end
             end
