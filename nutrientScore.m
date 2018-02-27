@@ -19,12 +19,18 @@
 %               8.  concatenate scores for all tracks
 %       9.  output binaryNutrientSignal and nScore vectors for entire condition
 
+% last update: jen, 2018 Feb 27
+
+% commit: function takes condition data and timescale to calculate nutrient
+%         score, being the fraction of time spent in high nutrient per cell
+%         cycle
+
 
 function [binaryNutrientSignal, nScore] = nutrientScore(timescale,conditionData)
 
 
 % 0. initialize timestamp and volume data
-correctedTime = conditionData(:,30);           % col 2  =  timestamps in sec
+correctedTime = conditionData(:,30);           % col 30  = timestamps, reflecing true time for all conditions in sec
 curveID = conditionData(:,6);                  % col 6  =  curve ID per track
 trackNum = conditionData(:,27);                % col 27 =  track number, not ID from particle tracking
 condVals = conditionData(:,28);                % col 28 =  condition number
