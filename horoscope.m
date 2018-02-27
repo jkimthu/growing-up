@@ -3,17 +3,15 @@
 
 % Goal: are growth phenotypes predicted by when a cell is born? plot multiple stats after binning birth data by nutrient phase
 %
-%       Scatter plots:
+%       Mean and scatter plots:
 %          
-%           1. growth rate (i) biovol production and (ii) doubling of volume
-%           2. cell cycle time
-%           3. growth rate of YOUR DAUGHTER
-%           4. cell cycle time of YOUR DAUGHTER
+%           1. cell cycle duration
+%           2. volume added per cell cycle
 
 
-%  Last edit: Jen Nguyen, 2018 Feb 26
-%  Commit: plot cell cycle durations and added volume per cell cycle as a
-%          function of the nutrient period in which that cell was born
+
+%  Last edit: Jen Nguyen, 2018 Feb 27
+%  Commit: edit plot titles and update comments
 
 %  Strategy:
 %
@@ -25,13 +23,14 @@
 %           4. for stable average... 
 %                  5. isolate isDrop and timestamp data
 %                  6. correct time based on calculated lag in signal between junc and xy position (FLUC ONLY)
-%                  7. isolate birth events (isDrop == 1), corresponding data and timestamps
-%                  8. count number of tracked cells per time bin
-%                  9. PLOT TWO: birth events over time, normalized by tracks per bin
+%                  7. accumulate and trim data to stabilized region based on timestamp
+%                  8. isolate birth events (isDrop == 1), corresponding data and timestamps
+%                  9. re-define period to begin at start of low nutrient pulse, by subtracting quarter period from corrected timestamp
+%                 10. assign elements of timestamp vector to period fraction bins
+%                 11. bin cell cycle durations (greater than 10 min) by period fraction
 %                 12. plot mean and s.e.m. of cell cycle duration over nutrient period 
-%                 13. plot scatter of all bins
-
-%          11. repeat analysis for fluctuating environment, plotting fluc data over stable
+%                 13. plot scatter of cell cycle duration over nutrient period 
+%          14. repeat analysis for fluctuating environment, plotting fluc data over stable
 
 
 % OK! Lez go!
@@ -252,13 +251,13 @@ for e = 14
                 hold on
             end
             axis([min(time_stitched) max(time_stitched) 0 90])
-            title(strcat('stable: ',date))
+            title(strcat('fluc: ',num2str(timescale)))
         end
         xlabel('time (sec)')
         ylabel('cell cycle duration (min)')
         grid on
         
-        % 15. repeat analysis for fluctuating environment, plotting fluc data over stable
+        % 14. repeat analysis for fluctuating environment, plotting fluc data over stable
     end
     clear i environment 
     
@@ -482,7 +481,7 @@ for e = 6:13
                 hold on
             end
             axis([min(time_stitched) max(time_stitched) 0 10])
-            title(strcat('stable: ',date))
+            title(strcat('fluc: ',num2str(timescale)))
         end
         xlabel('time (sec)')
         ylabel('added volume (cubic um)')
