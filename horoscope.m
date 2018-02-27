@@ -9,9 +9,12 @@
 %           2. volume added per cell cycle
 
 
-
 %  Last edit: Jen Nguyen, 2018 Feb 27
-%  Commit: edit plot titles and update comments
+
+%  Commit: edit to reflect new structure for data matrix, which now
+%  includes timestamps corrected for lag between junc and xy positions in
+%  fluc condition
+
 
 %  Strategy:
 %
@@ -22,15 +25,14 @@
 %           3. load measured data for stable condition
 %           4. for stable average... 
 %                  5. isolate isDrop and timestamp data
-%                  6. correct time based on calculated lag in signal between junc and xy position (FLUC ONLY)
-%                  7. accumulate and trim data to stabilized region based on timestamp
-%                  8. isolate birth events (isDrop == 1), corresponding data and timestamps
-%                  9. re-define period to begin at start of low nutrient pulse, by subtracting quarter period from corrected timestamp
-%                 10. assign elements of timestamp vector to period fraction bins
-%                 11. bin cell cycle durations (greater than 10 min) by period fraction
-%                 12. plot mean and s.e.m. of cell cycle duration over nutrient period 
-%                 13. plot scatter of cell cycle duration over nutrient period 
-%          14. repeat analysis for fluctuating environment, plotting fluc data over stable
+%                  6. accumulate and trim data to stabilized region based on timestamp
+%                  7. isolate birth events (isDrop == 1), corresponding data and timestamps
+%                  8. re-define period to begin at start of low nutrient pulse, by subtracting quarter period from corrected timestamp
+%                  9. assign elements of timestamp vector to period fraction bins
+%                 10. bin cell cycle durations (greater than 10 min) by period fraction
+%                 11. plot mean and s.e.m. of cell cycle duration over nutrient period 
+%                 12. plot scatter of cell cycle duration over nutrient period 
+%          13. repeat analysis for fluctuating environment, plotting fluc data over stable
 
 
 % OK! Lez go!
@@ -85,7 +87,7 @@ for e = 14
         condition = environment(i);
         xy_start = storedMetaData{index}.xys(condition,1);
         xy_end = storedMetaData{index}.xys(condition,end);
-        conditionData = buildDM(D5, M, M_va, T, xy_start, xy_end);
+        conditionData = buildDM(D5, M, M_va, T, xy_start, xy_end, e);
         
         % 5. isolate relevant data
         isDrops = conditionData(:,5);           % col 5  =  isDrop; 0 during curve, 1 at birth event
@@ -97,49 +99,17 @@ for e = 14
         biovolProdRt = conditionData(:,29);     % col 29 =  biovolume production rate per timestamp
         mu_va = conditionData(:,17);            % col 17 =  doubling rate of volume
         durations = conditionData(:,8);         % col 8  =  curve durations
-        
+        correctedTimes = conditionData(:,30);   % col 30 =  true times after lag correction
             
-        % 6. correct time based on calculated lag in signal between junc and xy position
-        if condition == 1 % IN FLUCTUATING ENVIRONMENT
 
-            % 6i. initialize xy positions, lag times, and empty vector for compiling corrected timestamps
-            XYs = unique(stagePositions);
-            [lagTimes,~] = calculateLag(e);
-            
-            % 6ii. for each xy position
-            correctedTimes = [];
-            for position = 1:length(XYs)
-                
-                % iii. identify position and corresponding lag time
-                currentXY = XYs(position);
-                currentLag = lagTimes(position);
-                
-                % iv. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-                edits = Time(stagePositions==currentXY) - currentLag;
-                
-                % v. re-assign
-                correctedTimes = [correctedTimes; edits];
-                
-            end
-            disp(strcat('Fluctuating condition (',num2str(condition), '): correcting timestamps!'))
-            clear currentXY currentLag edits XYs lagTimes position
-                
-        else % in stable environemnt, use original timestamps
-            
-            disp(strcat('Stable condition (',num2str(condition), '): no timestamp correction necessary'))
-            correctedTimes = Time;
-            
-        end
-        
-        
-        % 7. accumulate data for easy trimming
+        % 6. accumulate data for easy trimming
         data = [isDrops correctedTimes stagePositions trackNum curveFinder biovolProdRt mu_va durations];
         
-        % 7i. trim data to timepoints after 3 hrs 
+        % 6i. trim data to timepoints after 3 hrs 
         data_trim1 = data(correctedTimes/3600 >= 3,:);
          
         
-        % 7ii. trim data to timepoints before appearance of bubbles
+        % 6ii. trim data to timepoints before appearance of bubbles
         if bubbleTime(condition) > 0
             
             data_trim2 = data_trim1(data_trim1(:,2)/3600 <= bubbleTime(condition),:);
@@ -150,12 +120,12 @@ for e = 14
                        
         end
         
-        % 7iii. recover data as individual
+        % 6iii. recover data as individual
         isDrops_trimmed = data_trim2(:,1);
         bvpr_trimmed = data_trim2(:,6);
         mus_trimmed = data_trim2(:,7);
         
-        % 8. isolate birth events (isDrop == 1), corresponding data and timestamps
+        % 7. isolate birth events (isDrop == 1), corresponding data and timestamps
         birthEvents = isDrops_trimmed(isDrops_trimmed == 1,1);
         birthEvent_timestamps = data_trim2(isDrops_trimmed == 1,2);
         
@@ -164,21 +134,21 @@ for e = 14
         birthEvent_durations = data_trim2(isDrops_trimmed == 1,8)/60; % min
 
         
-        % 9.  re-define period to begin at start of low nutrient pulse, by
+        % 8.  re-define period to begin at start of low nutrient pulse, by
         %     subtracting quarter period from corrected timestamp
         shifted_birthTimestamps = birthEvent_timestamps - (timescale/4);
         
-        % 10. assign elements of timestamp vector to period fraction bins
+        % 9. assign elements of timestamp vector to period fraction bins
         timeInPeriods = shifted_birthTimestamps/timescale; % unit = sec/sec
         timeInPeriodFraction = timeInPeriods - floor(timeInPeriods);
         assignedBin = ceil(timeInPeriodFraction * binsPerPeriod);
         
-        % 11. bin cell cycle durations by period fraction
-        % 11. (i) first remove all durations of lesser than 10 min
+        % 10. bin cell cycle durations by period fraction
+        % 10. (i) first remove all durations of lesser than 10 min
         birthEvent_durations_trimmedByDuration = birthEvent_durations(birthEvent_durations > 10);
         assignedBin_trimmedByDuration = assignedBin(birthEvent_durations > 10);
         
-        % 11. (ii) bin
+        % 10. (ii) bin
         durations_binnedByPeriodFraction = accumarray(assignedBin_trimmedByDuration, birthEvent_durations_trimmedByDuration, [], @(x) {x});
         
         durations_binned_mean = cellfun(@mean,durations_binnedByPeriodFraction);
@@ -187,13 +157,13 @@ for e = 14
         durations_binned_sem = durations_binned_std./durations_binned_count;
         
         
-        % 12. plot mean and s.e.m. of cell cycle duration over nutrient period 
-        % 12. (i) convert bin # to absolute time (sec)
+        % 11. plot mean and s.e.m. of cell cycle duration over nutrient period 
+        % 11. (i) convert bin # to absolute time (sec)
         timePerBin = timescale/binsPerPeriod;  % in sec
         binPeriod = linspace(1, binsPerPeriod, binsPerPeriod);
         timePeriod = timePerBin*binPeriod';
 
-        % 12. (ii) repeat quarter period on both sides and plot over period fraction
+        % 11. (ii) repeat quarter period on both sides and plot over period fraction
         quarterOne = linspace(1,binsPerPeriod/4,binsPerPeriod/4);
         quarterFour = linspace(binsPerPeriod*3/4+1,binsPerPeriod,binsPerPeriod/4);
         quarterZero = linspace((binsPerPeriod/4-1),0,binsPerPeriod/4)*-1;
@@ -225,7 +195,7 @@ for e = 14
         grid on
        
         
-        % 13. plot scatter of cell cycle duration over nutrient period 
+        % 12. plot scatter of cell cycle duration over nutrient period 
         scatter_quarterOne = durations_binnedByPeriodFraction(quarterOne,1);
         scatter_quarterFour = durations_binnedByPeriodFraction(quarterFour,1);
         scatter_stitched = [scatter_quarterFour; durations_binnedByPeriodFraction; scatter_quarterOne];
@@ -257,7 +227,7 @@ for e = 14
         ylabel('cell cycle duration (min)')
         grid on
         
-        % 14. repeat analysis for fluctuating environment, plotting fluc data over stable
+        % 13. repeat analysis for fluctuating environment, plotting fluc data over stable
     end
     clear i environment 
     
@@ -327,53 +297,19 @@ for e = 6:13
         
         % 5. isolate relevant data
         isDrops = conditionData(:,5);           % col 5  =  isDrop; 0 during curve, 1 at birth event
-        Time = conditionData(:,2);              % col 2  =  timestamps in sec
         stagePositions = conditionData(:,24);   % col 24 =  stage number, xy position from which data originates
         vaAdded = conditionData(:,20);          % col 20 =  volume (cylinder with caps) added over cell cycle
+        correctedTimes = conditionData(:,30);   % col 30 =  timestamps corrected for lag between junc and xy positions
         
-        
-            
-        % 6. correct time based on calculated lag in signal between junc and xy position
-        if condition == 1 % IN FLUCTUATING ENVIRONMENT
-
-            % 6i. initialize xy positions, lag times, and empty vector for compiling corrected timestamps
-            XYs = unique(stagePositions);
-            [lagTimes,~] = calculateLag(e);
-            
-            % 6ii. for each xy position
-            correctedTimes = [];
-            for position = 1:length(XYs)
-                
-                % iii. identify position and corresponding lag time
-                currentXY = XYs(position);
-                currentLag = lagTimes(position);
-                
-                % iv. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-                edits = Time(stagePositions==currentXY) - currentLag;
-                
-                % v. re-assign
-                correctedTimes = [correctedTimes; edits];
-                
-            end
-            disp(strcat('Fluctuating condition (',num2str(condition), '): correcting timestamps!'))
-            clear currentXY currentLag edits XYs lagTimes position
-                
-        else % in stable environemnt, use original timestamps
-            
-            disp(strcat('Stable condition (',num2str(condition), '): no timestamp correction necessary'))
-            correctedTimes = Time;
-            
-        end
-        
-        
-        % 7. accumulate data for easy trimming
+                  
+        % 6. accumulate data for easy trimming
         data = [isDrops correctedTimes stagePositions vaAdded];
         
-        % 7i. trim data to timepoints after 3 hrs 
+        % 6i. trim data to timepoints after 3 hrs 
         data_trim1 = data(correctedTimes/3600 >= 3,:);
          
         
-        % 7ii. trim data to timepoints before appearance of bubbles
+        % 6ii. trim data to timepoints before appearance of bubbles
         if bubbleTime(condition) > 0
             
             data_trim2 = data_trim1(data_trim1(:,2)/3600 <= bubbleTime(condition),:);
@@ -384,31 +320,31 @@ for e = 6:13
                        
         end
         
-        % 7iii. recover data as individual
+        % 6iii. recover data as individual
         isDrops_trimmed = data_trim2(:,1);
         
         
-        % 8. isolate birth events (isDrop == 1), corresponding data and timestamps
+        % 7. isolate birth events (isDrop == 1), corresponding data and timestamps
         birthEvents = isDrops_trimmed(isDrops_trimmed == 1,1);
         birthEvent_timestamps = data_trim2(isDrops_trimmed == 1,2);
         birthEvent_addedVol = data_trim2(isDrops_trimmed == 1,4);
        
    
-        % 9.  re-define period to begin at start of low nutrient pulse, by
+        % 8.  re-define period to begin at start of low nutrient pulse, by
         %     subtracting quarter period from corrected timestamp
         shifted_birthTimestamps = birthEvent_timestamps - (timescale/4);
         
-        % 10. assign elements of timestamp vector to period fraction bins
+        % 9. assign elements of timestamp vector to period fraction bins
         timeInPeriods = shifted_birthTimestamps/timescale; % unit = sec/sec
         timeInPeriodFraction = timeInPeriods - floor(timeInPeriods);
         assignedBin = ceil(timeInPeriodFraction * binsPerPeriod);
         
-        % 11. bin addedVolumes by period fraction
-        % 11. (i) first remove all zero-valued added volumes
+        % 10. bin addedVolumes by period fraction
+        % 10. (i) first remove all zero-valued added volumes
         addedVolumes_nonZeros = birthEvent_addedVol(birthEvent_addedVol > 0);
         assignedBin_nonZeros = assignedBin(birthEvent_addedVol > 0);
         
-        % 11. (ii) bin
+        % 10. (ii) bin
         addedVolumes_binnedByPeriodFraction = accumarray(assignedBin_nonZeros, addedVolumes_nonZeros, [], @(x) {x});
         
         addedVol_binned_mean = cellfun(@mean,addedVolumes_binnedByPeriodFraction);
@@ -417,13 +353,13 @@ for e = 6:13
         addedVol_binned_sem = addedVol_binned_std./addedVol_binned_count;
         
         
-        % 12. plot mean and s.e.m. of cell cycle duration over nutrient period 
-        % 12. (i) convert bin # to absolute time (sec)
+        % 11. plot mean and s.e.m. of cell cycle duration over nutrient period 
+        % 11. (i) convert bin # to absolute time (sec)
         timePerBin = timescale/binsPerPeriod;  % in sec
         binPeriod = linspace(1, binsPerPeriod, binsPerPeriod);
         timePeriod = timePerBin*binPeriod';
 
-        % 12. (ii) repeat quarter period on both sides and plot over period fraction
+        % 11. (ii) repeat quarter period on both sides and plot over period fraction
         quarterOne = linspace(1,binsPerPeriod/4,binsPerPeriod/4);
         quarterFour = linspace(binsPerPeriod*3/4+1,binsPerPeriod,binsPerPeriod/4);
         quarterZero = linspace((binsPerPeriod/4-1),0,binsPerPeriod/4)*-1;
@@ -455,7 +391,7 @@ for e = 6:13
         grid on
        
         
-        % 13. plot scatter of cell cycle duration over nutrient period 
+        % 12. plot scatter of cell cycle duration over nutrient period 
         scatter_quarterOne = addedVolumes_binnedByPeriodFraction(quarterOne,1);
         scatter_quarterFour = addedVolumes_binnedByPeriodFraction(quarterFour,1);
         scatter_stitched = [scatter_quarterFour; addedVolumes_binnedByPeriodFraction; scatter_quarterOne];
@@ -487,7 +423,7 @@ for e = 6:13
         ylabel('added volume (cubic um)')
         grid on
         
-        % 15. repeat analysis for fluctuating environment, plotting fluc data over stable
+        % 13. repeat analysis for fluctuating environment, plotting fluc data over stable
     end
     clear i environment 
     
