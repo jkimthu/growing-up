@@ -3,11 +3,11 @@
 % adapted from matrixBuilder, but prevents need to save data matrices.
 % ideal for smaller inputs that take less time to process.
 
-% last updated: jen, 2018 Jan 25
-% commit: edit function to receive inputs for which xy positions (start and end n values) to loop through
+% last updated: jen, 2018 Feb 27
+% commit: add lag corrected timestamps to data matrix
 
 
-function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end)
+function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
 %% initialize all values
 
 condVals = [];     % col 28
@@ -32,8 +32,8 @@ bioProdRate = []; % col 29
 
 dropThreshold = -0.75;  % consider greater negatives a division event
 isDrop = [];            % col 5
-                                                   
-curveFinder = [];     % col 6                                                       
+
+curveFinder = [];     % col 6
 timeSinceBirth = [];  % col 7
 
 curveDurations = [];  % col 8
@@ -54,10 +54,10 @@ angle = [];       % col 26
 %% loop through all xy positions and all tracks for data concatenation
 
 for n = xy_start:xy_end
-
-    for m = 1:length(D5{n})                                                
+    
+    for m = 1:length(D5{n})
         
-        %% track ID                                                        
+        %% track ID
         lengthCurrentTrack = length(D5{n}(m).TrackID);
         Track = D5{n}(m).TrackID;
         trackID = [trackID; Track];
@@ -91,7 +91,7 @@ for n = xy_start:xy_end
         mu_vaTrack = zeros(lengthCurrentTrack,1);
         measuredMus_va = M_va{n}(m).mu_va(:,1);
         mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
-        mu_vaVals = [mu_vaVals; mu_vaTrack];   
+        mu_vaVals = [mu_vaVals; mu_vaTrack];
         
         %% drop?
         dropTrack = diff(lengthTrack);
@@ -100,20 +100,20 @@ for n = xy_start:xy_end
         isDrop = [isDrop; trackDrops];
         
         %% curve finder: identifying full curves for cell cycle stats
-        numberFullCurves = sum(trackDrops) - 1;                                % all curves start and end with a division, isDrop = 1                                      
+        numberFullCurves = sum(trackDrops) - 1;                                % all curves start and end with a division, isDrop = 1
         curveTrack = zeros(length(trackDrops),1);
         
         % find and number the full curves within a single track
-        curveCounter = 0;                                                  
-        for i = 1:length(trackDrops) 
-            if trackDrops(i) == 0                   % disregard incomplete first curve by starting count at 0 
-                curveTrack(i,1) = curveCounter;     
+        curveCounter = 0;
+        for i = 1:length(trackDrops)
+            if trackDrops(i) == 0                   % disregard incomplete first curve by starting count at 0
+                curveTrack(i,1) = curveCounter;
             elseif (trackDrops(i) == 1)
-                curveCounter = curveCounter + 1;        % how to disregard final incomplete segment? 
+                curveCounter = curveCounter + 1;        % how to disregard final incomplete segment?
                 if curveCounter <= numberFullCurves     % stop when curveCount exceeds number of fullCurves
                     curveTrack(i,1) = curveCounter;
                 else                                    % all incomplete curves are filled with 0
-                    break                                                  
+                    break
                 end
             end
         end
@@ -124,7 +124,7 @@ for n = xy_start:xy_end
         %% widths
         widthTrack = D5{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
-            
+        
         %% volumes
         v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder = pi * r^2 * h
         v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
@@ -139,11 +139,11 @@ for n = xy_start:xy_end
         clear v_ellipse v_cylinder vol_sphere vol_smallCylinder
         clear widthTrack
         
-        %% time since birth, size added per cell cycle and curve duration                                                
+        %% time since birth, size added per cell cycle and curve duration
         
         % initialize data vectors
         tsbPerTrack = zeros(lengthCurrentTrack,1);
-        durationsPerTrack = zeros(numberFullCurves,1); 
+        durationsPerTrack = zeros(numberFullCurves,1);
         lengthPerTrack = zeros(numberFullCurves,1);
         vaPerTrack = zeros(numberFullCurves,1);
         
@@ -190,12 +190,12 @@ for n = xy_start:xy_end
             lengthPerTrack(currentCurve) = lsbPerCurve(end);               % lsb = length added since birth
             vaPerTrack(currentCurve) = vsbPerCurve(end);
         end
-
+        
         
         % TIME SINCE BIRTH
         if numberFullCurves <= 0
             noCurves = zeros(lengthCurrentTrack,1);
-            timeSinceBirth = [timeSinceBirth; noCurves];   
+            timeSinceBirth = [timeSinceBirth; noCurves];
         else
             timeSinceBirth = [timeSinceBirth; tsbPerTrack];%; filler];        % compiled values of time passed since last birth event
         end
@@ -231,7 +231,7 @@ for n = xy_start:xy_end
         
         
         %% x positions in original image
-        xTrack = D5{n}(m).X;%(7:lengthCurrentTrack+6); 
+        xTrack = D5{n}(m).X;%(7:lengthCurrentTrack+6);
         x_pos = [x_pos; xTrack];
         clear xTrack
         
@@ -254,7 +254,7 @@ for n = xy_start:xy_end
         angTrack = D5{n}(m).Ang;%(7:lengthCurrentTrack+6);
         angle = [angle; angTrack];
         clear angTrack
-                                                                          
+        
         %% CONDITION
         % assign condition based on xy number
         condition = ceil(n/10);
@@ -271,9 +271,61 @@ for n = xy_start:xy_end
         
     end % for m
     
-    disp(['Tracks (', num2str(m), ') assembled from movie (', num2str(n), ') !'])    
+    disp(['Tracks (', num2str(m), ') assembled from movie (', num2str(n), ') !'])
     
 end % for n
+
+
+
+%% lag corrected time
+fluc_xys = 1:10;
+compiled_xys = xy_start:xy_end;
+
+
+trueTimes = [];
+
+% in the case that compiled data matrix contains fluctuating data,
+% subtract lag time from timestamps derived from corresponding xy position
+
+if isempty( intersect(compiled_xys,fluc_xys) )
+    
+    % only stable environments, skip corrections
+    disp('no fluctuating data: true times = original times')
+    trueTimes = Time;
+    
+else
+    
+    % calculate lag times for corrections
+    [lagTimes,~] = calculateLag(e);
+    
+    % accumulate "true" times for all assembled conditions
+    % "true" can be corrected fluctuating timestamps, or original stable timestamps
+    for xy = xy_start:xy_end
+        
+        if ~isempty( intersect(xy,fluc_xys) )
+            
+            % i. identify position and corresponding lag time
+            currentLag = lagTimes(xy);
+            
+            % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
+            edits = Time(stage_num == xy) - currentLag;
+            
+            % iii. re-assign
+            trueTimes = [trueTimes; edits];
+            disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
+            
+        else
+            
+            % iv. not a fluctuating condition
+            nonEdits = Time(stage_num == xy);
+            trueTimes = [trueTimes; nonEdits];
+            disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+            
+        end
+        
+    end
+    
+end
 
 
 %% fill in NaN for all non-present data
@@ -286,7 +338,7 @@ addedVE = NaN(length(angle),1);
 ccFraction = NaN(length(angle),1);
 
 %% Compile data into single matrix
-dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate];
+dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
@@ -295,7 +347,7 @@ dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDura
 % 6. curveFinder
 % 7. timeSinceBirth
 % 8. curveDurations
-% 9. ccFraction 
+% 9. ccFraction
 % 10. addedLength
 % 11. widthVals
 % 12. vcVals
@@ -316,6 +368,7 @@ dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDura
 % 27. trackNum  =  total track number (vs ID which is xy based)
 % 28. condVals
 % 29. biovolProductionRate
+% 30. correctedTime (trueTimes)
 
 
 end
