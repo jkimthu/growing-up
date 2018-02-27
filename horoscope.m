@@ -12,8 +12,9 @@
 
 %  Last edit: Jen Nguyen, 2018 Feb 27
 
-%  Commit: add plot for nScore as a function of birth timing. note: stable
-%  also is plotted, but obviously there is no signal there...
+%  Commit: revise nScore plots using updated nutrientScore, version 2.
+%  trimming out data from cell cycles less than 10 mins long also makes
+%  signals cleaner
 
 
 %  Strategy:
@@ -443,7 +444,7 @@ experimentCount = length(dataIndex);
                             
 
 % for target experiments...
-for e = 3
+for e = 6:14
     
     % 1. collect experiment date
     index = dataIndex(e);
@@ -482,12 +483,13 @@ for e = 3
         % 5. isolate relevant data
         isDrops = conditionData(:,5);           % col 5  =  isDrop; 0 during curve, 1 at birth event
         correctedTimes = conditionData(:,30);   % col 30 =  true times after lag correction
+        durations = conditionData(:,8)/60;      % col 8  =  curve durations
         
         % 6. calculate nScores for condition
-        [~, nScore] = nutrientScore(timescale,conditionData);
+        [binaryNutrientSignal, nScore] = nutrientScore(timescale,conditionData);
 
         % 6. accumulate data for easy trimming
-        data = [isDrops correctedTimes nScore];
+        data = [isDrops correctedTimes nScore durations];
         
         % 6i. trim data to timepoints after 3 hrs 
         data_trim1 = data(correctedTimes/3600 >= 3,:);
@@ -508,12 +510,14 @@ for e = 3
         isDrops_trimmed = data_trim2(:,1);
         correctedTimes_trimmed = data_trim2(:,2);
         nScores_trimmed = data_trim2(:,3);
+        durations_trimmed = data_trim2(:,4);     % min
         
         
         % 7. isolate birth events (isDrop == 1), corresponding data and timestamps
         birthEvents = isDrops_trimmed(isDrops_trimmed == 1);
         birthEvents_timestamps = correctedTimes_trimmed(isDrops_trimmed == 1);
         birthEvents_nScores = nScores_trimmed(isDrops_trimmed == 1);
+        birthEvents_durations = durations_trimmed(isDrops_trimmed == 1);
         
         
         % 8.  re-define period to begin at start of low nutrient pulse, by
@@ -529,8 +533,11 @@ for e = 3
         
         % 10. bin nScores by period fraction
         % 10. (i) first remove all nScores with no value (NaN)
-        valued_nScores = birthEvents_nScores(birthEvents_nScores >= 0);
-        assignedBin_4valued_nScores = assignedBin(birthEvents_nScores >= 0);
+        %valued_nScores = birthEvents_nScores(birthEvents_nScores >= 0);
+        %assignedBin_4valued_nScores = assignedBin(birthEvents_nScores >= 0);
+        
+        valued_nScores = birthEvents_nScores(birthEvents_durations >= 10);
+        assignedBin_4valued_nScores = assignedBin(birthEvents_durations >= 10);
         
         % 10. (ii) bin
         nScores_binnedByPeriodFraction = accumarray(assignedBin_4valued_nScores, valued_nScores, [], @(x) {x});
@@ -614,16 +621,16 @@ for e = 3
         % 13. repeat analysis for fluctuating environment, plotting fluc data over stable
     end
     clear i environment 
-%     
-%     cd('/Users/jen/Documents/StockerLab/Data_analysis/horoscope')
-%     
-%     Fig1 = figure(1);
-%     saveas(Fig1,strcat('horoscope-nScore-mean-',num2str(timescale),'-',date),'epsc')
-%     close(Fig1)
-%     
-%     Fig2 = figure(2);
-%     saveas(Fig2,strcat('horoscope-nScore-scatter-',num2str(timescale),'-',date),'epsc')
-%     close(Fig2)
+    
+    cd('/Users/jen/Documents/StockerLab/Data_analysis/horoscope')
+    
+    Fig1 = figure(1);
+    saveas(Fig1,strcat('horoscope-nScore-mean-',num2str(timescale),'-',date),'epsc')
+    close(Fig1)
+    
+    Fig2 = figure(2);
+    saveas(Fig2,strcat('horoscope-nScore-scatter-',num2str(timescale),'-',date),'epsc')
+    close(Fig2)
     
 end
 
