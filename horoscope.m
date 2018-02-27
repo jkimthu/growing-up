@@ -7,13 +7,12 @@
 %          
 %           1. cell cycle duration
 %           2. volume added per cell cycle
+%           3. fraction of cell cycle spent in high nutrient
 
 
 %  Last edit: Jen Nguyen, 2018 Feb 27
 
-%  Commit: edit to reflect new structure for data matrix, which now
-%  includes timestamps corrected for lag between junc and xy positions in
-%  fluc condition
+%  Commit: clean out code to remove unused variables
 
 
 %  Strategy:
@@ -38,7 +37,7 @@
 % OK! Lez go!
 
 
-%% CELL CYCLE DURATION
+%% ONE. CELL CYCLE DURATION
 
 % 0. initialize data
 
@@ -91,19 +90,12 @@ for e = 14
         
         % 5. isolate relevant data
         isDrops = conditionData(:,5);           % col 5  =  isDrop; 0 during curve, 1 at birth event
-        Time = conditionData(:,2);              % col 2  =  timestamps in sec
-        stagePositions = conditionData(:,24);   % col 24 =  stage number, xy position from which data originates
-        trackNum = conditionData(:,27);         % col 27 =  track count (not ID from particle tracking)
-        
-        curveFinder = conditionData(:,6);       % col 6  =  curve number, full curve count starting at 1 per track
-        biovolProdRt = conditionData(:,29);     % col 29 =  biovolume production rate per timestamp
-        mu_va = conditionData(:,17);            % col 17 =  doubling rate of volume
         durations = conditionData(:,8);         % col 8  =  curve durations
         correctedTimes = conditionData(:,30);   % col 30 =  true times after lag correction
             
 
         % 6. accumulate data for easy trimming
-        data = [isDrops correctedTimes stagePositions trackNum curveFinder biovolProdRt mu_va durations];
+        data = [isDrops correctedTimes durations];
         
         % 6i. trim data to timepoints after 3 hrs 
         data_trim1 = data(correctedTimes/3600 >= 3,:);
@@ -122,16 +114,12 @@ for e = 14
         
         % 6iii. recover data as individual
         isDrops_trimmed = data_trim2(:,1);
-        bvpr_trimmed = data_trim2(:,6);
-        mus_trimmed = data_trim2(:,7);
+        
         
         % 7. isolate birth events (isDrop == 1), corresponding data and timestamps
         birthEvents = isDrops_trimmed(isDrops_trimmed == 1,1);
-        birthEvent_timestamps = data_trim2(isDrops_trimmed == 1,2);
-        
-        birthEvent_trackNumbers = data_trim2(isDrops_trimmed == 1,4);
-        birthEvent_curveIDs = data_trim2(isDrops_trimmed == 1,5);
-        birthEvent_durations = data_trim2(isDrops_trimmed == 1,8)/60; % min
+        birthEvent_timestamps = data_trim2(isDrops_trimmed == 1,2); % uses corrected timestamps
+        birthEvent_durations = data_trim2(isDrops_trimmed == 1,3)/60; % min
 
         
         % 8.  re-define period to begin at start of low nutrient pulse, by
@@ -244,7 +232,7 @@ for e = 14
 end
 
 
-%% VOLUME ADDED
+%% TWO. VOLUME ADDED
 
 % 0. initialize data
 
@@ -297,13 +285,12 @@ for e = 6:13
         
         % 5. isolate relevant data
         isDrops = conditionData(:,5);           % col 5  =  isDrop; 0 during curve, 1 at birth event
-        stagePositions = conditionData(:,24);   % col 24 =  stage number, xy position from which data originates
         vaAdded = conditionData(:,20);          % col 20 =  volume (cylinder with caps) added over cell cycle
         correctedTimes = conditionData(:,30);   % col 30 =  timestamps corrected for lag between junc and xy positions
         
                   
         % 6. accumulate data for easy trimming
-        data = [isDrops correctedTimes stagePositions vaAdded];
+        data = [isDrops correctedTimes vaAdded];
         
         % 6i. trim data to timepoints after 3 hrs 
         data_trim1 = data(correctedTimes/3600 >= 3,:);
@@ -327,7 +314,7 @@ for e = 6:13
         % 7. isolate birth events (isDrop == 1), corresponding data and timestamps
         birthEvents = isDrops_trimmed(isDrops_trimmed == 1,1);
         birthEvent_timestamps = data_trim2(isDrops_trimmed == 1,2);
-        birthEvent_addedVol = data_trim2(isDrops_trimmed == 1,4);
+        birthEvent_addedVol = data_trim2(isDrops_trimmed == 1,3);
        
    
         % 8.  re-define period to begin at start of low nutrient pulse, by
@@ -438,5 +425,7 @@ for e = 6:13
     close(Fig2)
     
 end
+
+%% THREE. nSCORE
 
 
