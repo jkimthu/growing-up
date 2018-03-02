@@ -26,9 +26,9 @@
 %
 
 
-% last updated: 2018 Feb 13
-% commit: update such that phase plots do not include outliers (data points
-%         exceeding 3 std dev from median) in calculations of mean and error
+% last updated: 2018 Mar 2
+% commit: edit errorbars for cell cycle duration, such that std and sem are plotted in MINUTES not
+% SECONDS
 
 
 % OK let's go!!
@@ -110,7 +110,7 @@ for e = 1:experimentCount
         display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),'), condition: ', num2str(c)))
         xy_start = storedMetaData{index}.xys(c,1);
         xy_end = storedMetaData{index}.xys(c,end);
-        exptData = buildDM(D5, M, M_va, T, xy_start, xy_end);
+        exptData = buildDM(D5, M, M_va, T, xy_start, xy_end, e);
         
         % 5. isolate data from current condition
         conditionData = exptData(exptData(:,28) == c,:);
@@ -262,8 +262,8 @@ for e = 1:experimentCount
         
         % cell cycle duration
         summaryDurations(counter) = ccDurationsData{index}{c}.mean/60;
-        summaryStds_duration(counter) = ccDurationsData{index}{c}.std;
-        summarySems_duration(counter) = ccDurationsData{index}{c}.sem;
+        summaryStds_durations(counter) = ccDurationsData{index}{c}.std/60;
+        summarySems_durations(counter) = ccDurationsData{index}{c}.sem/60;
         
     end
 end
@@ -352,27 +352,27 @@ figure(3)
 for p = 1:counter
     
     if mod(p,2) == 0
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
    
     elseif summaryTimescales{p} == 30
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0 0],'MarkerSize',10); % red
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
 
     elseif summaryTimescales{p} == 300
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     elseif summaryTimescales{p} == 900
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     elseif summaryTimescales{p} == 3600
-        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        h(p) = errorbar(summaryBVPRs(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
         text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
@@ -390,28 +390,28 @@ figure(4)
 for p = 1:counter
     
     if mod(p,2) == 0
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         axis([0 4 1 5])
         hold on
    
     elseif summaryTimescales{p} == 30
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0 0],'MarkerSize',10); % red
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
 
     elseif summaryTimescales{p} == 300
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
         
     elseif summaryTimescales{p} == 900
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_durations(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
 
     elseif summaryTimescales{p} == 3600
-        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_duration(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        h(p) = errorbar(summaryMus(p),summaryDurations(p),summarySems_durations(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
         text(summaryMus(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
         hold on
     
