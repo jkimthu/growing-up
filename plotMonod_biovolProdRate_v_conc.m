@@ -22,8 +22,8 @@
 %
 
 
-% last updated: 2018 Feb 5
-% commit: update bvp monod to include new experiment, 2018 Feb 01
+% last updated: 2018 Mar 5
+% commit: update to make compatible with new buildDM requirement, e
 
 
 %% Add NEW experiment to bioProdRate data structure 
@@ -68,7 +68,7 @@ for e = 1:experimentCount
     display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),')'))
     xy_start = 1;
     xy_end = length(D5);
-    exptData = buildDM(D5,M,M_va,T,xy_start,xy_end);
+    exptData = buildDM(D5,M,M_va,T,xy_start,xy_end,e);
     
     clear D5 M M_va T filename experimentFolder
    
