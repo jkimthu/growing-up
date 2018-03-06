@@ -22,8 +22,8 @@
 %
 
 
-% last updated: 2018 Mar 5
-% commit: update to make compatible with new buildDM requirement, e
+% last updated: 2018 Mar 6
+% commit: in parallel to bvpr, compile and save mu_va data in similar structure
 
 
 %% Add NEW experiment to bioProdRate data structure 
@@ -37,6 +37,7 @@ load('storedMetaData.mat')
 
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 bioProdRateData = cell(size(storedMetaData));
+muData = cell(size(storedMetaData));
 
 % initialize summary vectors for calculated data
 experimentCount = length(dataIndex);
@@ -96,7 +97,7 @@ for e = 1:experimentCount
         
         % 6. calculate: biovolume production rate = V(t) * mu(t) * ln(2)
         bioProdRate = trueVols .* trueMus * log(2); % log(2) in matlab = ln(2)
-        clear trueVols trueMus 
+        clear trueVols  
         
         % 7. isolate data to stabilized regions of growth
         minTime = 3;  % hr
@@ -104,14 +105,18 @@ for e = 1:experimentCount
         
         times_trim1 = trueTimes(trueTimes >= minTime);
         bioProdRate_trim1 = bioProdRate(trueTimes >= minTime);
-        clear trueTimes
+        mu_trim1 = trueMus(trueTimes >= minTime);
+        clear trueTimes trueMus
         
         if maxTime > 0
             bioProdRate_trim2 = bioProdRate_trim1(times_trim1 <= maxTime);
+            mu_trim2 = mu_trim1(times_trim1 <= maxTime);
         else
             bioProdRate_trim2 = bioProdRate_trim1;
+            mu_trim2 = mu_trim1;
         end
         clear times_trim1
+        
         
         % 8. calculate average and s.e.m. per timebin
         mean_bioProdRate = mean(bioProdRate_trim2);
@@ -119,27 +124,42 @@ for e = 1:experimentCount
         std_BioProdRate = std(bioProdRate_trim2);
         sem_BioProdRate = std_BioProdRate./sqrt(count_BioProdRate);
         
+        mean_mu = mean(mu_trim2);
+        count_mu = length(mu_trim2);
+        std_mu = std(mu_trim2);
+        sem_mu = std_mu./sqrt(count_mu);
+        
+        
         % 9. accumulate data for storage / plotting
         compiledbioProdRate{c}.mean = mean_bioProdRate;
         compiledbioProdRate{c}.std = std_BioProdRate;
         compiledbioProdRate{c}.count = count_BioProdRate;
         compiledbioProdRate{c}.sem = sem_BioProdRate;
         
+        compiledMu{c}.mean = mean_mu;
+        compiledMu{c}.std = std_mu;
+        compiledMu{c}.count = count_mu;
+        compiledMu{c}.sem = sem_mu;
+        
+
         clear mean_bioProdRate std_BioProdRate count_BioProdRate sem_BioProdRate
-        clear bioProdRate bioProdRate_trim1 bioProdRate_trim2 maxTime  
+        clear bioProdRate bioProdRate_trim1 bioProdRate_trim2 maxTime 
+        clear mean_mu std_mu count_mu sem_mu mu_trim1 mu_trim2
     
     end
     
     % 10. store data from all conditions into measured data structure        
     bioProdRateData{index} = compiledbioProdRate;
+    muData{index} = compiledMu;
     
-    clear compiledbioProdRate
+    clear compiledbioProdRate compiledMu
 end
 
 
 %% 11. Save new data into stored data structure
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 save('bioProdRateData.mat','bioProdRateData')
+save('muData.mat','muData')
 
 %% 12. plot average biovolume production rate over time
 clc
