@@ -16,7 +16,7 @@
 
 
 % last updated: jen, 2018 Mar 8
-% commit: similar to seeingMus, plot BVPR over time for all experimental conditions
+% commit: plot bvpr vs time for experiment 2018-01-29, 60 min timescale
  
 
 %% plot average growth rate (bvpr) over time
@@ -74,7 +74,7 @@ for c = 1:length(conditions) %number of conditions
     
     % 9. plot mean and s.e.m. over time
     figure(1)
-    errorbar(bvpr_Means,bvpr_sems)
+    errorbar(bvpr_Means(1:end-2),bvpr_sems(1:end-2))
     hold on
     axis([0,binsPerHour*10+1,0,16])
     xlabel('Time (hr)')
