@@ -3,8 +3,9 @@
 % adapted from matrixBuilder, but prevents need to save data matrices.
 % ideal for smaller inputs that take less time to process.
 
-% last updated: jen, 2018 Feb 27
-% commit: add lag corrected timestamps to data matrix
+% last updated: jen, 2018 Mar 8
+% commit: edit such that calling buildDM without input "e" does not
+%         calculate lag times (i.e. in cases when unneeded)
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
@@ -278,55 +279,62 @@ end % for n
 
 
 %% lag corrected time
-fluc_xys = 1:10;
-compiled_xys = xy_start:xy_end;
 
-
-trueTimes = [];
-
-% in the case that compiled data matrix contains fluctuating data,
-% subtract lag time from timestamps derived from corresponding xy position
-
-if isempty( intersect(compiled_xys,fluc_xys) )
+%
+if nargin > 6
     
-    % only stable environments, skip corrections
-    disp('no fluctuating data: true times = original times')
-    trueTimes = Time;
+    fluc_xys = 1:10;
+    compiled_xys = xy_start:xy_end;
     
-else
     
-    % calculate lag times for corrections
-    [lagTimes,~] = calculateLag(e);
+    trueTimes = [];
     
-    % accumulate "true" times for all assembled conditions
-    % "true" can be corrected fluctuating timestamps, or original stable timestamps
-    for xy = xy_start:xy_end
+    % in the case that compiled data matrix contains fluctuating data,
+    % subtract lag time from timestamps derived from corresponding xy position
+    
+    if isempty( intersect(compiled_xys,fluc_xys) )
         
-        if ~isempty( intersect(xy,fluc_xys) )
+        % only stable environments, skip corrections
+        disp('no fluctuating data: true times = original times')
+        trueTimes = Time;
+        
+    else
+        
+        % calculate lag times for corrections
+        [lagTimes,~] = calculateLag(e);
+        
+        % accumulate "true" times for all assembled conditions
+        % "true" can be corrected fluctuating timestamps, or original stable timestamps
+        for xy = xy_start:xy_end
             
-            % i. identify position and corresponding lag time
-            currentLag = lagTimes(xy);
-            
-            % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-            edits = Time(stage_num == xy) - currentLag;
-            
-            % iii. re-assign
-            trueTimes = [trueTimes; edits];
-            disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
-            
-        else
-            
-            % iv. not a fluctuating condition
-            nonEdits = Time(stage_num == xy);
-            trueTimes = [trueTimes; nonEdits];
-            disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+            if ~isempty( intersect(xy,fluc_xys) )
+                
+                % i. identify position and corresponding lag time
+                currentLag = lagTimes(xy);
+                
+                % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
+                edits = Time(stage_num == xy) - currentLag;
+                
+                % iii. re-assign
+                trueTimes = [trueTimes; edits];
+                disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
+                
+            else
+                
+                % iv. not a fluctuating condition
+                nonEdits = Time(stage_num == xy);
+                trueTimes = [trueTimes; nonEdits];
+                disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+                
+            end
             
         end
         
     end
     
+else
+    trueTimes = NaN(length(angle),1);
 end
-
 
 %% fill in NaN for all non-present data
 mu_vcVals = NaN(length(angle),1);
