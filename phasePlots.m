@@ -5,6 +5,8 @@
 %           2. cell volume at birth vs. mu
 %           3. cell cycle duration vs. biovolume production rate
 %           4. cell cycle duration vs. mu
+%           5. mu vs bvpr
+%           6. bvpr vs. mu
 
 
 % strategy:
@@ -26,10 +28,8 @@
 %
 
 
-% last updated: 2018 Mar 2
-% commit: edit errorbars for cell cycle duration, such that std and sem are plotted in MINUTES not
-% SECONDS
-
+% last updated: 2018 Mar 12
+% commit: add figures (5) and (6) which plot mu and bvpr against each other
 
 % OK let's go!!
 
@@ -386,7 +386,7 @@ axis([2 10 0 60])
 
 
 % figure 4. cell cycle duration vs. mu
-figure(4)
+figure(5)
 for p = 1:counter
     
     if mod(p,2) == 0
@@ -422,5 +422,81 @@ xlabel('doubling rate of volume (1/hr)')
 ylabel('cell cycle duration (min)')
 legend('30 sec','5 min','15 min','60 min','stable')
 axis([0.5 3 0 60])
+
+% figure 5.  mu vs bvpr
+figure(5)
+for p = 1:counter
+    
+    if mod(p,2) == 0
+        h(p) = plot(summaryBVPRs(p),summaryMus(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        text(summaryBVPRs(p)+shift,summaryMus(p)+shift, summaryDates(p),'FontSize',10);
+        axis([0 4 1 5])
+        hold on
+   
+    elseif summaryTimescales{p} == 30
+        h(p) = plot(summaryBVPRs(p),summaryMus(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        text(summaryBVPRs(p)+shift,summaryMus(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+
+    elseif summaryTimescales{p} == 300
+        h(p) = plot(summaryBVPRs(p),summaryMus(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        text(summaryBVPRs(p)+shift,summaryMus(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+        
+    elseif summaryTimescales{p} == 900
+        h(p) = plot(summaryBVPRs(p),summaryMus(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        text(summaryBVPRs(p)+shift,summaryMus(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+
+    elseif summaryTimescales{p} == 3600
+        h(p) = plot(summaryBVPRs(p),summaryMus(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryBVPRs(p)+shift,summaryDurations(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+    
+    end
+    
+end
+xlabel('biovolume production rate (cubic cm/hr)')
+ylabel('doubling rate of volume (1/hr)')
+legend('30 sec','5 min','15 min','60 min','stable')
+axis([2 10 0.5 3])
+
+% figure 6.  bvpr vs mu
+figure(6)
+for p = 1:counter
+    
+    if mod(p,2) == 0
+        h(p) = plot(summaryMus(p),summaryBVPRs(p),'o','Color',[0.25 0.25 0.9],'MarkerSize',10);
+        text(summaryMus(p)+shift,summaryBVPRs(p)+shift, summaryDates(p),'FontSize',10);
+        axis([0 4 1 5])
+        hold on
+   
+    elseif summaryTimescales{p} == 30
+        h(p) = plot(summaryMus(p),summaryBVPRs(p),'o','Color',[1 0 0],'MarkerSize',10); % red
+        text(summaryMus(p)+shift,summaryBVPRs(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+
+    elseif summaryTimescales{p} == 300
+        h(p) = plot(summaryMus(p),summaryBVPRs(p),'o','Color',[1 0.85 0.01],'MarkerSize',10); % sunflower yellow
+        text(summaryMus(p)+shift,summaryBVPRs(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+        
+    elseif summaryTimescales{p} == 900
+        h(p) = plot(summaryMus(p),summaryBVPRs(p),'o','Color',[0 0.7 0.7],'MarkerSize',10); % green
+        text(summaryMus(p)+shift,summaryBVPRs(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+
+    elseif summaryTimescales{p} == 3600
+        h(p) = plot(summaryMus(p),summaryBVPRs(p),'o','Color',[1 0.5 0.5],'MarkerSize',10); % peach
+        text(summaryMus(p)+shift,summaryBVPRs(p)+shift, summaryDates(p),'FontSize',10);
+        hold on
+    
+    end
+    
+end
+xlabel('doubling rate of volume (1/hr)')
+ylabel('biovolume production rate (cubic cm/hr)')
+legend('30 sec','5 min','15 min','60 min','stable')
+axis([0.5 3 2 10])
 
 
