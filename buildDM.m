@@ -4,7 +4,8 @@
 % ideal for smaller inputs that take less time to process.
 
 % last updated: jen, 2018 Mar 19
-% commit: include cell cycle fraction as a recorded parameter
+% commit: edit such that cell cycle fraction isn't repeating same values
+%         per loop
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
@@ -226,10 +227,9 @@ for n = xy_start:xy_end
         %% cell cycle fraction
         
         %   cc fraction = time since birth / total curve duration            
-        ccFraction = [ccFraction; timeSinceBirth./curveDurations];         % NaN =  no full cycle                                                          % 0   =  start of full cycle
+        ccFraction = timeSinceBirth./curveDurations;                       % NaN =  no full cycle                                                          % 0   =  start of full cycle
                                                                            % 1   =  end of full cycle
     
-        
         %% added length (total added length in current cell cycle)
         addedLength = [addedLength; lengthVector];
         clear lengthVector
