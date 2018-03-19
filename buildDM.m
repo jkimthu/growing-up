@@ -3,9 +3,8 @@
 % adapted from matrixBuilder, but prevents need to save data matrices.
 % ideal for smaller inputs that take less time to process.
 
-% last updated: jen, 2018 Mar 8
-% commit: edit such that calling buildDM without input "e" does not
-%         calculate lag times (i.e. in cases when unneeded)
+% last updated: jen, 2018 Mar 19
+% commit: include cell cycle fraction as a recorded parameter
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
@@ -38,6 +37,8 @@ curveFinder = [];     % col 6
 timeSinceBirth = [];  % col 7
 
 curveDurations = [];  % col 8
+ccFraction = [];      % col 9
+
 addedLength = [];     % col 10
 addedVC = [];
 addedVE = [];
@@ -222,6 +223,13 @@ for n = xy_start:xy_end
         curveDurations = [curveDurations; durationVector];
         clear durationVector
         
+        %% cell cycle fraction
+        
+        %   cc fraction = time since birth / total curve duration            
+        ccFraction = [ccFraction; timeSinceBirth./curveDurations];         % NaN =  no full cycle                                                          % 0   =  start of full cycle
+                                                                           % 1   =  end of full cycle
+    
+        
         %% added length (total added length in current cell cycle)
         addedLength = [addedLength; lengthVector];
         clear lengthVector
@@ -342,8 +350,6 @@ mu_veVals = NaN(length(angle),1);
 
 addedVC = NaN(length(angle),1);
 addedVE = NaN(length(angle),1);
-
-ccFraction = NaN(length(angle),1);
 
 %% Compile data into single matrix
 dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
