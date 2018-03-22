@@ -14,7 +14,7 @@
 %                       5. remove zeros (always two at start and end of track) and negatives
 %                       6. calculate: biovolume production rate = V(t) * mu(t) * ln(2)
 %                       7. isolate data to stabilized regions of growth
-%                       8. calculate average and s.e.m. per timebin
+%                       8. calculate average and s.e.m. of stablized data
 %                       9. accumulate data for storage / plotting
 %               10. store data from all conditions into measured data structure
 %      11.  save stored data into data structure
@@ -22,8 +22,8 @@
 %
 
 
-% last updated: 2018 Mar 6
-% commit: in parallel to bvpr, compile and save mu_va data in similar structure
+% last updated: 2018 Mar 22
+% commit: update comments to better reflect strategy
 
 
 %% Add NEW experiment to bioProdRate data structure 
@@ -118,7 +118,7 @@ for e = 1:experimentCount
         clear times_trim1
         
         
-        % 8. calculate average and s.e.m. per timebin
+        % 8. calculate average and s.e.m. of stabilized data
         mean_bioProdRate = mean(bioProdRate_trim2);
         count_BioProdRate = length(bioProdRate_trim2);
         std_BioProdRate = std(bioProdRate_trim2);
