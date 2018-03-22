@@ -1,58 +1,45 @@
 % buildDM
 
-% adapted from matrixBuilder, but prevents need to save data matrices.
-% ideal for smaller inputs that take less time to process.
+% goal: build a data matrix of track parameters (each column) over time
+%       (rows) for all cells in a given xy position. option to specificy xy
+%       positions and streamline data concatenation.
 
-% last updated: jen, 2018 Mar 19
-% commit: edit such that cell cycle fraction isn't repeating same values
-%         per loop
+% last updated: jen, 2018 Mar 22
+% commit: corrected such that surfaceArea is actually accumulated in matrix! oops.
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
 %% initialize all values
-
-condVals = [];     % col 28
-
-trackID = [];      % col 1
-Time = [];         % col 2
-lengthVals = [];   % col 3
-trackNum = [];     % col 27, total track number for entire experiment
+  
 tn_counter = 0;
-
-widthVals = [];   % col 11
-vcVals = [];      % col 12
-veVals = [];      % col 13
-vaVals = [];      % col 14
-
-muVals = [];      % col 4
-mu_vcVals = [];
-mu_veVals = [];
-mu_vaVals = [];   % col 17
-
-bioProdRate = []; % col 29
-
-dropThreshold = -0.75;  % consider greater negatives a division event
-isDrop = [];            % col 5
-
-curveFinder = [];     % col 6
-timeSinceBirth = [];  % col 7
-
-curveDurations = [];  % col 8
-ccFraction = [];      % col 9
-
-addedLength = [];     % col 10
-addedVC = [];
-addedVE = [];
-addedVA = [];         % col 20, added Va per cell cycle (same total volume added repeated)
-
-x_pos = [];       % col 21
-y_pos = [];       % col 22
-orig_frame = [];  % col 23
-stage_num = [];   % col 24
-eccentricity = [];% col 25
-angle = [];       % col 26
+dropThreshold = -0.75; % consider greater negatives a division event
 
 
+trackID = [];           % 1. track ID, as assigned by ND2Proc_XY
+Time = [];              % 2. Time
+lengthVals = [];        % 3. lengthVals
+muVals = [];            % 4. muVals
+isDrop = [];            % 5. isDrop
+curveFinder = [];       % 6. curveFinder
+timeSinceBirth = [];    % 7. timeSinceBirth
+curveDurations = [];    % 8. curveDurations
+ccFraction = [];        % 9. ccFraction
+addedLength = [];       % 10. addedLength
+widthVals = [];         % 11. widthVals
+vaVals = [];            % 12. vaVals
+surfaceArea = [];       % 13. surfaceArea
+mu_vaVals = [];         % 14. mu_vaVals
+addedVA = [];           % 15. addedVA
+x_pos = [];             % 16. x_pos
+y_pos = [];             % 17. y_pos
+orig_frame = [];        % 18. orig_frame
+stage_num = [];         % 19. stage_num
+eccentricity = [];      % 20. eccentricity
+angle = [];             % 21. angle
+trackNum = [];          % 22. trackNum  =  total track number (vs ID which is xy based)
+condVals = [];          % 23. condVals
+bioProdRate = [];       % 24. biovolProductionRate
+% 25. correctedTime (trueTimes)
 
 %% loop through all xy positions and all tracks for data concatenation
 
@@ -84,7 +71,7 @@ for n = xy_start:xy_end
         lengthTrack = D5{n}(m).MajAx;%(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
-        %% mu
+        %% mu_length
         muTrack = zeros(lengthCurrentTrack,1);
         measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
         muTrack(3:length(measuredMus)+2) = measuredMus;
@@ -128,19 +115,24 @@ for n = xy_start:xy_end
         widthTrack = D5{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
         widthVals = [widthVals; widthTrack];                               % concatenate widths
         
-        %% volumes
-        v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder = pi * r^2 * h
-        v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
+        %% volume as a cylinder with hemispherical caps
+        
+        %v_cylinder = pi * lengthTrack .* (widthTrack/2).^2;                % approx. volume as a cylinder = pi * r^2 * h
+        %v_ellipse = 4/3 * pi * lengthTrack/2 .* (widthTrack/2).^2;         % approx. volume as an ellipse
         vol_smallCylinder = pi * (widthTrack/2).^2 .* (lengthTrack - widthTrack);
         vol_sphere = 4/3 * pi * (widthTrack/2).^3;
         v_anupam = vol_smallCylinder + vol_sphere;                         % approx. volume as cylinder with spherical caps
         
-        vcVals = [vcVals; v_cylinder];                                     % concatenate values
-        veVals = [veVals; v_ellipse];
         vaVals = [vaVals; v_anupam];
         
         clear v_ellipse v_cylinder vol_sphere vol_smallCylinder
-        clear widthTrack
+        
+        %% surface area
+        sa_rectangle = (lengthTrack - widthTrack) .* widthTrack;
+        sa_sphere = 4 * pi .* (widthTrack/2);
+        sa_total = sa_rectangle + sa_sphere;
+        
+        surfaceArea = [surfaceArea; sa_total];
         
         %% time since birth, size added per cell cycle and curve duration
         
@@ -344,15 +336,10 @@ else
     trueTimes = NaN(length(angle),1);
 end
 
-%% fill in NaN for all non-present data
-mu_vcVals = NaN(length(angle),1);
-mu_veVals = NaN(length(angle),1);
 
-addedVC = NaN(length(angle),1);
-addedVE = NaN(length(angle),1);
 
 %% Compile data into single matrix
-dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vcVals veVals vaVals mu_vcVals mu_veVals mu_vaVals addedVC addedVE addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
+dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea mu_vaVals addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
@@ -363,26 +350,21 @@ dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDura
 % 8. curveDurations
 % 9. ccFraction
 % 10. addedLength
-% 11. widthVals
-% 12. vcVals
-% 13. veVals
-% 14. vaVals
-% 15. mu_vcVals
-% 16. mu_veVals
-% 17. mu_vaVals
-% 18. addedVC
-% 19. addedVE
-% 20. addedVA
-% 21. x_pos
-% 22. y_pos
-% 23. orig_frame
-% 24. stage_num
-% 25. eccentricity
-% 26. angle
-% 27. trackNum  =  total track number (vs ID which is xy based)
-% 28. condVals
-% 29. biovolProductionRate
-% 30. correctedTime (trueTimes)
+% 11. widthVals  
+% 12. vaVals
+% 13. surfaceArea
+% 14. mu_vaVals
+% 15. addedVA
+% 16. x_pos
+% 17. y_pos
+% 18. orig_frame
+% 19. stage_num
+% 20. eccentricity
+% 21. angle
+% 22. trackNum  =  total track number (vs ID which is xy based)
+% 23. condVals
+% 24. biovolProductionRate
+% 25. correctedTime (trueTimes)
 
 
 end
