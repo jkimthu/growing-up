@@ -4,8 +4,9 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 Mar 22
-% commit: corrected such that surfaceArea is actually accumulated in matrix! oops.
+% last updated: jen, 2018 Mar 26
+% commit: comment out displayed text that indicates whether timestamps were
+% corrected for lag (in fluc condition) or not (stable). it works!
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
@@ -317,14 +318,14 @@ if nargin > 6
                 
                 % iii. re-assign
                 trueTimes = [trueTimes; edits];
-                disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
+                %disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
                 
             else
                 
                 % iv. not a fluctuating condition
                 nonEdits = Time(stage_num == xy);
                 trueTimes = [trueTimes; nonEdits];
-                disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+                %disp(strcat('stable xy (',num2str(xy),'): original time is true'))
                 
             end
             
