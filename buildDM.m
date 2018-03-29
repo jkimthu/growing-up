@@ -4,9 +4,9 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 Mar 26
-% commit: comment out displayed text that indicates whether timestamps were
-% corrected for lag (in fluc condition) or not (stable). it works!
+% last updated: jen, 2018 Mar 28
+% commit: edit comments for clarity. for example: x_pos = x coordinate of
+% centroid, angle = angle of rotation of fit ellipse
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
@@ -31,16 +31,16 @@ vaVals = [];            % 12. vaVals
 surfaceArea = [];       % 13. surfaceArea
 mu_vaVals = [];         % 14. mu_vaVals
 addedVA = [];           % 15. addedVA
-x_pos = [];             % 16. x_pos
-y_pos = [];             % 17. y_pos
+x_pos = [];             % 16. x coordinate of centroid
+y_pos = [];             % 17. y coordinate of centroid
 orig_frame = [];        % 18. orig_frame
 stage_num = [];         % 19. stage_num
 eccentricity = [];      % 20. eccentricity
-angle = [];             % 21. angle
+angle = [];             % 21. angle of rotation of fit ellipse
 trackNum = [];          % 22. trackNum  =  total track number (vs ID which is xy based)
 condVals = [];          % 23. condVals
 bioProdRate = [];       % 24. biovolProductionRate
-% 25. correctedTime (trueTimes)
+                        % 25. correctedTime (trueTimes)
 
 %% loop through all xy positions and all tracks for data concatenation
 
