@@ -28,8 +28,10 @@
 
 
 
-% last edit: July 3, 2017
+% last edit: July 3, 2017 during intense image processing overhaul with
+%            confusing glucose data
 
+% retired: 2018 March 29
 
 %% initialize
 
