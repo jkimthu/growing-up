@@ -18,6 +18,7 @@
 %                    6-10 min = Goldenrod
 %                   11-15 min = SeaGreen
 %                   16-20 min = SlateBlue
+%                     20+ min = Indigo
 %           6. display and save
 %     7. woohoo!
 
