@@ -1,4 +1,4 @@
-%% dataTrimmer
+%% dataTrimmer_fullAuto_scrambledOrder
 
 
 %  Goal: automatedly, remove or snip tracks that are unlikely to be well-tracked cells.
@@ -24,7 +24,10 @@
 
 
 
-% last edit: July 2, 2017
+% last edit: July 2, 2017 during image processing overhaul during crazy
+%            confusion over glucose data
+
+% retired: 2018 March 29
 
 
 %% initialize
