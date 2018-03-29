@@ -33,6 +33,8 @@
 %           
 %
 
+% retired: 2018 March 29. last use was over one year ago
+
 %% ONE: throwing out particles that are too small to be growing cells
 %
 %           - catches particles that sneak past size selection in intitial track detection 
