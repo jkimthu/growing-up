@@ -1,14 +1,18 @@
-%% dataTrimmer
+%% dataTrimmer_revised
 
 
-%  Goal: automatedly, remove or clip tracks that are unlikely to be well-tracked cells.
-%         Removal or trimming is as specified by the selection criteria below.
+%  Goal: automatedly remove or clip tracks that are unlikely to be well-tracked cells.
+%        Removal or trimming is as specified by the selection criteria below.
+%
+%        This script was the final output after the image analysis overhaul
+%        performed summer 2017, during our confusing battle with glucose
+%        experiments.
 
 
 
 %  Selection Criteria:
 
-%   1. Tracks that do not increase by more than JumpFrac (30% of size at previous timepoint)
+%   1. Tracks should not increase by more than 30% of size at previous timepoint
 %           - tracks are clipped, not deleted
 %           - data prior and after jump are considered separate tracks          
 
@@ -22,7 +26,9 @@
 
 
 
-% last edit: 2018 Feb 5
+% last edit: 2018 March 29
+% commit: edit comments for clarity
+
 
 % OK lez go!
 
