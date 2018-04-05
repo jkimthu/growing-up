@@ -5,12 +5,11 @@
 
 % for strategies, see comments preceding each version below
 
-% last update: jen, 2018 Feb 27
+% last update: jen, 2018 Apr 5
 
-% commit: previous version broke down at faster timescales. the actual
-% sampling rate (imaging) too slow, creating biases in score. this version
-% gets around this limitation by artificially increasing the sampling rate,
-% and calculating nScore from this more resolved time vector.
+% commit: in version 2, edit data matrix column values to reflect most current buildDM.
+%         editing for use in volumeMontage, which plots volume and nutrient
+%         signal over time
 
 %% version one
 % % convert timestamps to nutrient score, lower resolution especially at
@@ -138,10 +137,10 @@ function [binaryNutrientSignal, nScore] = nutrientScore(timescale,conditionData)
 
 
 % 0. initialize timestamp and volume data
-correctedTime = conditionData(:,30);           % col 30  = timestamps, reflecing true time for all conditions in sec
+correctedTime = conditionData(:,25);           % col 25  = timestamps, reflecing true time for all conditions in sec
 curveID = conditionData(:,6);                  % col 6  =  curve ID per track
-trackNum = conditionData(:,27);                % col 27 =  track number, not ID from particle tracking
-condVals = conditionData(:,28);                % col 28 =  condition number
+trackNum = conditionData(:,22);                % col 22 =  track number, not ID from particle tracking
+condVals = conditionData(:,24);                % col 24 =  condition number
 
 
 % 0. check that conditionData contains only one condition
