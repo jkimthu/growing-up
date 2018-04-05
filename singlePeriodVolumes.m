@@ -5,12 +5,12 @@
 %        upshifts and downshifts
 %
 %        this script bins and plots VOLUMES by time incrememt (period fraction)
+%
 
+%  Last edit: jen, 2018 April 5
 
-%  Last edit: jen, 2018 Mar 19
-
-%  commit: add part D, which splits volumes first by cell cycle fraction.
-%          this allows us to see the signals more strongly
+%  commit: remove normalization and axes for comparisons of ave volume
+%          across fluc, low and high conditions
 
 
 %  Strategy:
@@ -45,6 +45,7 @@ clc
 clear
 
 % 0. initialize analysis parameters
+condition = 1; % 1 = fluctuating; 3 = ave nutrient condition
 binsPerPeriod = 20;
 
 % 0. initialize complete meta data
@@ -88,18 +89,18 @@ for e = 1:experimentCount
     
     
     % 5. gather specified condition data
-    condition = 1; % 1 = fluctuating; 3 = ave nutrient condition
+    condition = 2; % 1 = fluctuating; 3 = ave nutrient condition
     xy_start = storedMetaData{index}.xys(condition,1);
     xy_end = storedMetaData{index}.xys(condition,end);
-    flucData = buildDM(D5, M, M_va, T, xy_start, xy_end,e);
+    conditionData = buildDM(D5, M, M_va, T, xy_start, xy_end,e);
     
     
     % 6. isolate volume and timestamp (corrected for signal lag) data of interest
-    volumes = flucData(:,14);               % col 14 = volumes (va)
+    volumes = conditionData(:,12);               % col 14 = volumes (va)
     if strcmp(date, '2017-10-10') == 1
-        correctedTime = flucData(:,2)/3600;
+        correctedTime = conditionData(:,2)/3600;
     else
-        correctedTime = flucData(:,30)/3600; % col 30 = timestamps corrected for signal lag
+        correctedTime = conditionData(:,25)/3600; % col 30 = timestamps corrected for signal lag
     end
     clear D D5 M M_va T xy_start xy_end xys
     
@@ -188,9 +189,9 @@ end
 
 %% (C) save volume stats into stored data structure
 
-% last saved: 2018 Mar 19
+% last saved: 2018 April 4
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
-save('volumes_fluc.mat','meanVolume','countVolume','stdVolume','semVolume','datesForLegend')
+save('volumes_low.mat','meanVolume','countVolume','stdVolume','semVolume','datesForLegend')
 
 
 %% (D) plot volume vs. period fraction, separated by cell cycle fraction
@@ -227,39 +228,34 @@ for e = 1:experimentCount
     
     
     % 5. gather specified condition data
-    condition = 3; % 1 = fluctuating; 3 = ave nutrient condition
     xy_start = storedMetaData{index}.xys(condition,1);
     xy_end = storedMetaData{index}.xys(condition,end);
-    flucData = buildDM(D5, M, M_va, T, xy_start, xy_end,e);
+    conditionData = buildDM(D5, M, M_va, T, xy_start, xy_end,e);
     
     
     % 6. isolate volume and timestamp (corrected for signal lag) data of interest
-    trackNum = flucData(:,27);              % col 27 = track number (not based on xy)
-    ccFraction = flucData(:,9);             % col 9 = cell cycle fraction
-    volumes = flucData(:,14);               % col 14 = volumes (va)
+    ccFraction = conditionData(:,9);              % col 9 = cell cycle fraction
+    volumes = conditionData(:,12);                % col 12 = volumes (va)
     if strcmp(date, '2017-10-10') == 1
-        correctedTime = flucData(:,2)/3600;
+        correctedTime = conditionData(:,2)/3600;
     else
-        correctedTime = flucData(:,30)/3600; % col 30 = timestamps corrected for signal lag
+        correctedTime = conditionData(:,25)/3600; % col 25 = timestamps corrected for signal lag
     end
     clear D D5 M M_va T xy_start xy_end xys
     
     
     % 7. remove data not in stabilized region
     minTime = 3;  % hr converted to min
-    trackNum_trim1 = trackNum(correctedTime >= minTime);
     volumes_trim1 = volumes(correctedTime >= minTime);
     ccFraction_trim1 = ccFraction(correctedTime >= minTime);
     time_trim1 = correctedTime(correctedTime >= minTime);
     
     if bubbletime(condition) == 0
-        trackNum_trim2 = trackNum_trim1;
         volumes_trim2 = volumes_trim1;
         ccFraction_trim2 = ccFraction_trim1;
         Time_trim2 = time_trim1;
     else
         maxTime = bubbletime(condition);
-        trackNum_trim2 = trackNum_trim1(time_trim1 <= maxTime);
         volumes_trim2 = volumes_trim1(time_trim1 <= maxTime);
         ccFraction_trim2 = ccFraction_trim1(time_trim1 <= maxTime);
         Time_trim2 = time_trim1(time_trim1 <= maxTime);
@@ -268,19 +264,23 @@ for e = 1:experimentCount
     
     % 8. remove data that is not part of a full cell cycle
     ccFraction_trim3 = ccFraction_trim2(~isnan(ccFraction_trim2));
-    trackNum_trim3 = trackNum_trim2(~isnan(ccFraction_trim2));
     volumes_trim3 = volumes_trim2(~isnan(ccFraction_trim2));
     Time_trim3 = Time_trim2(~isnan(ccFraction_trim2));
     
+    % exclude experiments with no data after bubble trimming
+    if isempty(volumes_trim3) == 1
+        disp(strcat(date,': excluded from analysis, no data'))
+        continue
+    end
+    
     clear minTime maxTime bubbletime
     clear volumes volumes_trim1 volumes_trim2 correctedTime time_trim1 Time_trim2
-    clear trackNum trackNum_trim1 trackNum_trim2
     clear ccFraction ccFraction_trim1 ccFraction_trim2
     
     
     % 9. bin cell cycles into quarters
     ccInQuarters = ceil(ccFraction_trim3*4);
-    
+   
     
     % 10. generate a subplot for each quarter period
     for q = 1:4
@@ -315,24 +315,25 @@ for e = 1:experimentCount
     
     % 12. repeat for all experiments
 end
-clear flucData
+clear conditionData
+
 %%
-% last saved: 2018 Mar 19
+% last saved: 2018 Apr 4
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
-save('volumes_fluc.mat','meanVolume','countVolume','stdVolume','semVolume','datesForLegend','indexVector','timescaleVector')
+save('volumes_high.mat','meanVolume','countVolume','stdVolume','semVolume','datesForLegend','indexVector','timescaleVector')
 
 %%
 clear
 clc
 
 % 13. load stable data and find mean volume per experiment, per cc quarter
-load('volumes_stable.mat')
-meanVol_stable = cellfun(@mean,meanVolume,'un',0); % 'un',0 is short for Uniform Output, which outputs cell rather than array
+%load('volumes_stable.mat')
+%meanVol_stable = cellfun(@mean,meanVolume,'un',0); % 'un',0 is short for Uniform Output, which outputs cell rather than array
 
 % 14. load fluc volumes, normalize by stable mean
 load('volumes_fluc.mat')
-normVol_fluc = gdivide(meanVolume, meanVol_stable);
-normSem_fluc = gdivide(semVolume, meanVol_stable);
+%normVol_fluc = gdivide(meanVolume, meanVol_stable);
+%normSem_fluc = gdivide(semVolume, meanVol_stable);
 
 for i = 1:length(indexVector)
     
@@ -373,31 +374,31 @@ for i = 1:length(indexVector)
     figure(2)
     q=1;
     subplot(1,4,q)
-    errorbar(normVol_fluc{i,q},normSem_fluc{i,q},'Color',color,'Marker',shape)
+    errorbar(meanVolume{i,q},semVolume{i,q},'Color',color,'Marker',shape)
     hold on
     grid on
-    axis([0,21,0.4,1.2])
+    axis([0,21,1.5,12])
     
     q=2;
     subplot(1,4,q)
-    errorbar(normVol_fluc{i,q},normSem_fluc{i,q},'Color',color,'Marker',shape)
+    errorbar(meanVolume{i,q},semVolume{i,q},'Color',color,'Marker',shape)
     hold on
     grid on
-    axis([0,21,0.4,1.2])
+    axis([0,21,1.5,12])
     
     q=3;
     subplot(1,4,q)
-    errorbar(normVol_fluc{i,q},normSem_fluc{i,q},'Color',color,'Marker',shape)
+    errorbar(meanVolume{i,q},semVolume{i,q},'Color',color,'Marker',shape)
     hold on
     grid on
-    axis([0,21,0.4,1.2])
+    axis([0,21,1.5,12])
     
     q=4;
     subplot(1,4,q)
-    errorbar(normVol_fluc{i,q},normSem_fluc{i,q},'Color',color,'Marker',shape)
+    errorbar(meanVolume{i,q},semVolume{i,q},'Color',color,'Marker',shape)
     hold on
     grid on
-    axis([0,21,0.4,1.2])
+    axis([0,21,1.5,12])
     
     
     title('volume: mean + s.e.m.')
