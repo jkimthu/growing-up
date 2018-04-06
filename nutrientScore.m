@@ -5,11 +5,9 @@
 
 % for strategies, see comments preceding each version below
 
-% last update: jen, 2018 Apr 5
+% last update: jen, 2018 Apr 6
 
-% commit: in version 2, edit data matrix column values to reflect most current buildDM.
-%         editing for use in volumeMontage, which plots volume and nutrient
-%         signal over time
+% commit: correct column number for condition values. previously was trackNum
 
 %% version one
 % % convert timestamps to nutrient score, lower resolution especially at
@@ -140,7 +138,7 @@ function [binaryNutrientSignal, nScore] = nutrientScore(timescale,conditionData)
 correctedTime = conditionData(:,25);           % col 25  = timestamps, reflecing true time for all conditions in sec
 curveID = conditionData(:,6);                  % col 6  =  curve ID per track
 trackNum = conditionData(:,22);                % col 22 =  track number, not ID from particle tracking
-condVals = conditionData(:,24);                % col 24 =  condition number
+condVals = conditionData(:,23);                % col 23 =  condition number
 
 
 % 0. check that conditionData contains only one condition
