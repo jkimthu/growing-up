@@ -5,11 +5,11 @@
 %        correlations between them.
  
 
-%  last update: jen, 2018 March 29
+%  last update: jen, 2018 April 10
 
-%  commit: add Group B vs B to script. Growth rate parameters: interdiv
-%  time, mu and bvpr. Uses only data from full cell cycles longer than
-%  10 min and mu > 0
+%  commit: corrected parameter names in Group A. i think they were
+%          autochanged when adapting group a vs a structure for Part B
+%          (group b v b)
 
 
 %  cell parameters included in correlation analysis fall into six categories:
@@ -150,15 +150,15 @@ for condition = 1:length(bubbletime)
     
     
     % 6. isolate length, width, volume, and SA data
-    interdivTime = data_trim2(:,3);        % col 3 = length
-    mus = data_trim2(:,11);       % col 11 = width
-    bvpr = data_trim2(:,12);       % col 12 = volume (Va)
+    lengths = data_trim2(:,3);        % col 3 = length
+    widths = data_trim2(:,11);       % col 11 = width
+    volumes = data_trim2(:,12);       % col 12 = volume (Va)
     SA = data_trim2(:,13);      % col 13 = surface area
     
     
     % 7. generate matrix of paramter group A: cell size
-    SA2V = SA./bvpr;
-    groupA_growthRate = [interdivTime mus bvpr SA SA2V];
+    SA2V = SA./volumes;
+    groupA_growthRate = [lengths widths volumes SA SA2V];
     groupA_parameters = {'L','W','V','SA','SA/V'};
     
     
