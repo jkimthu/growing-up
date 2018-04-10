@@ -9,7 +9,8 @@
 
 %  commit: corrected parameter names in Group A. i think they were
 %          autochanged when adapting group a vs a structure for Part B
-%          (group b v b)
+%          (group b v b). also, previous commit was meant for
+%          singlePeriod_parameters.. oops!
 
 
 %  cell parameters included in correlation analysis fall into six categories:
