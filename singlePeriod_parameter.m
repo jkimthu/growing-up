@@ -7,11 +7,10 @@
 %        stable low/high
 
 
-%  Last edit: jen, 2018 April 10
+%  Last edit: jen, 2018 April 11
 
-%  commit: adapted singlePeriodVolumes to use for all growth parameters.
-%          this commit includes, the rest of the size parameters (group A)
-%          and overlays stable data into the same panels
+%  commit: edit colors for stable environments such that low, ave and high
+%          are easily distiguished
 
 
 %  Strategy:
@@ -41,9 +40,7 @@
 %    19. repeat for all experiments
 
 
-%  Part D:
-%    Same as A-C, except volumes are first separated by cell cycle quarter.
-%    See section for complete strategy.
+% OK let's go!
 
 %% Group A. size parameters vs. nutrient phase
 clc
@@ -259,8 +256,12 @@ for e = 1:experimentCount
         end
         
         
-        if condition > 1
+        if condition == 2
             color = rgb('MidnightBlue');
+        elseif condition == 3
+            color = rgb('RoyalBlue');
+        elseif condition == 4
+            color = rgb('Navy');
         end
         
         
