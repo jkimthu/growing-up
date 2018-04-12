@@ -101,7 +101,7 @@ for tr = 1:max(trackNum)
             % 7. calculate change in volume from previous timestep
             dV = [NaN; diff(currentCurve_volumes)];
             dt = [NaN; diff(currentCurve_times)];      % timestep in seconds
-            dVdt = dV./dt;
+            dVdt = dV./dt * 3600;                    
             
             
             if unique(condVals) == 1
