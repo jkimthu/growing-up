@@ -5,27 +5,27 @@
 %        correlations between them.
  
 
-%  last update: jen, 2018 April 10
+%  last update: jen, 2018 April 16
 
-%  commit: corrected parameter names in Group A. i think they were
-%          autochanged when adapting group a vs a structure for Part B
-%          (group b v b). also, previous commit was meant for
-%          singlePeriod_parameters.. oops!
+%  commit: plot mean dVdt per cell cycle vs interdivision time (of same
+%          cell cycle) and binary nScore vs interdivision time. begin
+%          working on mean dVdt in high vs low nutrient
 
 
 %  cell parameters included in correlation analysis fall into six categories:
 %
 %     A. cell size parameters:
-%               1. length
-%               2. width
-%               3. volume
-%               4. surface area
-%               5. SA/V ratio
+%              a1. length
+%              a2. width
+%              a3. volume
+%              a4. surface area
+%              a5. SA/V ratio
 %
 %     B. growth rate parameters:
-%               6. interdivision time
-%               7. mu
-%               8. biovolume production rate
+%              b1. interdivision time
+%              b2. mu
+%              b3. biovolume production rate
+%              b4. dV/dt
 %
 %     C. size at birth parameters:
 %               9. length at birth
@@ -431,7 +431,236 @@ for pp = 1:uniqueCombos
     
 end
 
-%% Part 3. group C vs group C
+%% Part 2(ii). plotting dVdt against inter-division time
+%
+%   figure 1. mean dVdT of curve vs inter-division time of curve
+%               - only plot if data for full cell cycle exists
+%
+%   figure 2. binary nutrient score vs inter-division of curve
+%               - only plot if data for full cell cycle exists
+%               
+%   figure 3. by hour, plot dVdt in high and dVdt per interdiv time bin
+%               - trim data only if bubble (max only)
+%
+
+%%
+clearvars -except exptData e index date timescale bubbletime experimentCount
+%% figure 1 & 2
+
+% 5. initialize colors for plotting
+palette = {'DodgerBlue','Indigo','GoldenRod','FireBrick'};
+
+for condition = 1:length(bubbletime)
+
+    clear dvdt_data dvdt
+    
+    % 5. isolate condition specific data
+    conditionData = exptData(exptData(:,23) == condition,:);  % col 23 = cond vals
+    
+    
+    % 6. trim data to full cell cycles ONLY
+    curveFinder = conditionData(:,6);        % col 6 = curveFinder, ID of full cell cycles
+    conditionData_fullOnly = conditionData(curveFinder > 0,:);
+    clear curveFinder
+
+    
+    % 6. trim data to stabilized non-bubble regions
+%     timestamps = conditionData(:,2)/3600;        % convert from sec to hr
+%     minTime = 3;                            % hr
+%     conditionData_trim1 = conditionData(timestamps >= minTime,:);
+%     timestamp_trim1 = timestamps(timestamps >= minTime);
+%     
+%     if bubbletime(condition) == 0
+%         conditionData_trim2 = conditionData_trim1;
+%         timestamp_trim2 = timestamp_trim1;
+%     else
+%         maxTime = bubbletime(condition);
+%         conditionData_trim2 = conditionData_trim1(timestamp_trim1 <= maxTime,:);
+%         timestamp_trim2 = timestamp_trim1(timestamp_trim1 <= maxTime);
+%     end
+%     clear timestamps timestamp_trim1 timestamp_trim2 conditionData_trim1 minTime maxTime
+    
+    
+    % 7. calculate dVdt and associated nutrient meta data
+    [dvdt_data] = dvdt(conditionData_fullOnly, timescale);
+    dvdt = dvdt_data(:,1);
+    
+    
+    % 8. isolate interdivision time
+    interdivTime = conditionData_fullOnly(:,8)/60;     % col 8 = curve duration (sec converted to min)
+    
+    
+    % 9. trim data to include only full cell cycles longer than 10 min
+    conditionData_trim4 = conditionData_fullOnly(interdivTime > 10,:);
+    dvdt_data_trim4 = dvdt_data(interdivTime > 10,:);
+    clear dvdt interdivTime
+    
+    
+    % 10. isolate final trimmed interdiv time, dVdt and nutrient signal data
+    interdivTime = conditionData_trim4(:,8)/60;     % col 8 = curve duration (sec converted to min)
+    growthRate = dvdt_data_trim4(:,1);
+    nutrientSignal = dvdt_data_trim4(:,2);
+    
+    
+    % 11. identify unique interdivision times (unique cell cycles)
+    unique_interdivs = unique(interdivTime);
+    
+    
+    % 12. for each unique interdivision time, calculate mean dVdt and binary nutrient score
+    unique_dvdts_means = nan(length(unique_interdivs),1);
+    unique_dvdts_stds = nan(length(unique_interdivs),1);
+    unique_nScore_binary = nan(length(unique_interdivs),1);
+    
+    for cc = 1:length(unique_interdivs)
+        
+        currentCC = unique_interdivs(cc);
+        currentdvdts = growthRate(interdivTime == currentCC);
+        currentNutrient = nutrientSignal(interdivTime == currentCC);
+        
+        unique_dvdts_means(cc,1) = nanmean(currentdvdts);
+        unique_dvdts_stds(cc,1) = nanstd(currentdvdts);
+        unique_nScore_binary(cc,1) = mean(currentNutrient);
+        
+    end
+    
+    % 13. plot
+    color = rgb(palette(condition));
+    
+    figure(1)
+    subplot(2,2,4)
+    plot(unique_interdivs,unique_dvdts_means,'o','Color',color)
+    legend(num2str(condition));
+    if condition == 1
+        title('Mean dV/dt (cubic um/hr) vs. inter-division time (min)')
+    end
+    axis([0 175 -1 18])
+    
+    figure(2)
+    subplot(2,2,condition)
+    plot(unique_interdivs,unique_nScore_binary,'o','Color',color)
+    legend(num2str(condition));
+    if condition == 1
+        title('Averaged nScore vs. inter-division time (min)')
+    end
+    axis([0 175 -.1 1.1])
+    
+end
+    
+%% figure 3... IN PROGRESS
+
+% 5. initialize colors for plotting
+palette = {'DodgerBlue','Indigo','GoldenRod','FireBrick'};
+
+for condition = 1:length(bubbletime)
+
+    clear dvdt_data dvdt
+    
+    % 5. isolate condition specific data
+    conditionData = exptData(exptData(:,23) == condition,:);  % col 23 = cond vals
+    
+    
+    % 6. trim data to full cell cycles ONLY
+    curveFinder = conditionData(:,6);        % col 6 = curveFinder, ID of full cell cycles
+    conditionData_fullOnly = conditionData(curveFinder > 0,:);
+    clear curveFinder
+
+    
+    % 6. trim data to stabilized non-bubble regions
+%     timestamps = conditionData(:,2)/3600;        % convert from sec to hr
+%     minTime = 3;                            % hr
+%     conditionData_trim1 = conditionData(timestamps >= minTime,:);
+%     timestamp_trim1 = timestamps(timestamps >= minTime);
+%     
+%     if bubbletime(condition) == 0
+%         conditionData_trim2 = conditionData_trim1;
+%         timestamp_trim2 = timestamp_trim1;
+%     else
+%         maxTime = bubbletime(condition);
+%         conditionData_trim2 = conditionData_trim1(timestamp_trim1 <= maxTime,:);
+%         timestamp_trim2 = timestamp_trim1(timestamp_trim1 <= maxTime);
+%     end
+%     clear timestamps timestamp_trim1 timestamp_trim2 conditionData_trim1 minTime maxTime
+    
+    
+    % 7. calculate dVdt and associated nutrient meta data
+    [dvdt_data] = dvdt(conditionData_fullOnly, timescale);
+    dvdt = dvdt_data(:,1);
+    
+    
+    % 8. isolate interdivision time
+    interdivTime = conditionData_fullOnly(:,8)/60;     % col 8 = curve duration (sec converted to min)
+    
+    
+    % 9. trim data to include only full cell cycles longer than 10 min
+    conditionData_trim4 = conditionData_fullOnly(interdivTime > 10,:);
+    dvdt_data_trim4 = dvdt_data(interdivTime > 10,:);
+    clear dvdt interdivTime
+    
+    
+    % 10. isolate final trimmed interdiv time, dVdt and nutrient signal data
+    interdivTime = conditionData_trim4(:,8)/60;     % col 8 = curve duration (sec converted to min)
+    growthRate = dvdt_data_trim4(:,1);
+    nutrientSignal = dvdt_data_trim4(:,2);
+    
+    
+    % 11. identify unique interdivision times (unique cell cycles)
+    unique_interdivs = unique(interdivTime);
+    
+    
+    % 12. for each unique interdivision time...
+    unique_dvdts_means = nan(length(unique_interdivs),2);
+    unique_dvdts_stds = nan(length(unique_interdivs),2);
+    unique_nScore_binary = nan(length(unique_interdivs),2);
+
+    for cc = 1:length(unique_interdivs)
+    
+        %  i. separate dVdt values by nutrient score
+        currentCC = unique_interdivs(cc);
+        currentdvdts = growthRate(interdivTime == currentCC);
+        currentNutrient = nutrientSignal(interdivTime == currentCC);
+        
+        currentdvdts_highs = currentdvdts(currentNutrient == 1);
+        currentdvdts_lows = currentdvdts(currentNutrient == 0);
+        
+        currentNutrient_highs = currentNutrient(currentNutrient == 1);
+        currentNutrient_lows = currentNutrient(currentNutrient == 0);
+        
+        % ii. calculate mean dVdt in high and low
+        unique_dvdts_means(cc,1) = nanmean(currentdvdts_highs);
+        unique_dvdts_means(cc,2) = nanmean(currentdvdts_lows);
+        
+        unique_dvdts_stds(cc,1) = nanstd(currentdvdts_highs);
+        unique_dvdts_stds(cc,2) = nanstd(currentdvdts_lows);
+        
+        unique_nScore_binary(cc,1) = mean(currentNutrient_highs);
+        unique_nScore_binary(cc,2) = mean(currentNutrient_lows);
+        
+    end
+    
+    % 13. plot
+    color = rgb(palette(condition));
+    
+    figure(1)
+    subplot(2,2,condition)
+    bar(unique_interdivs,unique_dvdts_means)%,'FaceColor',color)
+    legend(num2str(condition));
+    if condition == 1
+        title('Mean dV/dt (cubic um/hr) vs. inter-division time (min)')
+    end
+    %axis([0 175 -5 22])
+    
+    figure(2)
+    subplot(2,2,condition)
+    plot(unique_interdivs,unique_nScore_binary,'o','Color',color)
+    legend(num2str(condition));
+    if condition == 1
+        title('Averaged nScore vs. inter-division time (min)')
+    end
+    axis([0 175 -.1 1.1])
+    
+end
+    
+    
 
 
 
