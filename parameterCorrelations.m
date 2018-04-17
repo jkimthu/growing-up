@@ -5,11 +5,10 @@
 %        correlations between them.
  
 
-%  last update: jen, 2018 April 16
+%  last update: jen, 2018 April 17
 
-%  commit: plot mean dVdt per cell cycle vs interdivision time (of same
-%          cell cycle) and binary nScore vs interdivision time. begin
-%          working on mean dVdt in high vs low nutrient
+%  commit: plot dvdt vd interdiv time, and binary nScore vs interdiv time,
+%          for other two replicates of 60 min timescale
 
 
 %  cell parameters included in correlation analysis fall into six categories:
@@ -87,7 +86,7 @@ experimentCount = length(dataIndex);
 %    continue
 %end
 %disp(strcat(date, ': analyze!'))
-e = 14;
+e = 12;
 
 
 % 1. collect experiment meta data
@@ -527,7 +526,7 @@ for condition = 1:length(bubbletime)
     color = rgb(palette(condition));
     
     figure(1)
-    subplot(2,2,4)
+    subplot(2,2,condition)
     plot(unique_interdivs,unique_dvdts_means,'o','Color',color)
     legend(num2str(condition));
     if condition == 1
@@ -543,6 +542,7 @@ for condition = 1:length(bubbletime)
         title('Averaged nScore vs. inter-division time (min)')
     end
     axis([0 175 -.1 1.1])
+    
     
 end
     
