@@ -1,7 +1,7 @@
 % dvdt
 
 % goal: given a data matrix for a specific condition,
-%       calculate and report dV/dt values in a five column array:
+%       calculate and report dV/dt values in a three column array:
 
 %       col 1  =  dV/dt values
 %       col 2  =  nutrient signal
@@ -40,20 +40,20 @@
 %      13. output dvdt and nutrient meta data
 
 
-% last updated: jen, 2018 Apr 11
+% last updated: jen, 2018 Apr 30
 
-% commit: write function that returns a three-column array with dVdt,
-%         nutrient signal, and up/down shift data using row indeces
-%         consistent with those in data matrix
+% commit: edit to allow dV/dt data to be calculated for expts lacking
+%         corrected time data (i.e. 2017-10-10)
 
 
 % OK let's go!
 
 
-function [dvdt_data] = dvdt(conditionData, timescale)
+function [dvdt_data] = dvdt(conditionData, timescale, date)
 
 % 0. initialize corrected timestamp and volume data
 correctedTime = conditionData(:,25);           % col 25 = timestamps, reflecing true time for all conditions in sec
+rawTime = conditionData(:,2);                  % col 2  = raw timestamps
 volume = conditionData(:,12);                  % col 12 = volumes (va)
 curveID = conditionData(:,6);                  % col 6  = curve ID per track
 trackNum = conditionData(:,22);                % col 22 = track number, not ID from particle tracking
@@ -75,7 +75,8 @@ for tr = 1:max(trackNum)
     
     % 2. isolate full curves and corresponding timestamps (lag corrected)
     currentTrack_curves = curveID(trackNum == tr);
-    currentTrack_times = correctedTime(trackNum == tr);
+    currentTrack_correctedTimes = correctedTime(trackNum == tr);
+    currentTrack_rawTimes = rawTime(trackNum == tr);
     currentTrack_volumes = volume(trackNum == tr);
 
     
@@ -95,19 +96,25 @@ for tr = 1:max(trackNum)
             % 6. isolate volumes for current curve
             currentCurve_indeces = find(currentTrack_curves == cc);
             currentCurve_volumes = currentTrack_volumes(currentCurve_indeces);
-            currentCurve_times = currentTrack_times(currentCurve_indeces);
-            
+            currentCurve_correctedTimes = currentTrack_correctedTimes(currentCurve_indeces);
+            currentCurve_rawTimes = currentTrack_rawTimes(currentCurve_indeces);
             
             % 7. calculate change in volume from previous timestep
             dV = [NaN; diff(currentCurve_volumes)];
-            dt = [NaN; diff(currentCurve_times)];      % timestep in seconds
-            dVdt = dV./dt * 3600;                    
             
+            if strcmp(date, '2017-10-10') == 1
+                %disp(strcat(date,': calculate dV/dt with raw timestamp'))
+                dt = [NaN; diff(currentCurve_rawTimes)];      % timestep in seconds
+            else
+                dt = [NaN; diff(currentCurve_correctedTimes)];      % timestep in seconds
+            end
+            dVdt = dV./dt * 3600;
+
             
             if unique(condVals) == 1
                 
                 % 8. translate timestamps into quarters of nutrient signal
-                timeInPeriods = currentCurve_times/timescale; % unit = sec/sec
+                timeInPeriods = currentCurve_correctedTimes/timescale; % unit = sec/sec
                 timeInPeriodFraction = timeInPeriods - floor(timeInPeriods);
                 timeInQuarters = ceil(timeInPeriodFraction * 4);
                 
@@ -122,17 +129,17 @@ for tr = 1:max(trackNum)
                 
             elseif unique(condVals) == 2
                 
-                binaryNutrientSignal = zeros(length(currentCurve_times),1);
+                binaryNutrientSignal = zeros(length(currentCurve_correctedTimes),1);
                 isShift = [NaN; diff(binaryNutrientSignal)];
                 
             elseif unique(condVals) == 3
                 
-                binaryNutrientSignal = ones(length(currentCurve_times),1)*.5;
+                binaryNutrientSignal = ones(length(currentCurve_correctedTimes),1)*.5;
                 isShift = [NaN; diff(binaryNutrientSignal)];
                 
             elseif unique(condVals) == 4
                 
-                binaryNutrientSignal = ones(length(currentCurve_times),1);
+                binaryNutrientSignal = ones(length(currentCurve_correctedTimes),1);
                 isShift = [NaN; diff(binaryNutrientSignal)];
                 
             end
