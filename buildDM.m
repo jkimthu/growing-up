@@ -4,15 +4,16 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 Mar 28
-% commit: edit comments for clarity. for example: x_pos = x coordinate of
-% centroid, angle = angle of rotation of fit ellipse
+% last updated: jen, 2018 May 2
+% commit: edit curveFinder such that each curve has unique curveID. also
+%         cleaned up the code without changing output
 
 
 function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
 %% initialize all values
   
 tn_counter = 0;
+curveCounter_total = 0;
 dropThreshold = -0.75; % consider greater negatives a division event
 
 
@@ -90,27 +91,6 @@ for n = xy_start:xy_end
         trackDrops = [0; trackDrops];                                              % * add zero to front, to even track lengths
         isDrop = [isDrop; trackDrops];
         
-        %% curve finder: identifying full curves for cell cycle stats
-        numberFullCurves = sum(trackDrops) - 1;                                % all curves start and end with a division, isDrop = 1
-        curveTrack = zeros(length(trackDrops),1);
-        
-        % find and number the full curves within a single track
-        curveCounter = 0;
-        for i = 1:length(trackDrops)
-            if trackDrops(i) == 0                   % disregard incomplete first curve by starting count at 0
-                curveTrack(i,1) = curveCounter;
-            elseif (trackDrops(i) == 1)
-                curveCounter = curveCounter + 1;        % how to disregard final incomplete segment?
-                if curveCounter <= numberFullCurves     % stop when curveCount exceeds number of fullCurves
-                    curveTrack(i,1) = curveCounter;
-                else                                    % all incomplete curves are filled with 0
-                    break
-                end
-            end
-        end
-        curveFinder = [curveFinder; curveTrack];
-        clear curveCounter i
-        
         
         %% widths
         widthTrack = D5{n}(m).MinAx;%(7:lengthCurrentTrack+6);               % collect widths (um)
@@ -135,86 +115,75 @@ for n = xy_start:xy_end
         
         surfaceArea = [surfaceArea; sa_total];
         
-        %% time since birth, size added per cell cycle and curve duration
+        
+         %% cell cycle stats:
+         %  curve finder, time since birth, size added per cell cycle and
+         %  curve duration (inter-division time)
+         
+        numberFullCurves = sum(trackDrops) - 1;    % all curves start and end with a division, isDrop = 1
+        curveTrack = zeros(length(trackDrops),1);
         
         % initialize data vectors
         tsbPerTrack = zeros(lengthCurrentTrack,1);
-        durationsPerTrack = zeros(numberFullCurves,1);
-        lengthPerTrack = zeros(numberFullCurves,1);
-        vaPerTrack = zeros(numberFullCurves,1);
-        
-        durationVector = zeros(lengthCurrentTrack,1);   % a vector of cell cycle durations (completion time per cell cycle)
-        lengthVector = zeros(lengthCurrentTrack,1);     % for compiling length added per cell cycle in current track
-        vaVector = zeros(lengthCurrentTrack,1);         % for compiling Va added per cell cycle in current track
+        curveDurationVector = zeros(lengthCurrentTrack,1);   % a vector of cell cycle durations (completion time per cell cycle)
+        lengthAddedVector = zeros(lengthCurrentTrack,1);     % for compiling length added per cell cycle in current track
+        volAddedVector = zeros(lengthCurrentTrack,1);         % for compiling Va added per cell cycle in current track
         
         
-        % stratgey: per individual curve...
-        %       i.   identify events bounding each curve
-        %       ii.  isolate timepoints in between events for calculations specific to that curve
-        %       iii. time since birth = isolated timepoints minus time of birth
-        %       iv.  added length since birth = length(at timepoints) minus length at birth
-        %       v.   added volume since birth = Va(at timepoints) minus Va at birth
-        %       vi.  accumulate added mass per cell cycle in a vector representing full track
-        
-        for currentCurve = 1:numberFullCurves;
+        if numberFullCurves > 0
             
-            % i. identify events bounding each curve
-            isolateEvents = timeTrack.*trackDrops;
-            eventTimes = isolateEvents(isolateEvents~=0);
-            clear isolateEvents
+            % stratgey: per individual curve...
+            %       i.   identify events bounding each curve
+            %       ii.  isolate timepoints in between events for calculations specific to that curve
+            %       iii. time since birth = isolated timepoints minus time of birth
+            %       iv.  added length since birth = length(at timepoints) minus length at birth
+            %       v.   added volume since birth = Va(at timepoints) minus Va at birth
+            %       vi.  accumulate added mass per cell cycle in a vector representing full track
             
-            % ii. isolate timepoints in between events for calculations specific to that curve
-            currentBirthRow = find(timeTrack == eventTimes(currentCurve)); % row in which current curve begins
-            nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));
-            currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
+            for currentCurve = 1:numberFullCurves
+                
+                curveCounter_total = curveCounter_total + 1;
+                
+                % i. identify events bounding each curve
+                isolateEvents = timeTrack.*trackDrops;
+                eventTimes = isolateEvents(isolateEvents~=0);
+                clear isolateEvents
+                
+                % ii. isolate timepoints in between events for calculations specific to that curve
+                currentBirthRow = find(timeTrack == eventTimes(currentCurve)); % row in which current curve begins
+                nextBirthRow = find(timeTrack == eventTimes(currentCurve+1));
+                currentTimes = timeTrack(currentBirthRow:nextBirthRow-1);
+                
+                % iii. time since birth = isolated timepoints minus time of birth
+                tsbPerCurve = currentTimes - timeTrack(currentBirthRow);       % time since birth, per timestep of curve
+                tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve;
+                
+                % iv. added length since birth = length(at timepoints) minus length at birth
+                lsbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
+                lsbPerTrack(currentBirthRow:nextBirthRow-1,1) = lsbPerCurve;
+                
+                % v. added volume since birth (Va, volume approximated as a cylinder with spherical caps)
+                vsbPerCurve = v_anupam(currentBirthRow:nextBirthRow-1) - v_anupam(currentBirthRow);
+                vsbPerTrack(currentBirthRow:nextBirthRow-1,1) = vsbPerCurve;
+                
+                % vi.  store cell cycle stats into appropriate vectors
+                curveTrack(currentBirthRow:nextBirthRow-1,1) = curveCounter_total;
+                curveDurationVector(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve(end);
+                lengthAddedVector(currentBirthRow:nextBirthRow-1,1) = lsbPerCurve(end);
+                volAddedVector(currentBirthRow:nextBirthRow-1,1) = vsbPerCurve(end);
+                
+            end
             
-            % iii. time since birth = isolated timepoints minus time of birth
-            tsbPerCurve = currentTimes - timeTrack(currentBirthRow);       % time since birth, per timestep of curve
-            tsbPerTrack(currentBirthRow:nextBirthRow-1,1) = tsbPerCurve;
-            
-            % iv. added length since birth = length(at timepoints) minus length at birth
-            lsbPerCurve = lengthTrack(currentBirthRow:nextBirthRow-1) - lengthTrack(currentBirthRow);
-            lsbPerTrack(currentBirthRow:nextBirthRow-1,1) = lsbPerCurve;
-            
-            % v. added volume since birth (Va, volume approximated as a cylinder with spherical caps)
-            vsbPerCurve = v_anupam(currentBirthRow:nextBirthRow-1) - v_anupam(currentBirthRow);
-            vsbPerTrack(currentBirthRow:nextBirthRow-1,1) = vsbPerCurve;
-            clear currentBirthRow
-            
-            % vi.  calculate mass added in current cell cycle
-            durationsPerTrack(currentCurve) = tsbPerCurve(end);            % tsb = time since brith
-            lengthPerTrack(currentCurve) = lsbPerCurve(end);               % lsb = length added since birth
-            vaPerTrack(currentCurve) = vsbPerCurve(end);
         end
-        
         
         % TIME SINCE BIRTH
-        if numberFullCurves <= 0
-            noCurves = zeros(lengthCurrentTrack,1);
-            timeSinceBirth = [timeSinceBirth; noCurves];
-        else
-            timeSinceBirth = [timeSinceBirth; tsbPerTrack];%; filler];        % compiled values of time passed since last birth event
-        end
-        
-        
-        % LENGTH or VOLUME ADDED PER CELL CYCLE
-        
-        % create vector of added size with a value for each cell cycle in track
-        % for all timepoints in current track:
-        for j = 1:length(curveTrack)
-            if curveTrack(j) == 0 % if timepoint is NOT part of a full curve, move on so value remains zero
-                continue
-            else % if timepoint is part of a full curve, record final curve duration and added size
-                durationVector(j,1) = durationsPerTrack(curveTrack(j));
-                lengthVector(j,1) = lengthPerTrack(curveTrack(j));
-                vaVector(j,1) = vaPerTrack(curveTrack(j));
-            end
-        end
-        clear durationsPerTrack lengthPerTrack curveTrack j
-        
+
+          timeSinceBirth = [timeSinceBirth; tsbPerTrack];        % compiled values of time passed since last birth event
+
         
         % CURVE DURATION (total time of current cell cycle)
-        curveDurations = [curveDurations; durationVector];
+        curveFinder = [curveFinder; curveTrack];
+        curveDurations = [curveDurations; curveDurationVector];
         clear durationVector
         
         %% cell cycle fraction
@@ -224,11 +193,11 @@ for n = xy_start:xy_end
                                                                            % 1   =  end of full cycle
     
         %% added length (total added length in current cell cycle)
-        addedLength = [addedLength; lengthVector];
+        addedLength = [addedLength; lengthAddedVector];
         clear lengthVector
         
         %% addedVa = volume added per cell cycle
-        addedVA = [addedVA; vaVector];
+        addedVA = [addedVA; volAddedVector];
         clear vaVector
         
         
@@ -339,7 +308,7 @@ end
 
 
 
-%% Compile data into single matrix
+% compile data into single matrix
 dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea mu_vaVals addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
