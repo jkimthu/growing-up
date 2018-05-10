@@ -5,7 +5,7 @@
 %        seen by immediate changes upon upshift and downshift
 
 
-%  Last edit: jen, 2018 May 7
+%  Last edit: jen, 2018 May 8
 
 %  commit: 
 
@@ -45,7 +45,7 @@ dataIndex = find(~cellfun(@isempty,storedMetaData));
 % 1. for all experiments in dataset
 ec = 0; % experiment counter
 %%
-for e = 12:14
+for e = 10:14
     
     % 2. collect experiment date
     index = dataIndex(e);
@@ -53,12 +53,15 @@ for e = 12:14
     timescale = storedMetaData{index}.timescale;
     
     % exclude outliers from analysis (2017-10-31 and monod experiments)
-    if strcmp(date, '2017-10-31') == 1 || strcmp (timescale, 'monod') == 1
-        disp(strcat(date,': excluded from analysis'))
-        continue
-    end
+%     if strcmp(date, '2017-10-31') == 1 || strcmp (timescale, 'monod') == 1
+%         disp(strcat(date,': excluded from analysis'))
+%         continue
+%     end
     disp(strcat(date, ': analyze!'))
     ec = ec + 1;
+    if e == 12
+        ec = 1;
+    end
     
     
     % 3. initialize experiment meta data
@@ -108,8 +111,8 @@ for e = 12:14
     isDrop = conditionData_trim2(:,5);          % col 5  = isDrop, 1 marks a birth event
     curveFinder = conditionData_trim2(:,6);     % col 6  = curve finder (ID of curve in condition)
     
-    
-    % 9. calculate mean timestep and dVdt
+ 
+    % 9. calculate mean timestep and dVdt    
     curveIDs = unique(curveFinder);
     firstFullCurve = curveIDs(2);
     if length(firstFullCurve) > 1
@@ -121,8 +124,14 @@ for e = 12:14
     dt = mean(diff(firstFullCurve_timestamps)); % timestep in seconds
     
     dV_raw = [NaN; diff(volumes)];
-    dVdt = dV_raw/dt;                    % final units = cubic um/sec
+    dVdt = dV_raw/dt * 3600;                    % final units = cubic um/sec
+    
+    
+    usefulData = [curveFinder volumes dVdt isDrop timestamps];
+    
+    
     dVdt(isDrop == 1) = NaN;
+
     
     
     % 9. isolate corrected timestamp
@@ -148,15 +157,23 @@ for e = 12:14
     
     
     % 11. assign corrected timestamps to bins, by which to accumulate volume and dV/dt data
-    timePerBin = 30; % sec
+    timePerBin = 75; % sec
     timeInPeriodFraction_inSeconds = timeInPeriodFraction * 3600;
     timeInPeriodFraction_inBins = ceil(timeInPeriodFraction_inSeconds/timePerBin);
     
-    downshiftBins = timePerBin+1:timePerBin*3;
-    upshiftBins = [timePerBin*3+1:timePerBin*4, 1:timePerBin];
     
-    pre_downshiftBins = 29:30;
-    pre_upshiftBins = 89:90;
+    firstBinAfter_downshift = (timescale/4)/timePerBin + 1;
+    lastBin_downshift = (timescale*3/4)/timePerBin;
+    firstBinAfter_upshift = (timescale*3/4)/timePerBin + 1;
+    lastBin_ofPeriod = timescale/timePerBin;
+    lastBin_Q1 = (timescale/timePerBin)/4;
+    
+    downshiftBins = firstBinAfter_downshift:lastBin_downshift;
+    upshiftBins = [firstBinAfter_upshift+1:lastBin_ofPeriod, 1:lastBin_Q1];
+    
+    preShift_bins = 3;
+    pre_downshiftBins = lastBin_Q1 - preShift_bins : lastBin_Q1;
+    pre_upshiftBins = lastBin_downshift - preShift_bins : lastBin_downshift;
     
     
     
@@ -181,55 +198,63 @@ for e = 12:14
     
     % 14. plot
     shapes = {'o','*','square'};
+    if e == 10 || e == 11
+        color_high = rgb('Aquamarine');
+        color_low = rgb('Teal');
+    else
+        color_high = rgb('Chocolate');
+        color_low = rgb('DodgerBlue');
+    end
     
-    % dV/dt and standard dev
-    figure(2)
-    subplot(2,1,1) % upshift
-    errorbar(-1:0,binned_dVdt_mean(pre_upshiftBins)*3600,binned_dVdt_std(pre_upshiftBins)*3600,'Color',rgb('DodgerBlue'),'Marker','o')
-    hold on
-    errorbar(1:60,binned_dVdt_mean(upshiftBins)*3600,binned_dVdt_std(upshiftBins)*3600,'Color',rgb('Chocolate'),'Marker',shapes{ec})
-    grid on
-    hold on
-    title('upshift: mean dV/dt and standard dev')
-    xlabel('period bin (30 sec)')
-    ylabel('dV/dt, unsynchronized')
-    axis([-1,60,-10,25])
     
-    subplot(2,1,2) % downshift
-    errorbar(-1:0,binned_dVdt_mean(pre_downshiftBins)*3600,binned_dVdt_std(pre_downshiftBins)*3600,'Color',rgb('Chocolate'),'Marker',shapes{ec})
-    hold on
-    errorbar(1:60,binned_dVdt_mean(downshiftBins)*3600,binned_dVdt_std(downshiftBins)*3600,'Color',rgb('DodgerBlue'),'Marker',shapes{ec})
-    grid on
-    hold on
-    title('downshift: mean dV/dt and standard dev')
-    xlabel('period bin (30 sec)')
-    ylabel('dV/dt, unsynchronized')
-    axis([-1,60,-10,25])
-    
+%     % dV/dt and standard dev
+%     figure(2)
+%     subplot(2,1,1) % upshift
+%     errorbar((length(pre_downshiftBins)*-1)+1:0,binned_dVdt_mean(pre_upshiftBins),binned_dVdt_std(pre_upshiftBins),'Color',color_low,'Marker',shapes{ec})
+%     hold on
+%     errorbar(1:length(binned_dVdt_mean(downshiftBins)),binned_dVdt_mean(upshiftBins),binned_dVdt_std(upshiftBins),'Color',color_high,'Marker',shapes{ec})
+%     grid on
+%     hold on
+%     title('upshift: mean mu and standard dev')
+%     xlabel('period bin (30 sec)')
+%     ylabel('mu, unsynchronized')
+%     axis([(length(pre_downshiftBins)*-1)+1,60,-10,25])
+%     
+%     subplot(2,1,2) % downshift
+%     errorbar((length(pre_downshiftBins)*-1)+1:0,binned_dVdt_mean(pre_downshiftBins),binned_dVdt_std(pre_downshiftBins),'Color',color_high,'Marker',shapes{ec})
+%     hold on
+%     errorbar(1:length(binned_dVdt_mean(downshiftBins)),binned_dVdt_mean(downshiftBins),binned_dVdt_std(downshiftBins),'Color',color_low,'Marker',shapes{ec})
+%     grid on
+%     hold on
+%     title('downshift: mean mu and standard dev')
+%     xlabel('period bin (30 sec)')
+%     ylabel('mu, unsynchronized')
+%     axis([(length(pre_downshiftBins)*-1)+1,60,-10,25])
+%     
     
     % dV/dt and sem
     figure(3)
     subplot(2,1,1) % upshift
-    errorbar(-1:0,binned_dVdt_mean(pre_upshiftBins)*3600,binned_dVdt_sems(pre_upshiftBins)*3600,'Color',rgb('DodgerBlue'),'Marker',shapes{ec})
+    errorbar((preShift_bins*-1:0)*timePerBin,binned_dVdt_mean(pre_upshiftBins),binned_dVdt_sems(pre_upshiftBins),'Color',color_low,'Marker',shapes{ec})
     hold on
-    errorbar(1:60,binned_dVdt_mean(upshiftBins)*3600,binned_dVdt_sems(upshiftBins)*3600,'Color',rgb('Chocolate'),'Marker',shapes{ec})
+    errorbar((1:length(binned_dVdt_mean(upshiftBins)))*timePerBin,binned_dVdt_mean(upshiftBins),binned_dVdt_sems(upshiftBins),'Color',color_high,'Marker',shapes{ec})
     grid on
     hold on
     title('upshift: mean dV/dt and s.e.m.')
-    xlabel('period bin (30 sec)')
+    xlabel('time (sec)')
     ylabel('dV/dt, unsynchronized')
-    axis([-1,60,-5,15])
+    axis([preShift_bins*-1*timePerBin,1800,-10,25])
     
     subplot(2,1,2) % downshift
-    errorbar(-1:0,binned_dVdt_mean(pre_downshiftBins)*3600,binned_dVdt_sems(pre_downshiftBins)*3600,'Color',rgb('Chocolate'),'Marker',shapes{ec})
+    errorbar((preShift_bins*-1:0)*timePerBin,binned_dVdt_mean(pre_downshiftBins),binned_dVdt_sems(pre_downshiftBins),'Color',color_high,'Marker',shapes{ec})
     hold on
-    errorbar(1:60,binned_dVdt_mean(downshiftBins)*3600,binned_dVdt_sems(downshiftBins)*3600,'Color',rgb('DodgerBlue'),'Marker',shapes{ec})
+    errorbar((1:length(binned_dVdt_mean(downshiftBins)))*timePerBin,binned_dVdt_mean(downshiftBins),binned_dVdt_sems(downshiftBins),'Color',color_low,'Marker',shapes{ec})
     grid on
     hold on
     title('downshift: mean dV/dt and s.e.m.')
-    xlabel('period bin (30 sec)')
+    xlabel('time (sec)')
     ylabel('dV/dt, unsynchronized')
-    axis([-1,60,-5,15])
+    axis([preShift_bins*-1*timePerBin,1800,-10,25])
     
     clearvars -except dVdtData_fullOnly_newdVdt storedMetaData ec datesForLegend dataIndex
     
