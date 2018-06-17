@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 March 29
-% commit: edit comments for clarity
+% last edit: 2018 June 17
+% commit: data trimming for experiment 2018-06-15
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-02-01';
+experiment = '2018-06-15';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -366,7 +366,7 @@ clear n gainLossRatio jiggleThreshold jigglers counter dropThreshold;
 
 
 
-%% Criteria Four: maximum particle size must be greater than 1.5um
+%% Criteria Four: maximum particle size must be greater than 1.8um
 
 criteria_counter = criteria_counter + 1;
 
