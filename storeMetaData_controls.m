@@ -25,8 +25,8 @@
 
 
 % last updated: 2018 Jun 18
-% commit message: store a similar data structure for control experiments
-
+% commit message: edit shiftTime variable such that it is called such in
+%                 data structure
 
 % OK let's go!
 
@@ -79,7 +79,7 @@ end
 if strcmp(exptType,'upshift') == 1
     prompt = 'Enter time of upshift in seconds: ';
     shiftTime = input(prompt);
-    metadata(1).timescale = shiftTime;
+    metadata(1).shiftTime = shiftTime;
 else
     timescale = 'monod';
     metadata(1).timescale = timescale;
