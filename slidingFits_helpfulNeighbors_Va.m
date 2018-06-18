@@ -32,7 +32,8 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 Feb 5
+% last update: 2018 June 17
+% commit: mu caluclations for experiment 2018-06-15
 
 % OK lez go!
 
@@ -41,7 +42,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-02-01';
+experiment = '2018-06-15';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
