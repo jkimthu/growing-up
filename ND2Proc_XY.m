@@ -35,8 +35,9 @@
 
 
 
-%  Last modified (jen): 2018 Jun 17
-%  Commit: particle tracking for 2018-06-15 experiment
+%  Last modified (jen): 2018 Jul 13
+%  Commit: particle tracking for 2018-06-15 experiment, take two with high
+%          upper bound allowed for all conditions
 
 %  Original script by the wondrous Vicente Fernandez
 
@@ -139,11 +140,11 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    if ii < 31
-        UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
-    else
+    %if ii < 31
+    %    UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
+    %else
         UpperBound = 1.7;     % upper bound for condition 4
-    end
+    %end
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
     figure(8); clf; ParticlePropOverlay_ND2(reader,P_Trim2,AnalysisNumber,ImType,'MinAx',FilterParameters,[])
@@ -173,8 +174,9 @@ for ii = 1:NSeries
 end
 
 
-save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')    
-    
+%save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')    
+save(strcat('lb-fluc-',experiment,'-width1p7.mat'),'D','T')    
+        
 
 
 %%
