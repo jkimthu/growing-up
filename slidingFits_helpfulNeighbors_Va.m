@@ -32,8 +32,8 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 June 17
-% commit: mu caluclations for experiment 2018-06-15
+% last update: 2018 July 13
+% commit: mu caluclations for experiment 2018-06-15, with high upper bound in width applied
 
 % OK lez go!
 
@@ -51,7 +51,7 @@ cd(newFolder);
 
 % 0. initialize trimmed track data
 
-load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
+load(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
 numMovies = length(D5);
 
 
