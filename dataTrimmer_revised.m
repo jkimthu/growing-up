@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 June 17
-% commit: data trimming for experiment 2018-06-15
+% last edit: 2018 July 13
+% commit: data trimming for experiment 2018-06-15, with high upper bound in width applied
 
 
 % OK lez go!
@@ -43,7 +43,8 @@ experiment = '2018-06-15';
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
+%load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
+load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -420,7 +421,7 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 %save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
