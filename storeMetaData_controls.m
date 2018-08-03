@@ -24,9 +24,9 @@
 
 
 
-% last updated: 2018 Jun 18
-% commit message: edit shiftTime variable such that it is called such in
-%                 data structure
+% last updated: 2018 August 03
+% commit message: add replicate #2 of single upshift, 2018-08-01, to data
+%                 matrix
 
 % OK let's go!
 
@@ -60,6 +60,11 @@ if strcmp(date,'2017-11-09') == 1
 end
 
 if strcmp(date,'2018-06-15') == 1
+    exptType = 'upshift';
+    nutrientSource = 'LB diluted in NaCl';
+end
+
+if strcmp(date,'2018-08-01') == 1
     exptType = 'upshift';
     nutrientSource = 'LB diluted in NaCl';
 end
