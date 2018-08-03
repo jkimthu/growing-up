@@ -13,12 +13,14 @@
 %
 %       each field is stored in a structure, contained in a matrix of cells,
 %       such that:
-%               1. each column is a different timescale
+%               1. each column is a different timescale/experiment type
 %                       1. 30 sec
 %                       2. 300 sec  (5 min)
 %                       3. 900 sec  (15 min)
 %                       4. 3600 sec (60 min)
-%                       5. none    (monod)
+%                       5. none     (monod)
+%                       6. single upshift
+%
 %               2. each row is a different experimental replicate
 
 % strategy:
@@ -48,8 +50,8 @@
 %                - for strategy, scroll to section
 
 
-% last updated: 2018 Feb 21
-% commit message: add x coordinates of cell positions and junction for all experiments
+% last updated: 2018 August 03
+% commit message: added new variable 'experiment type' to existing structure 
 
 
 % OK let's go!
@@ -61,13 +63,21 @@ cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 %%
-% 1. prompt user for timescale data
+
+% 1. prompt user for experiment type
+prompt = 'Enter experiment type as a string (origFluc/monod/upshift/downshift): ';
+expType = input(prompt);
+metadata(1).experimentType = expType;
+
+
+% 2. prompt user for timescale data
 prompt = 'Enter fluctuating timescale in seconds: ';
 timescale = input(prompt);
 metadata(1).timescale = timescale;
 
 
-% 2. determine location of new cell (experiment) to add to current data
+
+% 3. determine location of new cell (experiment) to add to current data
 if timescale == 30
     column = 1;
 elseif timescale == 300
@@ -76,14 +86,20 @@ elseif timescale == 900
     column = 3;
 elseif timescale == 3600
     column = 4;
-else
+elseif strcmp(timescale,'monod') == 1
     column = 5;
+elseif strcmp(timescale,'upshift') == 1
+    column = 6;
+elseif strcmp(timescale,'downshift') == 1
+    column = 7;
 end
+
 
 % 3. prompt user for experiment date, assign to field
 prompt = 'Enter experiment date as a string: ';
 date = input(prompt);
 metadata(1).date = date;
+
 
 % 4. generate data structure to assign to new cell
 %    i. designate concentrations
@@ -157,8 +173,8 @@ save('storedMetaData.mat','storedMetaData')
 
 %% 14. add new variable to pre-existing cell of experiment meta data
 
-% last used: jen, 2018 Feb 20
-% for adding flow rate to all existing data sets
+% last used: jen, 2018 August 03
+% for adding experimentType to all existing datasets
 
 
 % strategy:
@@ -194,12 +210,12 @@ for e = 1:experimentCount
     date = storedMetaData{index}.date;
       
     % 4. prompt user to enter value of new variable
-    prompt = strcat('Enter value of new variable (flow rate measured on .', date,' : ');
-    flowRate = input(prompt);
+    prompt = strcat('Enter value of new variable (experimentType = origFluc/monod/upshift/downshift)', date,' : ');
+    expType = input(prompt);
 
     % 5. store variable into copy of meta data
     currentStructure = copyMD{index};
-    currentStructure.flow_rate = flowRate;
+    currentStructure.experimentType = expType;
     copyMD{index} = currentStructure;
 
 end
