@@ -32,8 +32,8 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 July 13
-% commit: mu caluclations for experiment 2018-06-15, with high upper bound in width applied
+% last update: 2018 August 03
+% commit: mu caluclations for experiment 2018-08-01, with high upper bound in width applied
 
 % OK lez go!
 
@@ -42,7 +42,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-06-15';
+experiment = '2018-08-01';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -225,7 +225,7 @@ for n = 1:length(D5)
 end
 
 
-save(strcat('lb-fluc-',experiment,'-window5-width1p4-1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+save(strcat('lb-fluc-',experiment,'-window5-width1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks

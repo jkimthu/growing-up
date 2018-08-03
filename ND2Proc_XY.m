@@ -35,8 +35,8 @@
 
 
 
-%  Last modified (jen): 2018 Jul 13
-%  Commit: particle tracking for 2018-06-15 experiment, take two with high
+%  Last modified (jen): 2018 Aug 2
+%  Commit: particle tracking for 2018-08-01 experiment, with high
 %          upper bound allowed for all conditions
 
 %  Original script by the wondrous Vicente Fernandez
@@ -46,14 +46,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-06-15';
+experiment = '2018-08-01';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('singleUpshift-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
 
@@ -109,7 +109,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-6.58621, -1]; %threshold for 2018-06-15     
+    Threshold =  [-62.4138, -1]; %threshold for 2018-08-01     
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -189,7 +189,7 @@ imagesc([1:size(Img,2)]*ConversionFactor,[1:size(Img,1)]*ConversionFactor,Img); 
 hold on
 for n=1:length(P_Tracks)
 plot([1:length(P_Tracks(n).X)]*ConversionFactor+P_Tracks(n).X(1),P_Tracks(n).MajAx+P_Tracks(n).Y(1))
-%hold on
+%hold on2
 %plot(P_Tracks(n).X(1),P_Tracks(n).Y(1),'r.')
 end
 axis xy
