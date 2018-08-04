@@ -33,7 +33,7 @@
 %       0. initialize dimensions of current data structure
 %       1. prompt user for experiment type (1)
 %       2. prompt user for experiment timescale (2)
-%       3. determine location of new cell (experiment) to add to current data
+%       3. determine column of new cell (experiment) to add to current data
 %       4. prompt user for experiment date, assign to field (3)
 %       5. generate data structure for experiment
 %               i. designate nutrient source (4)
@@ -56,9 +56,8 @@
 
 
 % last updated: 2018 August 04
-% commit message: added new variable 'shift time' to existing structure and
-%                 added two 1x upshift expts to data structure 2018-06-15
-%                 and 2018-08-01
+% commit message: edited column number selection and added 2018-06-15 and
+%                 2018-08-01 data to structure
 
 
 % OK let's go!
@@ -84,7 +83,7 @@ metadata(1).timescale = timescale;
 
 
 
-% 3. determine location of new cell (experiment) to add to current data
+% 3. determine column of new cell (experiment) to add to current data
 if timescale == 30
     column = 1;
 elseif timescale == 300
@@ -93,11 +92,11 @@ elseif timescale == 900
     column = 3;
 elseif timescale == 3600
     column = 4;
-elseif strcmp(timescale,'monod') == 1
+elseif strcmp(expType,'monod') == 1
     column = 5;
-elseif strcmp(timescale,'upshift') == 1
+elseif strcmp(expType,'upshift') == 1
     column = 6;
-elseif strcmp(timescale,'downshift') == 1
+elseif strcmp(expType,'downshift') == 1
     column = 7;
 end
 
@@ -185,8 +184,8 @@ else
     metadata(1).shiftTime = shiftTime;
 end
 
-%% 14. assign data structure to new (experiment-specific cell)
 
+% 14. assign data structure to new (experiment-specific cell)
 % prompt user for row number
 prompt = 'Enter row number of new experiment replicate: ';
 row = input(prompt);
@@ -199,7 +198,7 @@ save('storedMetaData.mat','storedMetaData')
 
 %% 16. add new variable to pre-existing cell of experiment meta data
 
-% last used: jen, 2018 August 03
+% last used: jen, 2018 August 04
 % for adding 'shift time' to all existing datasets
 
 
