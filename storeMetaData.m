@@ -31,31 +31,34 @@
 % strategy:
 %
 %       0. initialize dimensions of current data structure
-%       1. prompt user for experiment type
-%       2. prompt user for experiment timescale
+%       1. prompt user for experiment type (1)
+%       2. prompt user for experiment timescale (2)
 %       3. determine location of new cell (experiment) to add to current data
-%       4. prompt user for experiment date, assign to field
+%       4. prompt user for experiment date, assign to field (3)
 %       5. generate data structure for experiment
-%               i. designate nutrient source
-%              ii. designate concentrations
-%             iii. designate xy positions
+%               i. designate nutrient source (4)
+%              ii. designate concentrations (5)
+%             iii. designate xy positions (6)
 %       6. prompt user for bubbles in fluc
 %       7. prompt user for bubbles in low
 %       8. prompt user for bubbles in ave
 %       9. prompt user for bubbles in high
-%      10. assign bubble appearance times to field (bubbletime)
-%      11. prompt user for signal timestamp
-%      12. prompt user for measured flow rate through MPG 
+%      10. assign bubble appearance times to field (bubbletime) (7)
+%      11. prompt user for signal timestamp (8)
+%      12. prompt user for measured flow rate through MPG (9)
+%      13. prompt user for shift time in seconds (10)
 
-%      13. assign data structure to new experiment-specific cell
-%      14. save stored meta data
+%      14. assign data structure to new experiment-specific cell
+%      15. save stored meta data
 
-%      15. add new variables to previously saved data entries:
+%      16. add new variables to previously saved data entries:
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 August 03
-% commit message: added new variable 'nutrient source' to existing structure 
+% last updated: 2018 August 04
+% commit message: added new variable 'shift time' to existing structure and
+%                 added two 1x upshift expts to data structure 2018-06-15
+%                 and 2018-08-01
 
 
 % OK let's go!
@@ -99,13 +102,13 @@ elseif strcmp(timescale,'downshift') == 1
 end
 
 
-% 3. prompt user for experiment date, assign to field
+% 4. prompt user for experiment date, assign to field
 prompt = 'Enter experiment date as a string: ';
 date = input(prompt);
 metadata(1).date = date;
 
 
-% 4. generate data structure to assign to new cell
+% 5. generate data structure to assign to new cell
 %    i. designate nutrient source
 prompt = 'Enter nutrient source as string (LB/glucose): ';
 nutrientSource = input(prompt);
@@ -133,15 +136,12 @@ xyhigh = 31:40;
 metadata(1).xys = [xyfluc; xylow; xyave; xyhigh];
 
 
-% 5. prompt user for bubbles in fluc, assign to field
+% 6. prompt user for bubbles in fluc, assign to field
 prompt = 'Enter time at which bubbles appeared in fluc (enter 0 if perfect): ';
 haltFluc = input(prompt);
 
-% for monod / controls
-% prompt = 'Enter time at which bubbles appeared in condition 1 (enter 0 if perfect): ';
-% bubbles_condition1 = input(prompt);
 
-% 6. prompt user for bubbles in low, assign to field
+% 7. prompt user for bubbles in low, assign to field
 prompt = 'Enter time at which bubbles appeared in low (enter 0 if perfect): ';
 haltLow = input(prompt);
 
@@ -149,7 +149,7 @@ haltLow = input(prompt);
 % prompt = 'Enter time at which bubbles appeared in condition 2 (enter 0 if perfect): ';
 % bubbles_condition2 = input(prompt);
 
-% 7. prompt user for bubbles in ave, assign to field
+% 8. prompt user for bubbles in ave, assign to field
 prompt = 'Enter time at which bubbles appeared in ave (enter 0 if perfect): ';
 haltAve = input(prompt);
 
@@ -157,26 +157,35 @@ haltAve = input(prompt);
 % prompt = 'Enter time at which bubbles appeared in condition 3 (enter 0 if perfect): ';
 % bubbles_condition3 = input(prompt);
 
-% 8. prompt user for bubbles in high, assign to field
+% 9. prompt user for bubbles in high, assign to field
 prompt = 'Enter time at which bubbles appeared in high (enter 0 if perfect): ';
 haltHigh = input(prompt);
 
-% 9. assign bubble appearance times to field (bubbletime)
+% 10. assign bubble appearance times to field (bubbletime)
 metadata(1).bubbletime = [haltFluc; haltLow; haltAve; haltHigh];
 %metadata(1).bubbletime = [bubbles_condition1; bubbles_condition2; bubbles_condition3];
 
-% 10. prompt user for signal timestamp
+% 11. prompt user for signal timestamp
 prompt = 'Enter signal timestamp (enter NaN if non-existent or not applicable): ';
 signal_timestamp = input(prompt);
 metadata(1).signal_timestamp = signal_timestamp;
 
-% 11. prompt user for measured flow rate through MPG
+% 12. prompt user for measured flow rate through MPG
 prompt = 'Enter flow rate in ul/min (enter NaN if non-existent or not applicable): ';
 flowRate = input(prompt);
 metadata(1).flow_rate = flowRate;
 
 
-%% 12. assign data structure to new (experiment-specific cell)
+% 13. prompt user for shift time (time at which experiment phase changes)
+if strcmp(expType,'origFluc') == 1 || strcmp(expType,'monod') == 1
+    metadata(1).shiftTime = 'NaN';
+else
+    prompt = 'Enter time of shift in seconds: ';
+    shiftTime = input(prompt);
+    metadata(1).shiftTime = shiftTime;
+end
+
+%% 14. assign data structure to new (experiment-specific cell)
 
 % prompt user for row number
 prompt = 'Enter row number of new experiment replicate: ';
@@ -184,14 +193,14 @@ row = input(prompt);
 storedMetaData{row,column} = metadata;
 
 
-%% 13. save storedMetaData
+%% 15. save storedMetaData
 save('storedMetaData.mat','storedMetaData')
 
 
-%% 14. add new variable to pre-existing cell of experiment meta data
+%% 16. add new variable to pre-existing cell of experiment meta data
 
 % last used: jen, 2018 August 03
-% for adding nutrient source to all existing datasets
+% for adding 'shift time' to all existing datasets
 
 
 % strategy:
@@ -227,16 +236,16 @@ for e = 1:experimentCount
     date = storedMetaData{index}.date;
       
     % 4. prompt user to enter value of new variable
-    prompt = strcat('Enter value of new variable (nutrientSource = LB/glucose) for .', date,' : ');
-    nutrientSource = input(prompt);
+    prompt = strcat('Enter shift time in sec (NaN for origFluc and monod) for .', date,' : ');
+    shiftTime = input(prompt);
 
     % 5. store variable into copy of meta data
     currentStructure = copyMD{index};
-    currentStructure.nutrient = nutrientSource;
+    currentStructure.shiftTime = shiftTime;
     copyMD{index} = currentStructure;
 
 end
-%% (14) continued
+%% (16) continued
 % 6. save copy with new variable as true meta data
 storedMetaData = copyMD;
 save('storedMetaData.mat','storedMetaData')
