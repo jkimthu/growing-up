@@ -4,12 +4,12 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 May 2
-% commit: edit curveFinder such that each curve has unique curveID. also
-%         cleaned up the code without changing output
+% last updated: jen, 2018 August 4
+% commit: edit whether lag correction function is applied, such that it
+%         only occurs on fluc experiment
 
 
-function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e)
+function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e,expType)
 %% initialize all values
   
 tn_counter = 0;
@@ -250,62 +250,71 @@ end % for n
 
 %% lag corrected time
 
-%
+% if experiment numbers are designated
 if nargin > 6
     
-    fluc_xys = 1:10;
-    compiled_xys = xy_start:xy_end;
-    
-    
-    trueTimes = [];
-    
-    % in the case that compiled data matrix contains fluctuating data,
-    % subtract lag time from timestamps derived from corresponding xy position
-    
-    if isempty( intersect(compiled_xys,fluc_xys) )
+    % correct for lag in fluctuating conditions only
+    if strcmp(expType,'origFluc') == 0
         
-        % only stable environments, skip corrections
+        % skip corrections if not original fluctuation experiment
         disp('no fluctuating data: true times = original times')
         trueTimes = Time;
         
     else
         
-        % calculate lag times for corrections
-        [lagTimes,~] = calculateLag(e);
+        fluc_xys = 1:10;
+        compiled_xys = xy_start:xy_end;
         
-        % accumulate "true" times for all assembled conditions
-        % "true" can be corrected fluctuating timestamps, or original stable timestamps
-        for xy = xy_start:xy_end
+        trueTimes = [];
+        
+        % in the case that compiled data matrix contains fluctuating data,
+        % subtract lag time from timestamps derived from corresponding xy position
+        
+        if isempty( intersect(compiled_xys,fluc_xys) )
             
-            if ~isempty( intersect(xy,fluc_xys) )
+            % only stable environments, skip corrections
+            disp('no fluctuating data: true times = original times')
+            trueTimes = Time;
+            
+        else
+            
+            % calculate lag times for corrections
+            [lagTimes,~] = calculateLag(e);
+            
+            % accumulate "true" times for all assembled conditions
+            % "true" can be corrected fluctuating timestamps, or original stable timestamps
+            for xy = xy_start:xy_end
                 
-                % i. identify position and corresponding lag time
-                currentLag = lagTimes(xy);
-                
-                % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-                edits = Time(stage_num == xy) - currentLag;
-                
-                % iii. re-assign
-                trueTimes = [trueTimes; edits];
-                %disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
-                
-            else
-                
-                % iv. not a fluctuating condition
-                nonEdits = Time(stage_num == xy);
-                trueTimes = [trueTimes; nonEdits];
-                %disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+                if ~isempty( intersect(xy,fluc_xys) )
+                    
+                    % i. identify position and corresponding lag time
+                    currentLag = lagTimes(xy);
+                    
+                    % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
+                    edits = Time(stage_num == xy) - currentLag;
+                    
+                    % iii. re-assign
+                    trueTimes = [trueTimes; edits];
+                    %disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
+                    
+                else
+                    
+                    % iv. not a fluctuating condition
+                    nonEdits = Time(stage_num == xy);
+                    trueTimes = [trueTimes; nonEdits];
+                    %disp(strcat('stable xy (',num2str(xy),'): original time is true'))
+                    
+                end
                 
             end
             
         end
-        
     end
     
 else
     trueTimes = NaN(length(angle),1);
+    
 end
-
 
 
 % compile data into single matrix
