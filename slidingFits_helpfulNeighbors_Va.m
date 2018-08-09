@@ -32,10 +32,9 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 August 06
-% commit: mu caluclations for experiment 2018-06-15, with lower upper bound
-%         in width applied to fluc positions 1-10. re-do, as it got
-%         overwritten previously.
+% last update: 2018 August 09
+% commit: mu caluclations for experiment 2018-08-07, with higher 1.7 width
+%         allowed for all conditions. mistake in this first downshift experiment.
 
 % OK lez go!
 
@@ -44,7 +43,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-06-15';
+experiment = '2018-08-07';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -54,7 +53,7 @@ cd(newFolder);
 % 0. initialize trimmed track data
 
 %load(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
-load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
+load(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'),'D','D5','T','rejectD');
 numMovies = length(D5);
 
 
@@ -228,7 +227,7 @@ for n = 1:length(D5)
 end
 
 
-save(strcat('lb-fluc-',experiment,'-window5-width1p4-1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+save(strcat('lb-fluc-',experiment,'-window5-width-1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks
