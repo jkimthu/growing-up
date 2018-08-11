@@ -32,9 +32,10 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 August 09
-% commit: mu caluclations for experiment 2018-08-07, with higher 1.7 width
-%         allowed for all conditions. mistake in this first downshift experiment.
+% last update: 2018 August 11
+% commit: mu caluclations for experiment 2018-08-09, with higher 1.7 width
+%         allowed for all conditions. 
+
 
 % OK lez go!
 
@@ -43,7 +44,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-08-07';
+experiment = '2018-08-09';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
