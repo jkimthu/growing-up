@@ -55,9 +55,9 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 August 04
-% commit message: edited column number selection and added 2018-06-15 and
-%                 2018-08-01 data to structure
+% last updated: 2018 August 13
+% commit message: add 7th column for single downshift data, input 2018 Aug
+%                 07, 08 and 09 experiments
 
 
 % OK let's go!
