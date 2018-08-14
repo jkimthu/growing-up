@@ -1,4 +1,7 @@
 # growing-up
+
+This branch was created for Juanita to tinker around with the particle tracking scripts, etc. :)
+
 Peering into the mysterious nature of (bacterial) life
 
 GENERAL PIPELINE
