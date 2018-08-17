@@ -4,13 +4,13 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 August 4
+% last updated: jen, 2018 August 17
 
-% commit: edit whether lag correction function is applied, such that it
-%         only occurs on fluc experiment
+% commit: use index number of experiment to define data of interest
+%         for better consistency between scripts
 
 
-function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e,expType)
+function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,index,expType)
 %% initialize all values
   
 tn_counter = 0;
@@ -281,7 +281,7 @@ if nargin > 6
         else
             
             % calculate lag times for corrections
-            [lagTimes,~] = calculateLag(e);
+            [lagTimes,~] = calculateLag(index);
             
             % accumulate "true" times for all assembled conditions
             % "true" can be corrected fluctuating timestamps, or original stable timestamps
