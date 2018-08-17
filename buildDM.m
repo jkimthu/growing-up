@@ -5,6 +5,7 @@
 %       positions and streamline data concatenation.
 
 % last updated: jen, 2018 August 4
+
 % commit: edit whether lag correction function is applied, such that it
 %         only occurs on fluc experiment
 
@@ -45,9 +46,9 @@ bioProdRate = [];       % 24. biovolProductionRate
 
 %% loop through all xy positions and all tracks for data concatenation
 
-for n = xy_start:xy_end
+for n = xy_start:xy_end % n = each inidividual xy position from experiment (movie)
     
-    for m = 1:length(D5{n})
+    for m = 1:length(D5{n}) % m = each individual cell track from current movie
         
         %% track ID
         lengthCurrentTrack = length(D5{n}(m).TrackID);
@@ -175,6 +176,7 @@ for n = xy_start:xy_end
             end
             
         end
+        
         
         % TIME SINCE BIRTH
 

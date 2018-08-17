@@ -1,6 +1,7 @@
 %% .nd2 Proc for individually saved xy series
 
-%  Goal: from ND2 files, track particles from images. Geneate
+%  Goal: from ND2 files, track particles from images.
+%        Generate raw data matrix D.
 
 
 %  Changes from original script from Vicente:
