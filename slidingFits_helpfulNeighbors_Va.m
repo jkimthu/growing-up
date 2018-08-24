@@ -33,8 +33,7 @@
 
 
 % last update: 2018 August 24
-% commit: mu caluclations for experiment 2018-08-22, with higher 1.7 width
-%         allowed for all conditions. 
+% commit: edit workspace name to jive with downstream analyses scripts
 
 
 % OK lez go!
@@ -228,7 +227,7 @@ for n = 1:length(D5)
 end
 
 
-save(strcat('lb-fluc-',experiment,'-window5-width-1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
+save(strcat('lb-fluc-',experiment,'-window5-width1p7-jiggle-0p5.mat'), 'D','D5','M', 'M_va', 'T','rejectD') %'D'
 
 
 %% checks
