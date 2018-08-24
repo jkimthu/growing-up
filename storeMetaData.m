@@ -55,9 +55,10 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 August 13
-% commit message: add 7th column for single downshift data, input 2018 Aug
-%                 07, 08 and 09 experiments
+% last updated: 2018 August 24
+
+% commit message: add 8th column for first fluc-to-stable experiment,
+%                 2018-08-22
 
 
 % OK let's go!
@@ -71,7 +72,7 @@ load('storedMetaData.mat')
 %%
 
 % 1. prompt user for experiment type
-prompt = 'Enter experiment type as a string (origFluc/monod/upshift/downshift): ';
+prompt = 'Enter experiment type as a string (origFluc/monod/upshift/downshift/fluc2stable): ';
 expType = input(prompt);
 metadata(1).experimentType = expType;
 
@@ -84,7 +85,9 @@ metadata(1).timescale = timescale;
 
 
 % 3. determine column of new cell (experiment) to add to current data
-if timescale == 30
+if strcmp(expType,'fluc2stable') == 1
+    column = 8;
+elseif timescale == 30
     column = 1;
 elseif timescale == 300
     column = 2;
