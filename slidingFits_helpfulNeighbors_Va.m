@@ -32,8 +32,8 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 August 12
-% commit: mu caluclations for experiment 2018-08-08, with higher 1.7 width
+% last update: 2018 August 24
+% commit: mu caluclations for experiment 2018-08-22, with higher 1.7 width
 %         allowed for all conditions. 
 
 
@@ -44,7 +44,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-08-08';
+experiment = '2018-08-22';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');

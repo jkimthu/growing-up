@@ -36,10 +36,9 @@
 
 
 
-%  Last modified (jen): 2018 Aug 10
-%  Commit: particle tracking for 2018-08-09 experiment, single downshift
-%          replicate 2
-
+%  Last modified (jen): 2018 Aug 23
+%  Commit: particle tracking for 2018-08-22 experiment, 5 min fluc then
+%          stable high
 
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -49,14 +48,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-08-09';
+experiment = '2018-08-22';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('singledownshift-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
 
@@ -112,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-38.6207, -1]; %threshold for 2018-08-09   
+    Threshold =  [-5.93103, -1]; %threshold for 2018-08-22   
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
