@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 August 24
-% commit: data trimming for experiment 2018-08-22, with high upper bound in width applied
+% last edit: 2018 September 14
+% commit: data trimming for experiment 2018-09-11, with high upper bound in width applied
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-08-22';
+experiment = '2018-09-11';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
