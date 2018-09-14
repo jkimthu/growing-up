@@ -33,7 +33,7 @@
 
 
 % last update: 2018 September 14
-% commit: analysis for 2018-09-11
+% commit: analysis for 2018-09-12
 
 
 % OK lez go!
@@ -43,7 +43,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-09-11';
+experiment = '2018-09-12';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
