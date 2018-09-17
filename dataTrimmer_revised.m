@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 September 14
-% commit: data trimming for experiment 2018-09-12, with high upper bound in width applied
+% last edit: 2018 September 16
+% commit: edited part 1 to add clipped tracks to data matrix, 1st applied to experiment 2018-09-13
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-09-12';
+experiment = '2018-09-13';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -159,7 +159,7 @@ for n = 1:length(D);
     
     
     % when all tracks finished, 
-    if jump_counter == 1
+    if jump_counter >= 1
         
         % 7. save accmulated rejects
         rejectD{criteria_counter,n} = trackScraps;

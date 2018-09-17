@@ -32,8 +32,8 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 September 14
-% commit: analysis for 2018-09-12
+% last update: 2018 September 16
+% commit: analysis for 2018-09-13
 
 
 % OK lez go!
@@ -43,7 +43,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-09-12';
+experiment = '2018-09-13';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
