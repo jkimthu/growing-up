@@ -36,8 +36,8 @@
 
 
 
-%  Last modified (jen): 2018 Sept 17
-%  Commit: re-run particle tracking for 2017-10-10 with constant width
+%  Last modified (jen): 2018 Sept 18
+%  Commit: particle tracking for 2018-09-17 with constant width
 %          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -47,7 +47,7 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2017-10-10';
+experiment = '2018-09-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
