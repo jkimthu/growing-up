@@ -36,9 +36,9 @@
 
 
 
-%  Last modified (jen): 2018 Sept 15
-%  Commit: particle tracking for 2018-09-13 experiment, average to high
-%          upshift after 3 hours
+%  Last modified (jen): 2018 Sept 17
+%  Commit: re-run particle tracking for 2017-10-10 with constant width
+%          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
 
@@ -47,15 +47,15 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-09-13';
+experiment = '2017-10-10';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-%xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
-xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
+%xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
 
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-32.5517, -1]; %threshold for 2018-09-13   
+    Threshold =  [-15.1724, -1]; %threshold for 2017-10-10   
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                

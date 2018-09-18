@@ -32,8 +32,9 @@
 %       12. repeat for all movies
 
 
-% last update: 2018 September 16
-% commit: analysis for 2018-09-13
+% last update: 2018 September 17
+% commit: re-analyze 2017-10-10 with constant width threshold
+
 
 
 % OK lez go!
@@ -43,7 +44,7 @@
 % 0. initialize 
 clear
 clc
-experiment = '2018-09-13';
+experiment = '2017-10-10';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');

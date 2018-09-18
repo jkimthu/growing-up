@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 September 16
-% commit: edited part 1 to add clipped tracks to data matrix, 1st applied to experiment 2018-09-13
+% last edit: 2018 September 17
+% commit: re-analyze 2017-10-10 with constant width threshold
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-09-13';
+experiment = '2017-10-10';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
