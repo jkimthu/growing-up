@@ -4,13 +4,13 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 August 17
+% last updated: jen, 2018 September 20
 
-% commit: use index number of experiment to define data of interest
-%         for better consistency between scripts
+% commit: remove M, M_Va and biovol prod rate from matrix, never used but 
+%         time consuming to analyze.
 
 
-function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,index,expType)
+function [dm] = buildDM(D5,T,xy_start,xy_end,index,expType)
 %% initialize all values
   
 tn_counter = 0;
@@ -21,7 +21,7 @@ dropThreshold = -0.75; % consider greater negatives a division event
 trackID = [];           % 1. track ID, as assigned by ND2Proc_XY
 Time = [];              % 2. Time
 lengthVals = [];        % 3. lengthVals
-muVals = [];            % 4. muVals
+%muVals = [];            % 4. muVals
 isDrop = [];            % 5. isDrop
 curveFinder = [];       % 6. curveFinder
 timeSinceBirth = [];    % 7. timeSinceBirth
@@ -31,7 +31,7 @@ addedLength = [];       % 10. addedLength
 widthVals = [];         % 11. widthVals
 vaVals = [];            % 12. vaVals
 surfaceArea = [];       % 13. surfaceArea
-mu_vaVals = [];         % 14. mu_vaVals
+%mu_vaVals = [];         % 14. mu_vaVals
 addedVA = [];           % 15. addedVA
 x_pos = [];             % 16. x coordinate of centroid
 y_pos = [];             % 17. y coordinate of centroid
@@ -41,7 +41,7 @@ eccentricity = [];      % 20. eccentricity
 angle = [];             % 21. angle of rotation of fit ellipse
 trackNum = [];          % 22. trackNum  =  total track number (vs ID which is xy based)
 condVals = [];          % 23. condVals
-bioProdRate = [];       % 24. biovolProductionRate
+%bioProdRate = [];       % 24. biovolProductionRate
                         % 25. correctedTime (trueTimes)
 
 %% loop through all xy positions and all tracks for data concatenation
@@ -75,16 +75,16 @@ for n = xy_start:xy_end % n = each inidividual xy position from experiment (movi
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
         %% mu_length
-        muTrack = zeros(lengthCurrentTrack,1);
-        measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
-        muTrack(3:length(measuredMus)+2) = measuredMus;
-        muVals = [muVals; muTrack];                                        % concatenate growth rates
+        %muTrack = zeros(lengthCurrentTrack,1);
+        %measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
+        %muTrack(3:length(measuredMus)+2) = measuredMus;
+        %muVals = [muVals; muTrack];                                        % concatenate growth rates
         
         %% mu_Va
-        mu_vaTrack = zeros(lengthCurrentTrack,1);
-        measuredMus_va = M_va{n}(m).mu_va(:,1);
-        mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
-        mu_vaVals = [mu_vaVals; mu_vaTrack];
+        %mu_vaTrack = zeros(lengthCurrentTrack,1);
+        %measuredMus_va = M_va{n}(m).mu_va(:,1);
+        %mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
+        %mu_vaVals = [mu_vaVals; mu_vaTrack];
         
         %% drop?
         dropTrack = diff(lengthTrack);
@@ -238,9 +238,9 @@ for n = xy_start:xy_end % n = each inidividual xy position from experiment (movi
         clear condTrack
         
         %% biovolume production rate = V(t) * mu(t) * ln(2)
-        bioProdRate_track = v_anupam .* mu_vaTrack * log(2); % log(2) in matlab = ln(2)
-        bioProdRate = [bioProdRate; bioProdRate_track];
-        clear bioProdRate_track v_anupam
+        %bioProdRate_track = v_anupam .* mu_vaTrack * log(2); % log(2) in matlab = ln(2)
+        %bioProdRate = [bioProdRate; bioProdRate_track];
+        %clear bioProdRate_track v_anupam
         
     end % for m
     
@@ -320,32 +320,29 @@ end
 
 
 % compile data into single matrix
-dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea mu_vaVals addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
+dm = [trackID Time lengthVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals trueTimes];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
-% 4. muVals
-% 5. isDrop
-% 6. curveFinder
-% 7. timeSinceBirth
-% 8. curveDurations
-% 9. ccFraction
-% 10. addedLength
-% 11. widthVals  
-% 12. vaVals
-% 13. surfaceArea
-% 14. mu_vaVals
-% 15. addedVA
-% 16. x_pos
-% 17. y_pos
-% 18. orig_frame
-% 19. stage_num
-% 20. eccentricity
-% 21. angle
-% 22. trackNum  =  total track number (vs ID which is xy based)
-% 23. condVals
-% 24. biovolProductionRate
-% 25. correctedTime (trueTimes)
+% 4. isDrop
+% 5. curveFinder
+% 6. timeSinceBirth
+% 7. curveDurations
+% 8. ccFraction
+% 9. addedLength
+% 10. widthVals  
+% 11. vaVals
+% 12. surfaceArea
+% 13. addedVA
+% 14. x_pos
+% 15. y_pos
+% 16. orig_frame
+% 17. stage_num
+% 18. eccentricity
+% 19. angle
+% 20. trackNum  =  total track number (vs ID which is xy based)
+% 21. condVals
+% 22. correctedTime (trueTimes)
 
 
 end
