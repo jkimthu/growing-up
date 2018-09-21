@@ -36,8 +36,8 @@
 
 
 
-%  Last modified (jen): 2018 Sept 19
-%  Commit: particle tracking for 2018-09-18 with constant width
+%  Last modified (jen): 2018 Sept 21
+%  Commit: re-do particle tracking for 2018-02-01 with constant width
 %          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -47,7 +47,7 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-09-18';
+experiment = '2018-02-01';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-26.3448, -1]; %threshold for 2018-09-17   
+    Threshold =  [-7.10345, -1]; %threshold for 2018-02-01   
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -142,11 +142,8 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    %if ii < 31
-    %    UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
-    %else
-        UpperBound = 1.7;     % upper bound for condition 4
-    %end
+    UpperBound = 1.7;     % upper bound for all conditions
+
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
     figure(8); clf; ParticlePropOverlay_ND2(reader,P_Trim2,AnalysisNumber,ImType,'MinAx',FilterParameters,[])
