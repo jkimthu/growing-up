@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 September 18
-% commit: 2018-09-17 with constant width threshold
+% last edit: 2018 September 21
+% commit: re-do 2018-02-01 with constant width threshold
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-09-17';
+experiment = '2018-02-01';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');

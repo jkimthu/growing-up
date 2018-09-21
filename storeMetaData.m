@@ -55,10 +55,10 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 August 24
+% last updated: 2018 September 20
 
-% commit message: add 8th column for first fluc-to-stable experiment,
-%                 2018-08-22
+% commit message: add 9th column for first ave-to-high upshift,
+%                 2018-09-11. Use for 2018-09-11 until 2018-09-18
 
 
 % OK let's go!
@@ -85,8 +85,9 @@ metadata(1).timescale = timescale;
 
 
 % 3. determine column of new cell (experiment) to add to current data
-if strcmp(expType,'fluc2stable') == 1
-    column = 8;
+
+if strcmp(expType,'fluc2stable') == 1 % needs to be earlier than timescale ID, 
+    column = 8;                       % as there is also a timecale designation
 elseif timescale == 30
     column = 1;
 elseif timescale == 300
@@ -97,8 +98,10 @@ elseif timescale == 3600
     column = 4;
 elseif strcmp(expType,'monod') == 1
     column = 5;
-elseif strcmp(expType,'upshift') == 1
+elseif strcmp(expType,'upshift') == 1 % upshift = low to high
     column = 6;
+elseif strcmp(expType,'ave2high') == 1 % upshift = ave to high
+    column = 9;
 elseif strcmp(expType,'downshift') == 1
     column = 7;
 end

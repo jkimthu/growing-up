@@ -15,7 +15,7 @@
 %            -  change in volume over time between two neighboring timepoints (i.e. dt ~ 1 min and 57 sec)
 %       2. calculate dVdt_norm
 %            -  normalize dVdt calculated in step 1 by initial volume
-%       3. calculate dVdt_log
+%       3. calculate dVdt_log2
 %            -  take log(volume) before calculating change between timesteps
 %       4. caluclate dVdt_lognorm
 %            -  take log(volume) before calcuting change and normalizing by initial volume
@@ -24,22 +24,20 @@
 %          order:
 %                   1. dVdt_raw
 %                   2. dVdt_norm
-%                   3. dVdt_log
+%                   3. dVdt_log2
 %                   4. dVdt_lognorm
-%                   5. mus
 
 
 
-% last updated: jen, 2018 August 17
+% last updated: jen, 2018 September 20
 
-% commit: assembles all measured growth rates into a single array for easy
-%         and consistent comparisons
+% commit: apply change of base rule to make base of exponential 2
 
 
 % Go go let's go!
 
 %%
-function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFinder,mus)
+function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFinder)
 
 % input data:
 %        volumes     =  calculated va_vals (cubic um)
@@ -78,7 +76,7 @@ dVdt_norm = dV_norm/dt * 3600;          % final units = 1/hr
 dV_log_noNan = diff(log(volumes));
 dV_log = [NaN; dV_log_noNan];
 dVdt_log = dV_log/dt * 3600;           % final units = cubic um/hr
-
+dVdt_log2 = dVdt_log/log(2);
 
 
 % 4. calculate dVdt_lognorm = d(log V)/dt normalized by initial volume
@@ -88,12 +86,12 @@ dVdt_lognorm = dV_lognorm/dt * 3600;         % final units = 1/hr
 
 
 % 5. replace all growth rates at division events with NaN
-growthRates = [dVdt_raw, dVdt_norm, dVdt_log, dVdt_lognorm, mus];
+growthRates = [dVdt_raw, dVdt_norm, dVdt_log2, dVdt_lognorm];
 growthRates(isDrop == 1,:) = NaN;
 
         
 % 6. output array with all growth rates, of columns in following order:
-%     (i) dVdt_raw; (ii) dVdt_norm; (iii) dVdt_log; (iv) dVdt_lognorm
+%     (i) dVdt_raw; (ii) dVdt_norm; (iii) dVdt_log2; (iv) dVdt_lognorm
 end
 
 
