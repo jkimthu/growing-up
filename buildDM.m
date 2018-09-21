@@ -21,28 +21,25 @@ dropThreshold = -0.75; % consider greater negatives a division event
 trackID = [];           % 1. track ID, as assigned by ND2Proc_XY
 Time = [];              % 2. Time
 lengthVals = [];        % 3. lengthVals
-%muVals = [];            % 4. muVals
-isDrop = [];            % 5. isDrop
-curveFinder = [];       % 6. curveFinder
-timeSinceBirth = [];    % 7. timeSinceBirth
-curveDurations = [];    % 8. curveDurations
-ccFraction = [];        % 9. ccFraction
-addedLength = [];       % 10. addedLength
-widthVals = [];         % 11. widthVals
-vaVals = [];            % 12. vaVals
-surfaceArea = [];       % 13. surfaceArea
-%mu_vaVals = [];         % 14. mu_vaVals
-addedVA = [];           % 15. addedVA
-x_pos = [];             % 16. x coordinate of centroid
-y_pos = [];             % 17. y coordinate of centroid
-orig_frame = [];        % 18. orig_frame
-stage_num = [];         % 19. stage_num
-eccentricity = [];      % 20. eccentricity
-angle = [];             % 21. angle of rotation of fit ellipse
-trackNum = [];          % 22. trackNum  =  total track number (vs ID which is xy based)
-condVals = [];          % 23. condVals
-%bioProdRate = [];       % 24. biovolProductionRate
-                        % 25. correctedTime (trueTimes)
+isDrop = [];            % 4. isDrop
+curveFinder = [];       % 5. curveFinder
+timeSinceBirth = [];    % 6. timeSinceBirth
+curveDurations = [];    % 7. curveDurations
+ccFraction = [];        % 8. ccFraction
+addedLength = [];       % 9. addedLength
+widthVals = [];         % 10. widthVals
+vaVals = [];            % 11. vaVals
+surfaceArea = [];       % 12. surfaceArea
+addedVA = [];           % 13. addedVA
+x_pos = [];             % 14. x coordinate of centroid
+y_pos = [];             % 15. y coordinate of centroid
+orig_frame = [];        % 16. orig_frame
+stage_num = [];         % 17. stage_num
+eccentricity = [];      % 18. eccentricity
+angle = [];             % 19. angle of rotation of fit ellipse
+trackNum = [];          % 20. trackNum  =  total track number (vs ID which is xy based)
+condVals = [];          % 21. condVals
+                        % 22. correctedTime (trueTimes)
 
 %% loop through all xy positions and all tracks for data concatenation
 

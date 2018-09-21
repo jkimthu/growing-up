@@ -26,20 +26,18 @@
 %                   2. dVdt_norm
 %                   3. dVdt_log
 %                   4. dVdt_lognorm
-%                   5. mus
 
 
 
-% last updated: jen, 2018 August 17
+% last updated: jen, 2018 September 20
 
-% commit: assembles all measured growth rates into a single array for easy
-%         and consistent comparisons
+% commit: remove mu as calculated by a sliding window of 5
 
 
 % Go go let's go!
 
 %%
-function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFinder,mus)
+function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFinder)
 
 % input data:
 %        volumes     =  calculated va_vals (cubic um)
@@ -88,7 +86,7 @@ dVdt_lognorm = dV_lognorm/dt * 3600;         % final units = 1/hr
 
 
 % 5. replace all growth rates at division events with NaN
-growthRates = [dVdt_raw, dVdt_norm, dVdt_log, dVdt_lognorm, mus];
+growthRates = [dVdt_raw, dVdt_norm, dVdt_log, dVdt_lognorm];
 growthRates(isDrop == 1,:) = NaN;
 
         
