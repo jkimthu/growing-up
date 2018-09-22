@@ -36,8 +36,8 @@
 
 
 
-%  Last modified (jen): 2018 Sept 21
-%  Commit: re-do particle tracking for 2017-09-26 with constant width
+%  Last modified (jen): 2018 Sept 22
+%  Commit: re-do particle tracking for 2017-10-30 with constant width
 %          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -47,14 +47,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2017-09-26';
+experiment = '2017-10-30';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 %cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-monod-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
 %xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-32.069, -1]; %threshold for 2017-09-26    
+    Threshold =  [-36.2069, -1]; %threshold for 2017-10-30       
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
