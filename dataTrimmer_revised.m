@@ -27,7 +27,7 @@
 
 
 % last edit: 2018 September 24
-% commit: re-do 2017-11-08 with constant width threshold
+% commit: re-do 2018-01-17 with constant width threshold
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2017-11-08';
+experiment = '2018-01-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -421,8 +421,5 @@ clear SizeStrainer n i m tooSmalls X;
 
 
 save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
-%save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
-%% 
-% 
