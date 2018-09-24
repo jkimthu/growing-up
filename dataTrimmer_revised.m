@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 September 21
-% commit: re-do 2018-01-31 with constant width threshold
+% last edit: 2018 September 24
+% commit: re-do 2017-09-26 with constant width threshold
 
 
 % OK lez go!
@@ -37,14 +37,14 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-01-31';
+experiment = '2017-09-26';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 %load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
-load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
+load(strcat('lb-monod-',experiment,'-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
