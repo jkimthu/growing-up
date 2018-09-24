@@ -37,7 +37,7 @@
 
 
 %  Last modified (jen): 2018 Sept 23
-%  Commit: re-do particle tracking for 2018-01-17 with constant width
+%  Commit: re-do particle tracking for 2017-11-09 with constant width
 %          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -47,14 +47,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2017-09-26';
+experiment = '2017-11-09';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 %cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-monod-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-control-',experiment,'_xy*.nd2'));
 %xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
@@ -174,7 +174,7 @@ end
 
 
 %save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')    
-save(strcat('lb-fluc-',experiment,'-width1p7.mat'),'D','T')    
+save(strcat('lb-control-',experiment,'-width1p7.mat'),'D','T')    
         
 
 
