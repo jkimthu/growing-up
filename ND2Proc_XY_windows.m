@@ -37,7 +37,7 @@
 
 
 %  Last modified (jen): 2018 Sept 25
-%  Commit: re-do particle tracking for 2017-11-14 with constant width
+%  Commit: re-do particle tracking for 2017-11-13 with constant width
 %          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
@@ -47,7 +47,7 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2017-11-14';
+experiment = '2017-11-13';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold = [-37.5, -1]; %threshold for 2017-11-14    
+    Threshold = [-44.1176, -1]; %threshold for 2017-11-13   
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
