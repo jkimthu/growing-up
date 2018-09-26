@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 September 24
-% commit: re-do 2018-01-29 with constant width threshold
+% last edit: 2018 September 26
+% commit: edit comments for accuracy (size = length)
 
 
 % OK lez go!
@@ -55,7 +55,7 @@ criteria_counter = 0;
 windowSize = 5;
 
 
-%% Criteria ONE: clip tracks to separate data surrounding >30% jumps in cell size
+%% Criteria ONE: clip tracks to separate data surrounding >30% jumps in cell length
 
 
 % Goal: huge jumps in cell size correspond to cells coming together. Remove
