@@ -4,10 +4,10 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 September 20
+% last updated: jen, 2018 September 26
 
-% commit: remove M, M_Va and biovol prod rate from matrix, never used but 
-%         time consuming to analyze.
+% commit: edit corrected time calculations to NOT depend on number of
+%         arguments
 
 
 function [dm] = buildDM(D5,T,xy_start,xy_end,index,expType)
@@ -71,17 +71,7 @@ for n = xy_start:xy_end % n = each inidividual xy position from experiment (movi
         lengthTrack = D5{n}(m).MajAx;%(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
-        %% mu_length
-        %muTrack = zeros(lengthCurrentTrack,1);
-        %measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
-        %muTrack(3:length(measuredMus)+2) = measuredMus;
-        %muVals = [muVals; muTrack];                                        % concatenate growth rates
-        
-        %% mu_Va
-        %mu_vaTrack = zeros(lengthCurrentTrack,1);
-        %measuredMus_va = M_va{n}(m).mu_va(:,1);
-        %mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
-        %mu_vaVals = [mu_vaVals; mu_vaTrack];
+
         
         %% drop?
         dropTrack = diff(lengthTrack);
@@ -234,10 +224,6 @@ for n = xy_start:xy_end % n = each inidividual xy position from experiment (movi
         condVals = [condVals; condTrack];
         clear condTrack
         
-        %% biovolume production rate = V(t) * mu(t) * ln(2)
-        %bioProdRate_track = v_anupam .* mu_vaTrack * log(2); % log(2) in matlab = ln(2)
-        %bioProdRate = [bioProdRate; bioProdRate_track];
-        %clear bioProdRate_track v_anupam
         
     end % for m
     
@@ -249,71 +235,66 @@ end % for n
 
 %% lag corrected time
 
-% if experiment numbers are designated
-if nargin > 6
+
+% correct for lag in fluctuating conditions only
+if strcmp(expType,'origFluc') == 0
     
-    % correct for lag in fluctuating conditions only
-    if strcmp(expType,'origFluc') == 0
+    % skip corrections if not original fluctuation experiment
+    disp('no fluctuating data: true times = original times')
+    %         trueTimes = Time;
+    trueTimes = NaN(length(angle),1);
+    
+else
+    
+    fluc_xys = 1:10;
+    compiled_xys = xy_start:xy_end;
+    
+    trueTimes = [];
+    
+    % in the case that compiled data matrix contains fluctuating data,
+    % subtract lag time from timestamps derived from corresponding xy position
+    
+    if isempty( intersect(compiled_xys,fluc_xys) )
         
-        % skip corrections if not original fluctuation experiment
+        % only stable environments, skip corrections
         disp('no fluctuating data: true times = original times')
         trueTimes = Time;
         
     else
         
-        fluc_xys = 1:10;
-        compiled_xys = xy_start:xy_end;
+        % calculate lag times for corrections
+        [lagTimes,~] = calculateLag(index);
         
-        trueTimes = [];
-        
-        % in the case that compiled data matrix contains fluctuating data,
-        % subtract lag time from timestamps derived from corresponding xy position
-        
-        if isempty( intersect(compiled_xys,fluc_xys) )
+        % accumulate "true" times for all assembled conditions
+        % "true" can be corrected fluctuating timestamps, or original stable timestamps
+        for xy = xy_start:xy_end
             
-            % only stable environments, skip corrections
-            disp('no fluctuating data: true times = original times')
-            trueTimes = Time;
-            
-        else
-            
-            % calculate lag times for corrections
-            [lagTimes,~] = calculateLag(index);
-            
-            % accumulate "true" times for all assembled conditions
-            % "true" can be corrected fluctuating timestamps, or original stable timestamps
-            for xy = xy_start:xy_end
+            if ~isempty( intersect(xy,fluc_xys) )
                 
-                if ~isempty( intersect(xy,fluc_xys) )
-                    
-                    % i. identify position and corresponding lag time
-                    currentLag = lagTimes(xy);
-                    
-                    % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-                    edits = Time(stage_num == xy) - currentLag;
-                    
-                    % iii. re-assign
-                    trueTimes = [trueTimes; edits];
-                    %disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
-                    
-                else
-                    
-                    % iv. not a fluctuating condition
-                    nonEdits = Time(stage_num == xy);
-                    trueTimes = [trueTimes; nonEdits];
-                    %disp(strcat('stable xy (',num2str(xy),'): original time is true'))
-                    
-                end
+                % i. identify position and corresponding lag time
+                currentLag = lagTimes(xy);
+                
+                % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
+                edits = Time(stage_num == xy) - currentLag;
+                
+                % iii. re-assign
+                trueTimes = [trueTimes; edits];
+                
+                
+            else
+                
+                % iv. not a fluctuating condition
+                nonEdits = Time(stage_num == xy);
+                trueTimes = [trueTimes; nonEdits];
+                
                 
             end
             
         end
+        
     end
-    
-else
-    trueTimes = NaN(length(angle),1);
-    
 end
+
 
 
 % compile data into single matrix
