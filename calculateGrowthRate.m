@@ -20,7 +20,8 @@
 %       4. caluclate dVdt_lognorm
 %            -  take log(volume) before calcuting change and normalizing by initial volume
 %       5. replace all growth rates at division events with NaN
-%       6. output array with all growth rates, of columns in following
+%       6. assign NaN also to indeces where there is a transition in data between tracks
+%       7. output array with all growth rates, of columns in following
 %          order:
 %                   1. dVdt_raw
 %                   2. dVdt_norm
@@ -29,15 +30,15 @@
 
 
 
-% last updated: jen, 2018 September 20
+% last updated: jen, 2018 September 26
 
-% commit: apply change of base rule to make base of exponential 2
+% commit: add a section that assigns NaN to transitions between tracks
 
 
 % Go go let's go!
 
 %%
-function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFinder)
+function [growthRates] = calculateGrowthRate(volumes,timestamps_sec,isDrop,curveFinder,trackNum)
 
 % input data:
 %        volumes     =  calculated va_vals (cubic um)
@@ -51,10 +52,10 @@ function [growthRates] = calculateGrowthRate(volumes,timestamps,isDrop,curveFind
 curveIDs = unique(curveFinder);
 firstFullCurve = curveIDs(2);
 if length(firstFullCurve) > 1
-    firstFullCurve_timestamps = timestamps(curveFinder == firstFullCurve);
+    firstFullCurve_timestamps = timestamps_sec(curveFinder == firstFullCurve);
 else
     firstFullCurve = curveIDs(3);
-    firstFullCurve_timestamps = timestamps(curveFinder == firstFullCurve);
+    firstFullCurve_timestamps = timestamps_sec(curveFinder == firstFullCurve);
 end
 dt = mean(diff(firstFullCurve_timestamps)); % timestep in seconds
 
@@ -89,8 +90,14 @@ dVdt_lognorm = dV_lognorm/dt * 3600;         % final units = 1/hr
 growthRates = [dVdt_raw, dVdt_norm, dVdt_log2, dVdt_lognorm];
 growthRates(isDrop == 1,:) = NaN;
 
+
+
+% 6. replace all growth rates at track transitions with NaN
+isTransition = [NaN; diff(trackNum)];
+growthRates(isTransition > 0,:) = NaN; % doesn't make a different if data comes only from full curves
         
-% 6. output array with all growth rates, of columns in following order:
+
+% 7. output array with all growth rates, of columns in following order:
 %     (i) dVdt_raw; (ii) dVdt_norm; (iii) dVdt_log2; (iv) dVdt_lognorm
 end
 
