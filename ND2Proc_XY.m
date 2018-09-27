@@ -1,6 +1,7 @@
 %% .nd2 Proc for individually saved xy series
 
-%  Goal: from ND2 files, track particles from images. Geneate
+%  Goal: from ND2 files, track particles from images.
+%        Generate raw data matrix D.
 
 
 %  Changes from original script from Vicente:
@@ -35,11 +36,9 @@
 
 
 
-%  Last modified (jen): 2018 Aug 10
-%  Commit: particle tracking for 2018-08-09 experiment, single downshift
-%          replicate 2
-
-
+%  Last modified (jen): 2018 Sept 21
+%  Commit: re-do particle tracking for 2018-01-31 with constant width
+%          threshold
 %          
 %  Original script by the wondrous Vicente Fernandez
 
@@ -48,14 +47,15 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-08-09';
+experiment = '2018-01-31';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('singledownshift-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
+%xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
 
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-38.6207, -1]; %threshold for 2018-08-09   
+    Threshold =  [-9.48276, -1]; %threshold for 2018-01-31   
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -142,11 +142,8 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    %if ii < 31
-    %    UpperBound = 1.4;     % upperbound in conditions 1, 2 ,3
-    %else
-        UpperBound = 1.7;     % upper bound for condition 4
-    %end
+    UpperBound = 1.7;     % upper bound for all conditions
+
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
     figure(8); clf; ParticlePropOverlay_ND2(reader,P_Trim2,AnalysisNumber,ImType,'MinAx',FilterParameters,[])

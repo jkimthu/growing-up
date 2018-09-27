@@ -4,12 +4,13 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 August 4
-% commit: edit whether lag correction function is applied, such that it
-%         only occurs on fluc experiment
+% last updated: jen, 2018 September 26
+
+% commit: edit corrected time calculations to NOT depend on number of
+%         arguments
 
 
-function [dm] = buildDM(D5,M,M_va,T,xy_start,xy_end,e,expType)
+function [dm] = buildDM(D5,T,xy_start,xy_end,index,expType)
 %% initialize all values
   
 tn_counter = 0;
@@ -20,34 +21,31 @@ dropThreshold = -0.75; % consider greater negatives a division event
 trackID = [];           % 1. track ID, as assigned by ND2Proc_XY
 Time = [];              % 2. Time
 lengthVals = [];        % 3. lengthVals
-muVals = [];            % 4. muVals
-isDrop = [];            % 5. isDrop
-curveFinder = [];       % 6. curveFinder
-timeSinceBirth = [];    % 7. timeSinceBirth
-curveDurations = [];    % 8. curveDurations
-ccFraction = [];        % 9. ccFraction
-addedLength = [];       % 10. addedLength
-widthVals = [];         % 11. widthVals
-vaVals = [];            % 12. vaVals
-surfaceArea = [];       % 13. surfaceArea
-mu_vaVals = [];         % 14. mu_vaVals
-addedVA = [];           % 15. addedVA
-x_pos = [];             % 16. x coordinate of centroid
-y_pos = [];             % 17. y coordinate of centroid
-orig_frame = [];        % 18. orig_frame
-stage_num = [];         % 19. stage_num
-eccentricity = [];      % 20. eccentricity
-angle = [];             % 21. angle of rotation of fit ellipse
-trackNum = [];          % 22. trackNum  =  total track number (vs ID which is xy based)
-condVals = [];          % 23. condVals
-bioProdRate = [];       % 24. biovolProductionRate
-                        % 25. correctedTime (trueTimes)
+isDrop = [];            % 4. isDrop
+curveFinder = [];       % 5. curveFinder
+timeSinceBirth = [];    % 6. timeSinceBirth
+curveDurations = [];    % 7. curveDurations
+ccFraction = [];        % 8. ccFraction
+addedLength = [];       % 9. addedLength
+widthVals = [];         % 10. widthVals
+vaVals = [];            % 11. vaVals
+surfaceArea = [];       % 12. surfaceArea
+addedVA = [];           % 13. addedVA
+x_pos = [];             % 14. x coordinate of centroid
+y_pos = [];             % 15. y coordinate of centroid
+orig_frame = [];        % 16. orig_frame
+stage_num = [];         % 17. stage_num
+eccentricity = [];      % 18. eccentricity
+angle = [];             % 19. angle of rotation of fit ellipse
+trackNum = [];          % 20. trackNum  =  total track number (vs ID which is xy based)
+condVals = [];          % 21. condVals
+                        % 22. correctedTime (trueTimes)
 
 %% loop through all xy positions and all tracks for data concatenation
 
-for n = xy_start:xy_end
+for n = xy_start:xy_end % n = each inidividual xy position from experiment (movie)
     
-    for m = 1:length(D5{n})
+    for m = 1:length(D5{n}) % m = each individual cell track from current movie
         
         %% track ID
         lengthCurrentTrack = length(D5{n}(m).TrackID);
@@ -73,17 +71,7 @@ for n = xy_start:xy_end
         lengthTrack = D5{n}(m).MajAx;%(7:lengthCurrentTrack+6);              % collect lengths (um)
         lengthVals = [lengthVals; lengthTrack];                            % concatenate lengths
         
-        %% mu_length
-        muTrack = zeros(lengthCurrentTrack,1);
-        measuredMus = M{n}(m).mu(:,1);                                     % collect elongation rates (1/hr)
-        muTrack(3:length(measuredMus)+2) = measuredMus;
-        muVals = [muVals; muTrack];                                        % concatenate growth rates
-        
-        %% mu_Va
-        mu_vaTrack = zeros(lengthCurrentTrack,1);
-        measuredMus_va = M_va{n}(m).mu_va(:,1);
-        mu_vaTrack(3:length(measuredMus_va)+2) = measuredMus_va;
-        mu_vaVals = [mu_vaVals; mu_vaTrack];
+
         
         %% drop?
         dropTrack = diff(lengthTrack);
@@ -176,6 +164,7 @@ for n = xy_start:xy_end
             
         end
         
+        
         % TIME SINCE BIRTH
 
           timeSinceBirth = [timeSinceBirth; tsbPerTrack];        % compiled values of time passed since last birth event
@@ -235,10 +224,6 @@ for n = xy_start:xy_end
         condVals = [condVals; condTrack];
         clear condTrack
         
-        %% biovolume production rate = V(t) * mu(t) * ln(2)
-        bioProdRate_track = v_anupam .* mu_vaTrack * log(2); % log(2) in matlab = ln(2)
-        bioProdRate = [bioProdRate; bioProdRate_track];
-        clear bioProdRate_track v_anupam
         
     end % for m
     
@@ -250,100 +235,92 @@ end % for n
 
 %% lag corrected time
 
-% if experiment numbers are designated
-if nargin > 6
+
+% correct for lag in fluctuating conditions only
+if strcmp(expType,'origFluc') == 0
     
-    % correct for lag in fluctuating conditions only
-    if strcmp(expType,'origFluc') == 0
+    % skip corrections if not original fluctuation experiment
+    disp('no fluctuating data: true times = original times')
+    %         trueTimes = Time;
+    trueTimes = NaN(length(angle),1);
+    
+else
+    
+    fluc_xys = 1:10;
+    compiled_xys = xy_start:xy_end;
+    
+    trueTimes = [];
+    
+    % in the case that compiled data matrix contains fluctuating data,
+    % subtract lag time from timestamps derived from corresponding xy position
+    
+    if isempty( intersect(compiled_xys,fluc_xys) )
         
-        % skip corrections if not original fluctuation experiment
+        % only stable environments, skip corrections
         disp('no fluctuating data: true times = original times')
         trueTimes = Time;
         
     else
         
-        fluc_xys = 1:10;
-        compiled_xys = xy_start:xy_end;
+        % calculate lag times for corrections
+        [lagTimes,~] = calculateLag(index);
         
-        trueTimes = [];
-        
-        % in the case that compiled data matrix contains fluctuating data,
-        % subtract lag time from timestamps derived from corresponding xy position
-        
-        if isempty( intersect(compiled_xys,fluc_xys) )
+        % accumulate "true" times for all assembled conditions
+        % "true" can be corrected fluctuating timestamps, or original stable timestamps
+        for xy = xy_start:xy_end
             
-            % only stable environments, skip corrections
-            disp('no fluctuating data: true times = original times')
-            trueTimes = Time;
-            
-        else
-            
-            % calculate lag times for corrections
-            [lagTimes,~] = calculateLag(e);
-            
-            % accumulate "true" times for all assembled conditions
-            % "true" can be corrected fluctuating timestamps, or original stable timestamps
-            for xy = xy_start:xy_end
+            if ~isempty( intersect(xy,fluc_xys) )
                 
-                if ~isempty( intersect(xy,fluc_xys) )
-                    
-                    % i. identify position and corresponding lag time
-                    currentLag = lagTimes(xy);
-                    
-                    % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
-                    edits = Time(stage_num == xy) - currentLag;
-                    
-                    % iii. re-assign
-                    trueTimes = [trueTimes; edits];
-                    %disp(strcat('fluc xy (',num2str(xy),'): corrected for lag!'))
-                    
-                else
-                    
-                    % iv. not a fluctuating condition
-                    nonEdits = Time(stage_num == xy);
-                    trueTimes = [trueTimes; nonEdits];
-                    %disp(strcat('stable xy (',num2str(xy),'): original time is true'))
-                    
-                end
+                % i. identify position and corresponding lag time
+                currentLag = lagTimes(xy);
+                
+                % ii. subtract lag time from timestamp, to re-align cell experience (xy) with generated signal (junc)
+                edits = Time(stage_num == xy) - currentLag;
+                
+                % iii. re-assign
+                trueTimes = [trueTimes; edits];
+                
+                
+            else
+                
+                % iv. not a fluctuating condition
+                nonEdits = Time(stage_num == xy);
+                trueTimes = [trueTimes; nonEdits];
+                
                 
             end
             
         end
+        
     end
-    
-else
-    trueTimes = NaN(length(angle),1);
-    
 end
 
 
+
 % compile data into single matrix
-dm = [trackID Time lengthVals muVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea mu_vaVals addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals bioProdRate trueTimes];
+dm = [trackID Time lengthVals isDrop curveFinder timeSinceBirth curveDurations ccFraction addedLength widthVals vaVals surfaceArea addedVA x_pos y_pos orig_frame stage_num eccentricity angle trackNum condVals trueTimes];
 % 1. track ID, as assigned by ND2Proc_XY
 % 2. Time
 % 3. lengthVals
-% 4. muVals
-% 5. isDrop
-% 6. curveFinder
-% 7. timeSinceBirth
-% 8. curveDurations
-% 9. ccFraction
-% 10. addedLength
-% 11. widthVals  
-% 12. vaVals
-% 13. surfaceArea
-% 14. mu_vaVals
-% 15. addedVA
-% 16. x_pos
-% 17. y_pos
-% 18. orig_frame
-% 19. stage_num
-% 20. eccentricity
-% 21. angle
-% 22. trackNum  =  total track number (vs ID which is xy based)
-% 23. condVals
-% 24. biovolProductionRate
-% 25. correctedTime (trueTimes)
+% 4. isDrop
+% 5. curveFinder
+% 6. timeSinceBirth
+% 7. curveDurations
+% 8. ccFraction
+% 9. addedLength
+% 10. widthVals  
+% 11. vaVals
+% 12. surfaceArea
+% 13. addedVA
+% 14. x_pos
+% 15. y_pos
+% 16. orig_frame
+% 17. stage_num
+% 18. eccentricity
+% 19. angle
+% 20. trackNum  =  total track number (vs ID which is xy based)
+% 21. condVals
+% 22. correctedTime (trueTimes)
 
 
 end

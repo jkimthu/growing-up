@@ -31,37 +31,24 @@
 %     5. report calculated time lags and distance traveled per experiment
 
 
-% SECTION TWO. overview of summary statistics across experiments
-%
-%     0. initialize meta data and specify value of effective area
-%     1. for all experiments
-%             1. specify experiment of interest, for which to calculate time lag
-%             2. load flow rate and x coordinates from specified experiment
-%             3. for all 10 xy positions
-%                   3. calculate distance traveled from x coordinates
-%                   4. solve for time lag
-%             5. report solutions
-%     6. plot summary statistics of lag
 
 
-% last update: jen, 2018 Feb 22
+% last update: jen, 2018 Aug 17
 
-% commit: function takes experiment number (e) and outputs time lag and
-%         distance from junction for all xy positions 
+% commit: use index number of experiment to define data of interest more
+%         consistently between scripts
 
 
 % OK let's go!!
 
 %% ONE. function to calculate and return lag time per xy position of a given experiment
 
-function [timeLags,distances] = calculateLag(e)
+function [timeLags,distances] = calculateLag(index)
 
 
 % 0. initialize data
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
-dataIndex = find(~cellfun(@isempty,storedMetaData));
-experimentCount = length(dataIndex);
 
 
 % 0. specify value of effective area
@@ -69,11 +56,10 @@ A_effective = 0.000264; % cm^2
 
 
 % 1. specify experiment of interest, for which to calculate time lag
-index = dataIndex(e);
+% 
 
 
 % 2. load flow rate and x coordinates from specified experiment
-date = storedMetaData{index}.date;
 Q = storedMetaData{index}.flow_rate;
 x_cells = storedMetaData{index}.x_cell;
 x_junc = storedMetaData{index}.x_junc;

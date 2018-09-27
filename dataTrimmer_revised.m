@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 August 11
-% commit: data trimming for experiment 2018-08-09, with high upper bound in width applied
+% last edit: 2018 September 26
+% commit: re-do for new analyses of 15 min
 
 
 % OK lez go!
@@ -37,13 +37,12 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-08-09';
+experiment = '2018-01-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
-%load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
 load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
 
 % reject data matrix
@@ -56,7 +55,7 @@ criteria_counter = 0;
 windowSize = 5;
 
 
-%% Criteria ONE: clip tracks to separate data surrounding >30% jumps in cell size
+%% Criteria ONE: clip tracks to separate data surrounding >30% jumps in cell length
 
 
 % Goal: huge jumps in cell size correspond to cells coming together. Remove
@@ -159,7 +158,7 @@ for n = 1:length(D);
     
     
     % when all tracks finished, 
-    if jump_counter == 1
+    if jump_counter >= 1
         
         % 7. save accmulated rejects
         rejectD{criteria_counter,n} = trackScraps;
@@ -422,8 +421,5 @@ clear SizeStrainer n i m tooSmalls X;
 
 
 save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
-%save('lb-monod-2017-09-20-jiggle-0p1.mat', 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
-%% 
-% 
