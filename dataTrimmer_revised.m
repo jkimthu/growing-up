@@ -27,7 +27,7 @@
 
 
 % last edit: 2018 September 26
-% commit: edit comments for accuracy (size = length)
+% commit: re-do for new analyses of 15 min
 
 
 % OK lez go!
@@ -37,7 +37,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-01-29';
+experiment = '2018-01-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
