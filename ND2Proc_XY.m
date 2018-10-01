@@ -47,14 +47,16 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-01-31';
+experiment = '2018-09-19';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
+newFolder = strcat('/Users/juanita/Documents/Data/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('180919*.nd2'));
+
+
 %xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
@@ -111,7 +113,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-9.48276, -1]; %threshold for 2018-01-31   
+    Threshold =  [-19.0022, -1]; %threshold for 2018-09-19  
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                

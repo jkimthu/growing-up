@@ -37,13 +37,13 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-01-17';
+experiment = '2018-09-19';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
+newFolder = strcat('/Users/juanita/Documents/Data/',experiment);%,'  (t300)');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
+load(strcat(experiment,'-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -89,7 +89,7 @@ criteria_counter = criteria_counter + 1;
 % 0. initialize
 jumpFrac = 0.3;                                                            
                                                                            
-for n = 1:length(D);                                                       
+for n = 1:length(D)                                                       
     
     % 0. isolate data for current movie
     data = D{n};
@@ -420,6 +420,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat(experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
