@@ -37,13 +37,13 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-09-19';
+experiment = '2018-08-07';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/juanita/Documents/Data/',experiment);%,'  (t300)');
+newFolder = strcat('/Users/juanita/Documents/PhD/Data/sample_data');%,'  (t300)');
 cd(newFolder);
 
-load(strcat(experiment,'-width1p7.mat'));
+load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -160,7 +160,7 @@ for n = 1:length(D)
     % when all tracks finished, 
     if jump_counter >= 1
         
-        % 7. save accmulated rejects
+        % 7. save accumulated rejects
         rejectD{criteria_counter,n} = trackScraps;
         
         % 8. and insert data after jump at end of data matrix, D2
@@ -262,7 +262,7 @@ end
 % 0. initialize copy of dataset before trimming
 % 0. define thresholds
 % 0. for each movie
-%        1. for each track, collect % of non-drop negatives per track length (in frames)
+%        1. for each track, collect # of non-drop negatives per track length (in frames)
 %                2. isolate length data from current track
 %                3. find change in length between frames
 %                4. convert change into binary, where positives = 0 and negatives = 1
@@ -295,7 +295,7 @@ for n = 1:length(D)
         continue
     end
     
-    % 1. for each track, collect % of non-drop negatives per track length (in frames)
+    % 1. for each track, collect # of non-drop negatives per track length (in frames)
     nonDropRatio = NaN(length(D{n}),1);
     
     for m = 1:length(D4{n})
@@ -416,10 +416,34 @@ end
 
 clear SizeStrainer n i m tooSmalls X;
 
+%% Edits for ease of handling in python
+
+for n = 1:length(D5)
+    
+    new = num2cell(zeros(length(D5{1,n}),1)+n);
+    [D5{1,n}.movieID] = new{:};
+    
+end
+
+
+
+s = struct2cell(D5{1,1})';
+
+for n = 2:length(D5)
+    
+    s_temp = struct2cell(D5{1,n})'; 
+    s = vertcat(s,s_temp);
+    
+end
+
+names = fieldnames(D5{1,1});
+final_struct = cell2struct(s',names);
+
+clear s s_temp new
 
 %% Saving results
 
 
-save(strcat(experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
-
+save(strcat(experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T', 'final_struct')%, 'reader', 'ConversionFactor')
+save(strcat(experiment,'-width1p7-trimmed_forPython.mat'), 'final_struct')%, 'reader', 'ConversionFactor')
 
