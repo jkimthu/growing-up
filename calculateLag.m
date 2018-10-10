@@ -33,10 +33,10 @@
 
 
 
-% last update: jen, 2018 Aug 17
+% last update: jen, 2018 Oct 3
 
-% commit: use index number of experiment to define data of interest more
-%         consistently between scripts
+% commit: add approximate lag value for datasets with missing data for position 
+%         or flow rate 
 
 
 % OK let's go!!
@@ -60,26 +60,41 @@ A_effective = 0.000264; % cm^2
 
 
 % 2. load flow rate and x coordinates from specified experiment
-Q = storedMetaData{index}.flow_rate;
-x_cells = storedMetaData{index}.x_cell;
-x_junc = storedMetaData{index}.x_junc;
-
-
-for xy = 1:10
+if isfield(storedMetaData{index},'x_cell') == 0
     
-    % 3. calculate distance traveled from x coordinates (cm)
-    distance_traveled = (x_junc - x_cells(xy))/10000;   % um * cm/10000um
-    distances(xy,1) = distance_traveled;
+    timeLags(1:10,1) = 1.7;
+    distances(1:10,1) = NaN;
+    disp('missing cell or junc position data - estimating time lag as 1.7 sec!')
     
-    % 4. solve for time lag = distance traveled * A_eff / Q
-    timeLag = distance_traveled * A_effective / (Q * 0.001 / 60); % convert Q from ul/min to cubic cm/sec
-    timeLags(xy,1) = timeLag;
+elseif isfield(storedMetaData{index},'flow_rate') == 0
+    
+    timeLags(1:10,1) = 1.7;
+    distances(1:10,1) = NaN;
+    disp('missing flow rate data - estimating time lag as 1.7 sec!')
+    
+else
+    
+    Q = storedMetaData{index}.flow_rate;
+    x_cells = storedMetaData{index}.x_cell;
+    x_junc = storedMetaData{index}.x_junc;
+    
+    
+    for xy = 1:10
+        
+        % 3. calculate distance traveled from x coordinates (cm)
+        distance_traveled = (x_junc - x_cells(xy))/10000;   % um * cm/10000um
+        distances(xy,1) = distance_traveled;
+        
+        % 4. solve for time lag = distance traveled * A_eff / Q
+        timeLag = distance_traveled * A_effective / (Q * 0.001 / 60); % convert Q from ul/min to cubic cm/sec
+        timeLags(xy,1) = timeLag;
+        
+    end
+    
     
 end
 
-
 end
-
 
 %% TWO. overview of lag time summary statistics across experiments
 

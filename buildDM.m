@@ -4,10 +4,10 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 September 26
+% last updated: jen, 2018 Oct 3
 
-% commit: edit corrected time calculations to NOT depend on number of
-%         arguments
+% commit: edit such that corrected time is calculated for all experiment
+%         types, except monod
 
 
 function [dm] = buildDM(D5,T,xy_start,xy_end,index,expType)
@@ -237,7 +237,7 @@ end % for n
 
 
 % correct for lag in fluctuating conditions only
-if strcmp(expType,'origFluc') == 0
+if strcmp(expType,'monod') == 1
     
     % skip corrections if not original fluctuation experiment
     disp('no fluctuating data: true times = original times')
