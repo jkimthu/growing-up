@@ -42,18 +42,19 @@
 
 % TWO. strategy based on best alignment (overlap) between two signals
 
-%       0. initialize experiment parameters, including intended signal period
-%       1. load signal and time data
-
-
-% last edit: jen, 2018 Feb 20
-
-% commit: adding new method to measure phase shift, using a normalized
+%         NOTE:
+%         adding new method to measure phase shift, using a normalized
 %         cross correlation to determine the time lag between junction and
 %         xy10. note: current fluorescein timeseries are imaged with "no
 %         delay", in other words: inconsistent frame rate. since
 %         cross-correlation works with indeces, it's not so effect for
 %         these.
+
+
+
+% last edit: jen, 2018 Oct 12
+
+% commit: adjust parameter names to more clearly relate to junc and xy.
 
 % OK lez go!
 
@@ -62,7 +63,7 @@
 clear
 clc
 
-for i = 1:3 % currently only three experiments with this type of test
+for i = 1 % currently only three experiments with this type of test
     
     % 0. initialize experiment parameters, includign intended signal period
     if i == 1
@@ -97,38 +98,38 @@ for i = 1:3 % currently only three experiments with this type of test
     
     % 2. find time location of transitions (upshifts and downshifts)
     %    by finding local max and min of signal derivative
-    referenceSignal = signals{1}';
-    testSignal = signals{2}';
+    signal_junc = signals{1}';
+    signal_cellXY = signals{2}';
     
-    referenceTimestamps{i,1} = timestamps(2:end,1);
-    testTimestamps{i,1} = timestamps(2:length(testSignal),2);
+    timestamps_junc{i,1} = timestamps(2:end,1);
+    timestamps_cellXY{i,1} = timestamps(2:length(signal_cellXY),2);
     
-    deriv_reference{i,1} = diff(referenceSignal);
-    deriv_test{i,1} = diff(testSignal);
+    deriv_junc{i,1} = diff(signal_junc);
+    deriv_cellXY{i,1} = diff(signal_cellXY);
     
-    plot(referenceTimestamps{i,1},referenceSignal(2:end))
+    plot(timestamps_junc{i,1},signal_junc(2:end))
     hold on
-    plot(testTimestamps{i,1},testSignal(2:end))
+    plot(timestamps_cellXY{i,1},signal_cellXY(2:end))
     
     
     % i. find local maxima in derivative
     figure(2)
-    plot(referenceTimestamps{i,1},deriv_reference{i,1})
-    findpeaks(deriv_reference{i,1},referenceTimestamps{i,1},'MinPeakDistance',period*scale)
-    [peaks_reference_deriv,location_referencePeaks_deriv] = findpeaks(deriv_reference{i,1},referenceTimestamps{i,1},'MinPeakDistance',period*scale);
+    plot(timestamps_junc{i,1},deriv_junc{i,1})
+    findpeaks(deriv_junc{i,1},timestamps_junc{i,1},'MinPeakDistance',period*scale)
+    [peaks_junc,peakLocations_junc] = findpeaks(deriv_junc{i,1},timestamps_junc{i,1},'MinPeakDistance',period*scale);
     hold on
     
-    plot(testTimestamps{i,1},deriv_test{i,1})
-    findpeaks(deriv_test{i,1},testTimestamps{i,1},'MinPeakDistance',period*scale)
-    [peaks_test_deriv,location_testPeaks_deriv] = findpeaks(deriv_test{i,1},testTimestamps{i,1},'MinPeakDistance',period*scale);
+    plot(timestamps_cellXY{i,1},deriv_cellXY{i,1})
+    findpeaks(deriv_cellXY{i,1},timestamps_cellXY{i,1},'MinPeakDistance',period*scale)
+    [peaks_cellXY,peakLocations_cellXY] = findpeaks(deriv_cellXY{i,1},timestamps_cellXY{i,1},'MinPeakDistance',period*scale);
     title('fluorescence signal deritatives with identified local maxima')
     legend('reference signal','local maxima','test signal')
     
     % ii. find local minima in derivative
     %plot(referenceTimestamps{i,1},deriv_reference{i,1})
     %findpeaks(-deriv_reference{i,1},referenceTimestamps{i,1},'MinPeakDistance',period*5/6)
-    [troughs_reference,location_referenceTroughs] = findpeaks(-deriv_reference{i,1},referenceTimestamps{i,1},'MinPeakDistance',period*scale);
-    [troughs_test,location_testTroughs] = findpeaks(-deriv_test{i,1},testTimestamps{i,1},'MinPeakDistance',period*scale);
+    [troughs_junc,troughLocations_junc] = findpeaks(-deriv_junc{i,1},timestamps_junc{i,1},'MinPeakDistance',period*scale);
+    [troughs_cellXY,troughLocations_cellXY] = findpeaks(-deriv_cellXY{i,1},timestamps_cellXY{i,1},'MinPeakDistance',period*scale);
     
     
     clear peaks_reference_deriv peaks_test_deriv troughs_reference troughs_test
@@ -136,11 +137,11 @@ for i = 1:3 % currently only three experiments with this type of test
     
     % 3. confirm period of reference and test by calculating the time
     %    between up and down transitions
-    distances_peaks{1} = diff(location_referencePeaks_deriv);
-    distances_peaks{2} = diff(location_testPeaks_deriv);
+    distances_peaks{1} = diff(peakLocations_junc);
+    distances_peaks{2} = diff(peakLocations_cellXY);
     
-    distances_troughs{1} = diff(location_referenceTroughs);
-    distances_troughs{2} = diff(location_testTroughs);
+    distances_troughs{1} = diff(troughLocations_junc);
+    distances_troughs{2} = diff(troughLocations_cellXY);
     
     mean_timeBetweenPeaks{i,1} = cellfun(@mean,distances_peaks); % each cell has two values: 1 = reference, 2 = test
     std_timeBetweenPeaks{i,1} = cellfun(@std,distances_peaks);
@@ -154,10 +155,10 @@ for i = 1:3 % currently only three experiments with this type of test
     %    test and reference transitions
     
     % i. using fluorescein derivative maxima (time of upshifts)
-    phaseShift{1} = location_testPeaks_deriv - location_referencePeaks_deriv(1:length(location_testPeaks_deriv));
+    phaseShift{1} = peakLocations_cellXY - peakLocations_junc(1:length(peakLocations_cellXY));
     
     % ii. using fluorescein derivative minima (time of downshifts)
-    phaseShift{2} = location_testTroughs - location_referenceTroughs(1:length(location_testTroughs));
+    phaseShift{2} = troughLocations_cellXY - troughLocations_junc(1:length(troughLocations_cellXY));
     
     mean_phaseShift{i,1} = cellfun(@mean,phaseShift);
     std_phaseShift{i,1} = cellfun(@std,phaseShift);
@@ -170,26 +171,26 @@ for i = 1:3 % currently only three experiments with this type of test
     
     % i. local maxima
     figure(6)
-    plot(referenceTimestamps{i,1},referenceSignal(2:end))
-    findpeaks(referenceSignal(2:end),referenceTimestamps{i,1},'MinPeakDistance',period*5/6)
-    [peaks_reference,location_referencePeaks] = findpeaks(referenceSignal(2:end),referenceTimestamps{i,1},'MinPeakDistance',period*5/6);
+    plot(timestamps_junc{i,1},signal_junc(2:end))
+    findpeaks(signal_junc(2:end),timestamps_junc{i,1},'MinPeakDistance',period*5/6)
+    [peaks_reference,location_referencePeaks] = findpeaks(signal_junc(2:end),timestamps_junc{i,1},'MinPeakDistance',period*5/6);
     hold on
     
-    plot(testTimestamps{i,1},testSignal(2:end))
-    findpeaks(testSignal(2:end),testTimestamps{i,1},'MinPeakDistance',period*5/6)
-    [peaks_test,location_testpeaks] = findpeaks(testSignal(2:end),testTimestamps{i,1},'MinPeakDistance',period*5/6);
+    plot(timestamps_cellXY{i,1},signal_cellXY(2:end))
+    findpeaks(signal_cellXY(2:end),timestamps_cellXY{i,1},'MinPeakDistance',period*5/6)
+    [peaks_test,location_testpeaks] = findpeaks(signal_cellXY(2:end),timestamps_cellXY{i,1},'MinPeakDistance',period*5/6);
     
     % ii. local minima
-    [troughs_reference,location_referenceTroughs] = findpeaks(-referenceSignal(2:end),referenceTimestamps{i,1},'MinPeakDistance',period*5/6);
-    [troughs_test,location_testtroughs] = findpeaks(-testSignal(2:end),testTimestamps{i,1},'MinPeakDistance',period*5/6);
+    [troughs_junc,troughLocations_junc] = findpeaks(-signal_junc(2:end),timestamps_junc{i,1},'MinPeakDistance',period*5/6);
+    [troughs_cellXY,location_testtroughs] = findpeaks(-signal_cellXY(2:end),timestamps_cellXY{i,1},'MinPeakDistance',period*5/6);
     
     
     % 6. calculate amplitude of oscillations = max(i) - min(i) / 2
     %    note: below, we ADD peaks and troughs because troughs are
     %    identified as the peaks of negative signal. ie
     
-    amplitude{1} = (peaks_reference(1:length(troughs_reference)) + troughs_reference)/2;
-    amplitude{2} = (peaks_test(1:length(troughs_test)) + troughs_test)/2;
+    amplitude{1} = (peaks_reference(1:length(troughs_junc)) + troughs_junc)/2;
+    amplitude{2} = (peaks_test(1:length(troughs_cellXY)) + troughs_cellXY)/2;
     
     mean_amplitude{i,1} = cellfun(@mean,amplitude);
     std_amplitude{i,1} = cellfun(@std,amplitude);
@@ -204,8 +205,9 @@ figure(3)
 bar(cell2mat(mean_timeBetweenPeaks),barWidth)
 hold on
 errorbar(cell2mat(mean_timeBetweenPeaks), cell2mat(std_timeBetweenPeaks),'.')
-legend('within reference','wihtin test')
-set(gca,'xticklabel',{'reference','test'});
+%legend('within reference','wihtin test')
+%set(gca,'xticklabel',{'reference','test'});
+set(gca,'xticklabel',{'junction','cell position'});
 title('measured period and standard deviation')
 ylabel('mean time between upshifts (sec)')
 
@@ -213,8 +215,9 @@ figure(4)
 bar(cell2mat(mean_timeBetweenTroughs),barWidth)
 hold on
 errorbar(cell2mat(mean_timeBetweenTroughs), cell2mat(std_timeBetweenTroughs),'.')
-legend('within reference','within test')
-set(gca,'xticklabel',{'2017-11-15','2018-01-31','2018-02-01'});
+%legend('within reference','within test')
+%set(gca,'xticklabel',{'2017-11-15','2018-01-31','2018-02-01'});
+set(gca,'xticklabel',{'junction','cell position'});
 title('measured period and standard deviation')
 ylabel('mean time between downshifts (sec)')
 
@@ -222,10 +225,11 @@ figure(5)
 bar(cell2mat(mean_phaseShift),barWidth)
 hold on
 errorbar(cell2mat(mean_phaseShift), cell2mat(std_phaseShift),'.')
-legend('between upshifts','between downshifts')
-set(gca,'xticklabel',{'2017-11-15','2018-01-31','2018-02-01'});
+%legend('between upshifts','between downshifts')
+%set(gca,'xticklabel',{'2017-11-15','2018-01-31','2018-02-01'});
+set(gca,'xticklabel',{'junction','cell position'});
 title('measured lagtime and standard deviation')
-ylabel('mean time between junc and xy10 transitions (sec)')
+ylabel('mean time between transitions (sec)')
 
 figure(7)
 bar(cell2mat(mean_amplitude),barWidth)
