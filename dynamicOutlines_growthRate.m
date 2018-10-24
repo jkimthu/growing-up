@@ -12,19 +12,19 @@
 %            4. define major axes, centroids, angles, growth rates
 %            5. draw ellipses from image, color based on sign of growth rate
 %
-%                  large jump > 0.66             = Crimson
-%                  -0.33 < chillin' < 0.66       = SeaGreen
-%                  large drop < -0.66            = MidnightBlue
+%                  large jump > x             = Crimson
+%                  -x < chillin' < x          = SeaGreen
+%                  large drop < -x            = MidnightBlue
 %   
-%                  note: values are magnitude change in growth rate (1/hr),
+%                  note: x values are magnitude change in growth rate (1/hr),
 %                        not change as a fraction of previous.                       
 %           6. display and save
 %     7. woohoo!
 
 
-% last edit: jen, 2018 October 23
+% last edit: jen, 2018 October 24
 
-% commit: visualize changes in growth rate over varied (2-5) st dev out
+% commit: visualize changes in growth rate over 3
 
 
 % OK LEZ GO!
@@ -36,8 +36,8 @@ clear
 
 
 % 0. initialize definition of "large"
-sigma = 0.33;
-numSig = 5; % # standard deviations away from mean
+sigma = 0.3;
+numSig = 10; % # standard deviations away from mean
 
 
 % 0. initialize complete meta data
@@ -122,7 +122,7 @@ clear curveFinder isDrop volumes trackNum timestamps_sec growthRates_all
 
 %%
 % 11. overlay colored cell outlines over each image file
-for img = 80:130%length(names) % skip first image because growth rate will not exist
+for img = 85:120%length(names) % skip first image because growth rate will not exist
                           % skip second image because diff in growth rate will not exist
     
     % i. initialize current image
