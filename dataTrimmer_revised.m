@@ -164,7 +164,7 @@ for n = 1:length(D)
         rejectD{criteria_counter,n} = trackScraps;
         
         % 8. and insert data after jump at end of data matrix, D2
-        D2{n} = [data; trackScraps];
+        D2{n} = [data];  % Edit: Oct 23, 2018. trackScraps are not necessary for downstream analysis  
     
     else
         D2{n} = data;
@@ -418,17 +418,28 @@ clear SizeStrainer n i m tooSmalls X;
 
 %% Edits for ease of handling in python
 
+
+% 1. Add the variable movie ID to each structure in order to identify each
+% movie (field of view) and also add the variable particleID in order to
+% identify each particle individually in the analysis in python.
 for n = 1:length(D5)
     
-    new = num2cell(zeros(length(D5{1,n}),1)+n);
-    [D5{1,n}.movieID] = new{:};
+    movieid = num2cell(zeros(length(D5{1,n}),1)+n);
+    particle_id = num2cell(linspace(1,length(D5{1,n}),length(D5{1,n})));
+    [D5{1,n}.movieID] = movieid{:};
+    [D5{1,n}.particleID] = particle_id{:};
     
 end
 
 
 
+% 2. Convert the cell array into a single structure. Concatenate each
+% structure below the previous one.
+
+% Convert the first structure into a cell array
 s = struct2cell(D5{1,1})';
 
+% Loop through the rest and concatenate vertically
 for n = 2:length(D5)
     
     s_temp = struct2cell(D5{1,n})'; 
@@ -436,6 +447,7 @@ for n = 2:length(D5)
     
 end
 
+% Create the final structure
 names = fieldnames(D5{1,1});
 final_struct = cell2struct(s',names);
 
@@ -445,5 +457,5 @@ clear s s_temp new
 
 
 save(strcat(experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T', 'final_struct')%, 'reader', 'ConversionFactor')
-save(strcat(experiment,'-width1p7-trimmed_forPython.mat'), 'final_struct')%, 'reader', 'ConversionFactor')
+save(strcat(experiment,'-width1p7-trimmed_forPython.mat'), 'final_struct', 'T')%, 'reader', 'ConversionFactor')
 
