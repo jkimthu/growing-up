@@ -24,7 +24,7 @@
 
 % last edit: jen, 2018 October 28
 
-% commit: targeting xy 10 in 2018-08-01 data
+% commit: targeting xy 10 in 2018-08-09 data
 
 
 % OK LEZ GO!
@@ -46,7 +46,7 @@ load('storedMetaData.mat')
 
 
 % 0. initialize experiment and xy movie to analyze
-index = 22; % 2018-08-01
+index = 27; % 2018-08-09
 xy = 10;
 
 % 1. collect experiment meta data
@@ -87,7 +87,7 @@ cd(img_folder);
 
 
 % 7. create directory of image names in chronological order
-imgDirectory = dir(strcat('singleupshift-',date,'_xy*.tif'));
+imgDirectory = dir(strcat('singledownshift-',date,'_xy*.tif'));
 names = {imgDirectory.name};
 clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
@@ -122,7 +122,7 @@ clear curveFinder isDrop volumes trackNum timestamps_sec growthRates_all
 
 %%
 % 11. overlay colored cell outlines over each image file
-for img = 85:100 %length(names) % skip first image because growth rate will not exist
+for img = 105:125 %length(names) % skip first image because growth rate will not exist
                           % skip second image because diff in growth rate will not exist
     
     % i. initialize current image
@@ -133,8 +133,8 @@ for img = 85:100 %length(names) % skip first image because growth rate will not 
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    %imshow(I, 'DisplayRange',[200 700]); %lowering right # increases num sat'd pxls
-    imshow(I, 'DisplayRange',[500 2000]); % 2018-08-01
+    % lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[250 800]); % 2018-08-09
     
     
     % ii. if no particles to display, save and skip
