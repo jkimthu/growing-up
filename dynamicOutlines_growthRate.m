@@ -14,7 +14,7 @@
 %
 %                  large jump > x             = Crimson
 %                  -x < chillin' < x          = SeaGreen
-%                  large drop < -x            = MidnightBlue
+%                  large drop < -x            = Pink
 %   
 %                  note: x values are magnitude change in growth rate (1/hr),
 %                        not change as a fraction of previous.                       
@@ -22,9 +22,9 @@
 %     7. woohoo!
 
 
-% last edit: jen, 2018 October 24
+% last edit: jen, 2018 October 28
 
-% commit: visualize changes in growth rate over 3
+% commit: targeting xy 8 in 2018-06-15 data
 
 
 % OK LEZ GO!
@@ -37,7 +37,7 @@ clear
 
 % 0. initialize definition of "large"
 sigma = 0.3;
-numSig = 10; % # standard deviations away from mean
+numSig = 10; 
 
 
 % 0. initialize complete meta data
@@ -46,8 +46,8 @@ load('storedMetaData.mat')
 
 
 % 0. initialize experiment and xy movie to analyze
-index = 21; % 2018-06-15, first single upshift
-xy = 1;
+index = 21; % 2018-06-15
+xy = 8;
 
 % 1. collect experiment meta data
 date = storedMetaData{index}.date;
@@ -122,7 +122,7 @@ clear curveFinder isDrop volumes trackNum timestamps_sec growthRates_all
 
 %%
 % 11. overlay colored cell outlines over each image file
-for img = 85:120%length(names) % skip first image because growth rate will not exist
+for img = 95:120 %length(names) % skip first image because growth rate will not exist
                           % skip second image because diff in growth rate will not exist
     
     % i. initialize current image
@@ -133,7 +133,8 @@ for img = 85:120%length(names) % skip first image because growth rate will not e
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[2000 4000]); %lowering right # increases num sat'd pxls
+    %imshow(I, 'DisplayRange',[200 700]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[2000 4000]); % 2018-06-15
     
     
     % ii. if no particles to display, save and skip
@@ -169,7 +170,7 @@ for img = 85:120%length(names) % skip first image because growth rate will not e
         for particle = 1:length(IDs) 
             
             [x_rotated, y_rotated] = drawEllipse(particle,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
-            lineVal = 1;
+            lineVal = 0.5;
             
             % if very large growth rate jump
             if growthRates_change_currentImage(particle) > (sigma * numSig)
@@ -186,7 +187,7 @@ for img = 85:120%length(names) % skip first image because growth rate will not e
             % if very large growth rate drop
             elseif growthRates_change_currentImage(particle) < (-sigma * numSig)
                 
-                color = rgb('MidnightBlue');
+                color = rgb('Pink');
                 
                 hold on
                 plot(x_rotated,y_rotated,'Color',color,'lineWidth',lineVal)
