@@ -1,4 +1,4 @@
-%% dataTrimmer_revised
+edit %% dataTrimmer_revised
 
 
 %  Goal: automatedly remove or clip tracks that are unlikely to be well-tracked cells.

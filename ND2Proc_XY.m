@@ -47,14 +47,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-09-19';
+experiment = '2018-10-23';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/juanita/Documents/Data/',experiment);%,'  (t300)');
+newFolder = strcat('/Users/juanita/Documents/PhD/Data/',experiment);%,'  (t300)');
 cd(newFolder);
 
 
-xyDirectory = dir(strcat('180919*.nd2'));
+xyDirectory = dir(strcat('181023*.nd2'));
 
 
 %xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
@@ -113,7 +113,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold =  [-19.0022, -1]; %threshold for 2018-09-19  
+    Threshold =  [-8.07393, -1]; %threshold for 2018-10-23 
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -132,7 +132,7 @@ for ii = 1:NSeries
     
     TrimField = 'A';    % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 0.8;   % lower bound for restricted field, or -Inf
-    UpperBound = 26;     % upper bound for LB
+    UpperBound = 23;     % upper bound for single carbon source (succ, lac, pyr)
     %UpperBound = 8;     % upper bound for glucose only 
     
     % to actually trim the set:
