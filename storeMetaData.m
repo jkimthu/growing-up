@@ -55,9 +55,8 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 October 16
-
-% commit message: edit bubbles across the board, based on figure 7 noise
+% last updated: 2018 November 16
+% commit message: edit bubbles for 2017-11-13 to 4.3 across the board
 
 % OK let's go!
 
@@ -202,8 +201,8 @@ save('storedMetaData.mat','storedMetaData')
 
 %% 16. add new variable to pre-existing cell of experiment meta data
 
-% last used: jen, 2018 October 16
-% commit: edited bubbletime for each fluc and monod curve
+% last used: jen, 2018 November 16
+% commit: edited bubbletime for fluc of 2017-11-13
 
 
 % strategy:
@@ -232,7 +231,7 @@ dataIndex = find(~cellfun(@isempty,storedMetaData));
 experimentCount = length(dataIndex);
 
 % for all experiments (cells with data)
-for e = 1:experimentCount
+for e = 8%1:experimentCount
     
     % 3. print experiment date
     index = dataIndex(e);
