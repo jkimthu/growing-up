@@ -55,11 +55,8 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 September 20
-
-% commit message: add 9th column for first ave-to-high upshift,
-%                 2018-09-11. Use for 2018-09-11 until 2018-09-18
-
+% last updated: 2018 November 16
+% commit message: edit bubbles for 2017-11-13 to 4.3 across the board
 
 % OK let's go!
 
@@ -204,8 +201,8 @@ save('storedMetaData.mat','storedMetaData')
 
 %% 16. add new variable to pre-existing cell of experiment meta data
 
-% last used: jen, 2018 August 04
-% for adding 'shift time' to all existing datasets
+% last used: jen, 2018 November 16
+% commit: edited bubbletime for fluc of 2017-11-13
 
 
 % strategy:
@@ -230,23 +227,23 @@ copyMD = storedMetaData;
 
 % 2. collect summary info for existing data
 dataIndex = find(~cellfun(@isempty,storedMetaData));
-bioProdRateData = cell(size(storedMetaData));
+%bioProdRateData = cell(size(storedMetaData));
 experimentCount = length(dataIndex);
 
 % for all experiments (cells with data)
-for e = 1:experimentCount
+for e = 8%1:experimentCount
     
     % 3. print experiment date
     index = dataIndex(e);
     date = storedMetaData{index}.date;
       
     % 4. prompt user to enter value of new variable
-    prompt = strcat('Enter shift time in sec (NaN for origFluc and monod) for .', date,' : ');
-    shiftTime = input(prompt);
+    prompt = strcat('Enter bubbletime as array for .', date,' : ');
+    bubbletime = input(prompt);
 
     % 5. store variable into copy of meta data
     currentStructure = copyMD{index};
-    currentStructure.shiftTime = shiftTime;
+    currentStructure.bubbletime = bubbletime;
     copyMD{index} = currentStructure;
 
 end

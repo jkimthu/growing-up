@@ -16,9 +16,10 @@
 %           8. save plot and output signal and timestamp data
 %           9. 9. output signal and timestamp data
 
-% last updated: jen, 2018 Feb 15
 
-% commit: update names for intialization of 40x image series and timestamps
+% last updated: jen, 2018 October 12
+
+% commit: updated file path to data, while working on manuscript figure 1C
 
 % OK let's go!
 
@@ -27,7 +28,7 @@ function [signals,timestamps] = calculateFluoresceinSignal(experiment)
 % 0. initialize image series
 
 % initialize fluctuating fluorescein image series
-exptFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
+exptFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment,'/signal tests');
 cd(exptFolder);
 
 if strcmp(experiment,'2017-11-15') == 1
@@ -50,7 +51,7 @@ clear ans
 for s = 1:length(series)
     
     % 1. open corresponding directory
-    dataFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment,'/',series{s});
+    dataFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment,'/signal tests/',series{s});
     cd(dataFolder);
     
     % initialize image data
@@ -89,6 +90,9 @@ for s = 1:length(series)
 end
 
 % 8. save plot 
+exptFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment,'/signal tests');
+cd(exptFolder);
+
 legend('start','end')
 xlabel('time (sec)')
 ylabel('raw signal intensity')

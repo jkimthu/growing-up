@@ -26,8 +26,9 @@
 
 
 
-% last edit: 2018 September 26
-% commit: edit comments for accuracy (size = length)
+% last edit: 2018 October 16
+% commit: latest particle tracking of 2017-09-26, width 1.4 for c456, 1.7
+%         for c123
 
 
 % OK lez go!
@@ -37,13 +38,13 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-01-29';
+experiment = '2017-09-26';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
+load(strcat('lb-monod-',experiment,'-c123-width1p7-c456-width1p4.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -420,6 +421,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-monod-',experiment,'-c123-width1p7-c456-width1p4-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
