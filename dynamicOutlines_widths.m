@@ -1,6 +1,8 @@
 % dynamicOutlines
 
 % Goal: this version of dynamic outlines displays colors based on width.
+%       this version is not limited to full cell cycles.
+
 
 
 % Strategy:
@@ -11,20 +13,22 @@
 %     3. for each image, initialize current image
 %            4. define major axes, centroids, angles, growth rates
 %            5. draw ellipses from image, color based on width
-%                     < 0.7 um = LightPink
-%                  0.7-0.89 um = Crimson
-%                  0.9-1.09 um = Goldenrod
-%                  1.1-1.29 um = SeaGreen
-%                  1.3-1.49 um = SlateBlue
-%                     1.5+  um = Indigo
+
+        %                       < 1 um = LightPink
+        %                  1.0-1.19 um = Crimson
+        %                  1.2-1.29 um = Goldenrod
+        %                  1.3-1.39 um = SeaGreen
+        %                  1.4-1.49 um = SlateBlue
+        %                     1.5+  um = Indigo
+        
 %           6. display and save
 %     7. woohoo!
 
 
-% last edit: jen, 2018 June 15
+% last edit: jen, 2018 November 19
 
-% commit: visualize width of tracked cells in xy 10, 20, 30 and 40 from
-% 2018-02-01. edited to track only full cell cycles.
+% commit: using data tracked with uniform 1.7 upperBound, visualize width
+%         distribution for xy 1,2,11,12,21,22,31 and 32 of 2018-02-01
 
 
 % OK LEZ GO!
@@ -34,50 +38,58 @@
 clc
 clear
 
+
+
 % 0. initialize complete meta data
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
-dataIndex = find(~cellfun(@isempty,storedMetaData));
 
 
 % 0. initialize experiment and xy movie to analyze
-e = 14;
-xy = 20;
+index = 15; % 2018-02-01
+xy = 32;
 
 % 1. collect experiment meta data
-index = dataIndex(e);
 date = storedMetaData{index}.date;
+expType = storedMetaData{index}.experimentType;
+
 
 
 % 2. load measured data
 experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
 cd(experimentFolder)
-filename = strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat');
-load(filename,'D5','M','M_va','T','rejectD');
+%filename = strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat');
+filename = strcat('lb-fluc-',date,'-width1p7-jiggle-0p5.mat');
+load(filename,'D5','T');
 
     
 % 3. compile experiment data matrix
 xy_start = xy;
 xy_end = xy;
-xyData = buildDM(D5, M, M_va, T, xy_start, xy_end,e);
-clear D5 M M_va T xy_start xy_end e
+xyData = buildDM(D5, T, xy_start, xy_end, index, expType);
+clear D5 T xy_start xy_end e
 
 
-% 4. isolate condition data to those with full cell cycles
-curveIDs = xyData(:,6);                         % col 6 = curve ID
-xyData_fullOnly = xyData(curveIDs > 0,:);
-clear curveFinder
+% % 4. isolate condition data to those with full cell cycles
+% curveIDs = xyData(:,6);                         % col 6 = curve ID
+% xyData_fullOnly = xyData(curveIDs > 0,:);
+% clear curveFinder
 
 
 % 5. initialize image data
 conversionFactor = 6.5/60;      % scope5 Andor COSMOS = 6.5um pixels / 60x magnification
-n = 40;                         % movie (xy position) of interest, in case different than xy
+%n = 40;                         % movie (xy position) of interest, in case different than xy
 img_prefix = strcat('lb-fluc-',date,'_xy', num2str(xy), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 
 % 6. open folder for images of interest (one xy position of experiment)
-img_folder=strcat('xy', num2str(xy));
+cd(experimentFolder)
+if xy >= 10
+    img_folder=strcat('xy', num2str(xy));
+else
+    img_folder=strcat('xy0', num2str(xy));
+end
 cd(img_folder);
 
 
@@ -92,7 +104,8 @@ totalFrames = length(imgDirectory); % total frame number
 trackIDs = [];
 for fr = 1:totalFrames
     
-    tracksInCurrentFrame = xyData_fullOnly(xyData_fullOnly(:,18) == fr,:);    % col 18 = frame #
+    %tracksInCurrentFrame = xyData_fullOnly(xyData_fullOnly(:,18) == fr,:);    % col 18 = frame #
+    tracksInCurrentFrame = xyData(xyData(:,16) == fr,:);                % col 16 = frame #
     trackIDs{fr,1} = tracksInCurrentFrame(:,1);                         % col 1 = TrackID, as given by tracking script ND2Proc_XY
 
 end
@@ -105,11 +118,12 @@ for img = 1:length(names)
     % i. initialize current image
     cla
     I=imread(names{img});
-    filename = strcat('dynamicOutlines-widths-fullOnly-xy',num2str(xy),'-frame',num2str(img),'-n',num2str(n),'.tif');
+    %filename = strcat('dynamicOutlines-widths-fullOnly-xy',num2str(xy),'-frame',num2str(img),'-n',num2str(n),'.tif');
+    filename = strcat('dynamicOutlines-widths-xy',num2str(xy),'-frame',num2str(img),'.tif');
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[2000 6000]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[2300 5000]); %lowering right # increases num sat'd pxls
     
     
     % ii. if no particles to display, save and skip
@@ -119,14 +133,15 @@ for img = 1:length(names)
         
     else
         % iii. else when tracked lineages are present, isolate data for each image
-        dm_currentImage = xyData_fullOnly(xyData_fullOnly(:,18) == img,:);    % col 18 = frame #
+        %dm_currentImage = xyData_fullOnly(xyData_fullOnly(:,18) == img,:);    % col 18 = frame #
+        dm_currentImage = xyData(xyData(:,16) == img,:);    % col 16 = frame #
         
         majorAxes = dm_currentImage(:,3);           %  col 3 = lengths
-        minorAxes = dm_currentImage(:,11);          % col 11 = widths
+        minorAxes = dm_currentImage(:,10);          % col 10 = widths
         
-        centroid_X = dm_currentImage(:,16);         % col 16 = x coordinate of centroid
-        centroid_Y = dm_currentImage(:,17);         % col 17 = y coordinate of centroid
-        angles = dm_currentImage(:,21);             % col 21 = angle of rotation of fit ellipses
+        centroid_X = dm_currentImage(:,14);         % col 14 = x coordinate of centroid
+        centroid_Y = dm_currentImage(:,15);         % col 15 = y coordinate of centroid
+        angles = dm_currentImage(:,19);             % col 19 = angle of rotation of fit ellipses
 
         IDs = dm_currentImage(:,1);                 % col 1 = track ID as assigned in ND2Proc_XY
         
@@ -135,21 +150,22 @@ for img = 1:length(names)
         % iv. for each particle of interest in current image,
         %     draw ellipse colored based on current width
         
-        %                     < 0.7 um = LightPink
-        %                  0.7-0.89 um = Crimson
-        %                  0.9-1.09 um = Goldenrod
-        %                  1.1-1.29 um = SeaGreen
-        %                  1.3-1.49 um = SlateBlue
+        %                       < 1 um = LightPink
+        %                  1.0-1.19 um = Crimson
+        %                  1.2-1.29 um = Goldenrod
+        %                  1.3-1.39 um = SeaGreen
+        %                  1.4-1.49 um = SlateBlue
         %                     1.5+  um = Indigo
+        
         
         for particle = 1:length(IDs)
             
             [x_rotated, y_rotated] = drawEllipse(particle,majorAxes, minorAxes, centroid_X, centroid_Y, angles, conversionFactor);
-            lineVal = 1;
+            lineVal = 0.5;
             
             
             % if track is not a full cell cycle (divTime = 0), color LightPink
-            if minorAxes(particle) < 0.7
+            if minorAxes(particle) < 1
                 
                 color = rgb('LightPink');
                 
@@ -160,7 +176,7 @@ for img = 1:length(names)
                 ylim([0 2048]);
                 
             
-            elseif minorAxes(particle) < 0.9
+            elseif minorAxes(particle) < 1.2
                
                 color = rgb('Crimson');
                 
@@ -170,7 +186,7 @@ for img = 1:length(names)
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
-            elseif minorAxes(particle) < 1.1 
+            elseif minorAxes(particle) < 1.3 
                                
                 color = rgb('Goldenrod');
                 
@@ -180,7 +196,7 @@ for img = 1:length(names)
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
-            elseif minorAxes(particle) < 1.3 
+            elseif minorAxes(particle) < 1.4 
                 
                 color = rgb('SeaGreen');
                 
@@ -200,7 +216,7 @@ for img = 1:length(names)
                 xlim([0 2048]);
                 ylim([0 2048]);
                 
-            else % width greater than 1.4 um
+            else % width greater than 1.5 um
                 color = rgb('Indigo');
                 
                 hold on
