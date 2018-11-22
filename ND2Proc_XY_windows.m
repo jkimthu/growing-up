@@ -38,7 +38,7 @@
 
 %  Last modified (jen): 2018 November 20
 %  Commit: particle tracking of 2018-02-01 for sensitivity analysis - width
-%  thresh 1.6 um
+%  thresh 1.4 um
 %          
 %  Original script by the wondrous Vicente Fernandez
 
@@ -142,7 +142,7 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    UpperBound = 1.6;     % sensitivity analysis
+    UpperBound = 1.4;     % sensitivity analysis
 %     if ii < 31
 %         UpperBound = 1.7;     % upper bound for conditions 1 (fullLB), 2 (1/8 LB) and 3 (1/32 LB)
 %     else
@@ -179,7 +179,7 @@ end
 
 
 %save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')    
-save(strcat('lb-fluc-',experiment,'-width1p6.mat'),'D','T')    
+save(strcat('lb-fluc-',experiment,'-width1p4.mat'),'D','T')    
      
 
 
