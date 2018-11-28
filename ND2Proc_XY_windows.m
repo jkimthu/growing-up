@@ -36,9 +36,9 @@
 
 
 
-%  Last modified (jen): 2018 Oct 16
-%  Commit: re-do particle tracking for 2017-09-26 with varied width
-%          thresholds, 1.4 for lower (c456) and 1.7 for higher (c123)
+%  Last modified (jen): 2018 November 20
+%  Commit: particle tracking of 2018-02-01 for sensitivity analysis - width
+%  thresh 1.4 um
 %          
 %  Original script by the wondrous Vicente Fernandez
 
@@ -47,14 +47,14 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2017-09-26';
+experiment = '2018-02-01';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 %cd(newFolder);
 
 
-xyDirectory = dir(strcat('lb-monod-',experiment,'_xy*.nd2'));
+xyDirectory = dir(strcat('lb-fluc-',experiment,'_xy*.nd2'));
 %xyDirectory = dir(strcat('lb-singleupshift-ave2high-',experiment,'_xy*.nd2'));
 names = {xyDirectory.name};
 
@@ -111,7 +111,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold = [-32.069, -1]; %threshold for 2017-09-26 
+    Threshold = [-7.10345, -1]; %threshold for 2018-02-01 
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
@@ -142,11 +142,12 @@ for ii = 1:NSeries
     
     TrimField = 'MinAx';  % choose relevant characteristic to restrict, run several times to apply for several fields
     LowerBound = 1.0;     % lower bound for restricted field, or -Inf
-    if ii < 31
-        UpperBound = 1.7;     % upper bound for conditions 1 (fullLB), 2 (1/8 LB) and 3 (1/32 LB)
-    else
-        UpperBound = 1.4;     % upper bound for conditions 4 (1/100 LB), 2 (1/1000 LB) and 3 (1/10000 LB)
-    end
+    UpperBound = 1.4;     % sensitivity analysis
+%     if ii < 31
+%         UpperBound = 1.7;     % upper bound for conditions 1 (fullLB), 2 (1/8 LB) and 3 (1/32 LB)
+%     else
+%         UpperBound = 1.4;     % upper bound for conditions 4 (1/100 LB), 2 (1/1000 LB) and 3 (1/10000 LB)
+%     end
 
     % to actually trim the set:
     P_Trim2 = ParticleTrim(P_Trim1,TrimField,LowerBound,UpperBound);
@@ -178,8 +179,8 @@ end
 
 
 %save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'),'D','T')    
-%save(strcat('lb-fluc-',experiment,'-width1p7.mat'),'D','T')    
-save(strcat('lb-monod-',experiment,'-c123-width1p7-c456-width1p4.mat'),'D','T')         
+save(strcat('lb-fluc-',experiment,'-width1p4.mat'),'D','T')    
+     
 
 
 %%
