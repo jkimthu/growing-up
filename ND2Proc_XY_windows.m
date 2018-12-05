@@ -36,8 +36,8 @@
 
 
 
-%  Last modified (jen): 2018 December 3
-%  Commit: re-do particle tracking of 2018-09-17 with width threshold of 1.4um for conditions 1,2,3
+%  Last modified (jen): 2018 December 4
+%  Commit: re-do particle tracking of 2018-09-18 with width threshold of 1.4um for conditions 1,2,3
 %          
 %  Original script by the wondrous Vicente Fernandez
 
@@ -46,7 +46,7 @@
 %% 1. create directory of movies
 clear
 clc
-experiment = '2018-09-17';
+experiment = '2018-09-18';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
@@ -110,7 +110,7 @@ for ii = 1:NSeries
     reader = bfGetReader(names{ii});
     NImg=reader.getImageCount(); % Number of images to include in analysis, starting from 1
     
-    Threshold = [-15.1724, -1]; %threshold for 2018-09-17 
+    Threshold = [-26.3448, -1]; %threshold for 2018-09-18 
     Background = [];                        
     PlotFlag = 0;                           
     ImType = {'Single'};                
