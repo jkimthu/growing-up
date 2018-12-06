@@ -26,9 +26,8 @@
 
 
 
-% last edit: 2018 October 16
-% commit: latest particle tracking of 2017-09-26, width 1.4 for c456, 1.7
-%         for c123
+% last edit: 2018 December 6
+% commit: data trimming for new poly-lysine ctl, 2018-12-04
 
 
 % OK lez go!
@@ -38,13 +37,13 @@
 % particle tracking data
 clear
 clc
-experiment = '2017-09-26';
+experiment = '2018-12-04';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
 cd(newFolder);
 
-load(strcat('lb-monod-',experiment,'-c123-width1p7-c456-width1p4.mat'));
+load(strcat('lb-monod-',experiment,'-c12-width1p7-c34-width1p4.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -421,6 +420,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-monod-',experiment,'-c123-width1p7-c456-width1p4-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-monod-',experiment,'-c12-width1p7-c34-width1p4-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
