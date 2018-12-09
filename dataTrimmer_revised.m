@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2018 December 6
-% commit: data trimming for new poly-lysine ctl, 2018-12-04
+% last edit: 2018 December 9
+% commit: data trimming for sensitivity analysis of 2018-02-01, width 1p5
 
 
 % OK lez go!
@@ -37,13 +37,14 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-12-04';
+experiment = '2018-02-01';
 
 % 0. open folder for experiment of interest
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);%,'  (t300)');
+%newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data_analysis/sensitivity analysis');
 cd(newFolder);
 
-load(strcat('lb-monod-',experiment,'-c12-width1p7-c34-width1p4.mat'));
+load(strcat('lb-fluc-',experiment,'-width1p5.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -420,6 +421,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-monod-',experiment,'-c12-width1p7-c34-width1p4-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-width1p5-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 

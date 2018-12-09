@@ -55,8 +55,8 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 November 16
-% commit message: edit bubbles for 2017-11-13 to 4.3 across the board
+% last updated: 2018 Dec 9
+% commit message: add polyK 2018-12-04 to meta data
 
 % OK let's go!
 
@@ -122,7 +122,8 @@ if strcmp(nutrientSource,'LB') == 1
     aveConc = 105/10000;
     highConc = 1/50;
     flucConc = aveConc;
-    metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
+    %metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
+    metadata(1).concentrations = [highConc; highConc; lowConc; lowConc]; % for poly-lysine control 2018-12-04
 else
     alternative = 'Enter concentrations as vector ([c1; c2; c3;...]): ';
     altConcentrations = input(alternative);
