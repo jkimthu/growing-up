@@ -27,7 +27,7 @@
 
 
 % last edit: 2018 December 9
-% commit: data trimming for sensitivity analysis of 2018-02-01, width 1p5
+% commit: data trimming for sensitivity analysis of 2018-02-01, width 1p7
 
 
 % OK lez go!
@@ -44,7 +44,7 @@ experiment = '2018-02-01';
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data_analysis/sensitivity analysis');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-width1p5.mat'));
+load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -421,6 +421,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-width1p5-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
