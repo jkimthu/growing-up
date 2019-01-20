@@ -27,8 +27,9 @@
 
 
 % last edit: 2019 Jan 20
-% commit: data trimming of fluc2stable experiment 2018-08-22
-%         too many tracks, something amiss
+% commit: data trimming of fluc2stable experiment 2018-09-17,width 1p4 and 1p7, many tracks,
+%         to be checked out
+
 
 
 % OK lez go!
@@ -38,7 +39,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-08-22';
+experiment = '2018-09-17';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
