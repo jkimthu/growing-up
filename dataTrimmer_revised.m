@@ -27,7 +27,7 @@
 
 
 % last edit: 2019 Jan 20
-% commit: data trimming of fluc2stable experiment 2018-09-17,width 1p4 and 1p7, many tracks,
+% commit: data trimming of fluc2stable experiment 2018-09-18,width 1p4 and 1p7, many tracks,
 %         to be checked out
 
 
@@ -39,7 +39,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-09-17';
+experiment = '2018-09-18';
 
 % 0. open folder for experiment of interest
 newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
@@ -365,8 +365,6 @@ for n = 1:length(D)
 end
 
 clear n gainLossRatio jiggleThreshold jigglers counter dropThreshold;
-
-
 
 
 %% Criteria Four: maximum particle size must be greater than 1.8um
