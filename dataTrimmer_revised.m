@@ -14,7 +14,7 @@
 
 %   1. Tracks should not increase by more than 30% of size at previous timepoint
 %           - tracks are clipped, not deleted
-%           - data prior and after jump are considered separate tracks          
+%           - REMOVED, 2019 jan 20: data prior and after jump are considered separate tracks          
 
 %   2. Tracks must be at least the length of fitting window
 %           - note: currently, windowSize = 5 frames
@@ -26,8 +26,9 @@
 
 
 
-% last edit: 2018 December 9
-% commit: data trimming for sensitivity analysis of 2018-02-01, width 1p7
+% last edit: 2019 Jan 20
+% commit: data trimming of fluc2stable experiment 2018-08-22
+%         too many tracks, something amiss
 
 
 % OK lez go!
@@ -37,14 +38,14 @@
 % particle tracking data
 clear
 clc
-experiment = '2018-02-01';
+experiment = '2018-08-22';
 
 % 0. open folder for experiment of interest
-%newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
-newFolder = strcat('/Users/jen/Documents/StockerLab/Data_analysis/sensitivity analysis');
+newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
+%newFolder = strcat('/Users/jen/Documents/StockerLab/Data_analysis/sensitivity analysis');
 cd(newFolder);
 
-load(strcat('lb-fluc-',experiment,'-width1p7.mat'));
+load(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7.mat'));
 
 % reject data matrix
 rejectD = cell(4,length(D));
@@ -159,17 +160,17 @@ for n = 1:length(D);
     
     
     % when all tracks finished, 
-    if jump_counter >= 1
+    %if jump_counter >= 1
         
-        % 7. save accmulated rejects
-        rejectD{criteria_counter,n} = trackScraps;
-        
-        % 8. and insert data after jump at end of data matrix, D2
-        D2{n} = [data; trackScraps];
+%         % 7. save accmulated rejects
+%         rejectD{criteria_counter,n} = trackScraps;
+%         
+%         % 8. and insert data after jump at end of data matrix, D2
+%         D2{n} = [data; trackScraps];
     
-    else
+    %else
         D2{n} = data;
-    end
+    %end
     
     % 9. repeat for all movies
     clear trackScraps X data;
@@ -421,6 +422,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
