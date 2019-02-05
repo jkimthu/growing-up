@@ -1,20 +1,50 @@
 %% figure 3A - monod curve
 
 
-% Goal: Monod plot of growth rate vs nutrient concentration
+% Output: Monod plot of time-averaged growth rate vs nutrient concentration.
+
+% Input: (1) data structures from particle tracking and quality control.
+%        (2) meta data structure to inform correct placement of data
+
+%        (1) experiment data
+%        each experiment has trimmed data structure, D5, and timestamp data, T.
+
+%        (2) meta data
+%        psuedo-manually compiled structure, storedMetaData.mat
+
+%        this code is written as if all experiment files (.mat, containing D5
+%        and T) and meta data file were in the same folder
 
 
-% Strategy:
-%
-%       1. collect growth rates from all experiment data
-%       2. eliminating timepoints before 3 hr
-%       3. calculate mean, std, counts, and sem for each condition of each experiment
-%       4. store stats into a structure, save
-%       5. call data from structures for plotting
+% Strategy: three parts A, B and C
+
+%  A. Manipulate and compile data from each experiment
+
+%       0. initialize complete meta data
+%       0. define growth rate of interest
+%       0. define experiments to include in analysis
+%       1. for each experiment, identify experiment by date and extract relevant parameters
+%       2. load experiment data
+%       3. build experiment data matrix
+%       4. for each condition, calculate instantaneous growth rates by...
+%       5. isolating all data from current condition
+%       6. isolate volume (Va), timestamp, drop, curve, and trackNum data
+%       7. calculate growth rates
+%               ALT: 8. trim data to full curves only (BUT commented out for final manuscript figure)
+%       8. truncate data to non-erroneous (e.g. bubbles) timestamps
+%       9. calculate average and s.e.m. of stabilized data  
+%      10. accumulate data for storage / plotting  
+%      11. store data from all conditions into compiled data structure, growthRates_monod_curve.mat  
+
+
+%  B. Save compiled data into stored data structure (PART B)
+%  C.  Access structure to plot time-averaged growth rate over time
+
+
 
 
 % Last edit: jen, 2019 Feb 5
-% Commit: up-to-date figure 3A in growth reductions manuscript
+% Commit: in-progress, testing with full curves only data
 
 
 % OK let's go!
@@ -26,7 +56,7 @@ clear
 clc
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+%cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 
@@ -42,9 +72,9 @@ exptArray = [2,3,4,5,6,7,9,10,11,12,13,14,15,17,18]; % use corresponding dataInd
 experimentCount = length(exptArray);
 
 
-%% for each experiment, move to folder and load data
+%% A. Manipulate and compile data from each experiment
 
-for e = 11%1:experimentCount
+for e = 1:experimentCount
     
     % 1. identify experiment by date and extract relevant parameters
     index = exptArray(e);
@@ -54,12 +84,7 @@ for e = 11%1:experimentCount
     bubbletime = storedMetaData{index}.bubbletime;
 
     
-    % 2. move directory to experiment data
-    experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-    cd(experimentFolder)
-    
-    
-    % 3. load data
+    % 2. load data
     if ischar(timescale) == 0
         filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
     elseif strcmp(date,'2017-09-26') == 1
@@ -70,9 +95,7 @@ for e = 11%1:experimentCount
     load(filename,'D5','T')
     
     
-
-    
-    % 4. build experiment data matrix
+    % 3. build experiment data matrix
     display(strcat('Experiment (', num2str(e),') of (', num2str(length(dataIndex)),')'))
     xy_start = 1;
     xy_end = length(D5);
@@ -80,8 +103,7 @@ for e = 11%1:experimentCount
     clear D5 T filename experimentFolder
    
     
-    %%
-    % 5. for each condition, calculate instantaneous growth rates
+    % 4. for each condition, calculate instantaneous growth rates
     xys = storedMetaData{index}.xys;
     xy_dimensions = size(xys);
     totalConditions = xy_dimensions(1);
@@ -89,11 +111,11 @@ for e = 11%1:experimentCount
     
     for c = 1:totalConditions
         
-        % 6. isolate all data from current condition
+        % 5. isolate all data from current condition
         conditionData = exptData(exptData(:,21) == c,:);  % col 21 = conditionData
         
         
-        % 7. isolate volume (Va), timestamp, drop, curve, and trackNum data     
+        % 6. isolate volume (Va), timestamp, drop, curve, and trackNum data     
         volumes = getGrowthParameter(conditionData,'volume');             % col 11 = calculated va_vals (cubic um)
         timestamps_sec = getGrowthParameter(conditionData,'timestamp');   % col 2  = timestamp in seconds
         isDrop = getGrowthParameter(conditionData,'isDrop');              % col 4  = isDrop, 1 marks a birth event
@@ -101,19 +123,19 @@ for e = 11%1:experimentCount
         trackNum = getGrowthParameter(conditionData,'trackNum');          % col 20 = track number (not ID from particle tracking)
         
         
-        % 8. calculate growth rate
+        % 7. calculate growth rates
         growthRates = calculateGrowthRate(volumes,timestamps_sec,isDrop,curveFinder,trackNum);
         growthRates_log2 = growthRates(:,specificColumn);
         clear volumes isDrop trackNum
         
         
-        % 9. trim data to full curves only
+        % 8. trim data to full curves only
         growthRates_fullCurves = growthRates_log2(curveFinder > 0);
         timestamps_fullCurves = timestamps_sec(curveFinder > 0);
         clear curveFinder
         
         
-        % 10. truncate data to non-erroneous (e.g. bubbles) timestamps
+        % 8. truncate data to non-erroneous (e.g. bubbles) timestamps
         minTime = 3;  % hr
         maxTime = bubbletime(c);
         timestamps_hr = timestamps_fullCurves/3600;
@@ -130,14 +152,14 @@ for e = 11%1:experimentCount
         clear timestamps_hr timestamps_sec minTime maxTime
         
         
-        % 10. calculate average and s.e.m. of stabilized data        
+        % 9. calculate average and s.e.m. of stabilized data        
         mean_log2 = nanmean(growthRates_final);
         count_log2 = length(growthRates_final(~isnan(growthRates_final)));
         std_log2 = nanstd(growthRates_final);
         sem_log2 = std_log2./sqrt(count_log2);
         
         
-        % 11. accumulate data for storage / plotting        
+        % 10. accumulate data for storage / plotting        
         compiled_growthRate_log2{c}.mean = mean_log2;
         compiled_growthRate_log2{c}.std = std_log2;
         compiled_growthRate_log2{c}.count = count_log2;
@@ -148,42 +170,42 @@ for e = 11%1:experimentCount
     
     end
     
-    % 10. store data from all conditions into measured data structure        
+    % 11. store data from all conditions into measured data structure        
     growthRates_monod_curve{index} = compiled_growthRate_log2;
-
-    
     clear compiled_growthRate_log2
+    
 end
 
 
-%% 11. Save new data into stored data structure
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
-save('growthRates_monod_curve.mat','growthRates_monod_curve')
+%% Part B. Save compiled data into stored data structure
+
+growthRates_monod_curve_fullCyclesONLY = growthRates_monod_curve;
+save('growthRates_monod_curve_fullCyclesONLY.mat','growthRates_monod_curve')
 
 
-%% 12. plot average biovolume production rate over time
+%% Part C. Access structure to plot time-averaged growth rate over time
 clc
 clear
 
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+% 0. initialize meta data
 load('storedMetaData.mat')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 experimentCount = length(dataIndex);
 
 
-% initialize summary stats for fitting
+% 0. initialize summary stats for fitting
 counter = 0;
 summaryMeans = zeros(1,(experimentCount-1)*3 + 6);
 summaryConcentrations = zeros(1,(experimentCount-1)*3 + 6);
 
-% initialize colors
+% 0. initialize colors
 palette = {'FireBrick','Chocolate','ForestGreen','Amethyst','MidnightBlue'};
 shapes = {'o','x','square','*'};
 
 for e = 1:experimentCount
     
-    % identify experiment by date
+    % 1. identify experiment by date
     index = dataIndex(e);
     date = storedMetaData{index}.date;
     
@@ -195,17 +217,16 @@ for e = 1:experimentCount
     disp(strcat(date, ': analyze!'))
     
     
-    % load timescale
+    % 2. load timescale
     timescale = storedMetaData{index}.timescale;
     
-    % isolate biomass prod data for current experiment
-    experiment_dVdt_data = dVdtData_newdVdt{index};
-    experiment_dVdt_norm = dVdtData_normalized_newdVdt{index};
+    % 3. isolate growth rate data for current experiment
+    experiment_growthRates = growthRates_monod_curve{index};
     
-    % isolate concentration data for current experiment
+    % 4. isolate concentration data for current experiment
     concentration = storedMetaData{index}.concentrations;
     
-    
+    % 5. color and symbol determination
     for c = 1:length(concentration)
         
        % if monod experiment
@@ -231,25 +252,16 @@ for e = 1:experimentCount
             xmark = shapes{1};
         end
         
-        % plot dV/dt data, labeled by stable vs fluc
+        % 6. plot time-avereaged growth rates, labeled by stable vs fluc
         figure(1)
-        errorbar(log(concentration(c)), experiment_dVdt_data{c}.mean, experiment_dVdt_data{c}.sem,'Color',color);
+        errorbar(log(concentration(c)), experiment_growthRates{c}.mean, experiment_growthRates{c}.sem,'Color',color);
         hold on
-        plot(log(concentration(c)), experiment_dVdt_data{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
+        plot(log(concentration(c)), experiment_growthRates{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
         hold on
-        ylabel('dV/dt (cubic um/hr)')
+        ylabel('growth rate (cubic um/hr)')
         xlabel('log fold LB dilution')
-        title(strcat('Population-averaged dV/dt vs log LB dilution'))
+        title(strcat('Population-averaged growth rate (log2) vs log(ln) LB dilution'))
         
-        % plot normalized dV/dt data, labeled by stable vs fluc
-        figure(2)
-        errorbar(log(concentration(c)), experiment_dVdt_norm{c}.mean, experiment_dVdt_norm{c}.sem,'Color',color);
-        hold on
-        plot(log(concentration(c)), experiment_dVdt_norm{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
-        hold on
-        ylabel('(dV/dt)/V (1/hr)')
-        xlabel('log fold LB dilution')
-        title(strcat('Population-averaged volume-normalized dV/dt vs log LB dilution'))
         
     end
      
