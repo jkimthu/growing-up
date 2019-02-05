@@ -9,7 +9,7 @@
 
 
 % last updated: jen, 2019 Feb 5
-% commit: first commit, at last this exists
+% commit: edit such that 'time' does not return timestamp AND time since birth
 
 % OK let's go!
 
@@ -17,13 +17,13 @@
 function [parameter] = getGrowthParameter(dm,parameterName)
 
 
-parameter_dir = {'trackID','time','length','isDrop','curveFinder','timeSinceBirth',...
+parameter_dir = {'trackID','timestamp','length','isDrop','curveFinder','timeSinceBirth',...
     'curveDurations','ccFraction','addedLength','width','volume','surfaceArea',...
     'addedVA','x_pos','y_pos','frame','xy','eccentricity','angle','trackNum',...
     'condition','correctedTime'};
 
 % 1. track ID, as assigned by ND2Proc_XY
-% 2. Time
+% 2. Time (timestamp from T)
 % 3. lengthVals
 % 4. isDrop
 % 5. curveFinder
