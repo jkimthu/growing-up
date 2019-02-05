@@ -33,10 +33,9 @@
 
 
 
-% last update: jen, 2018 Oct 3
+% last update: jen, 2019 Feb 5
 
-% commit: add approximate lag value for datasets with missing data for position 
-%         or flow rate 
+% commit: edit for use in streamlined data folder 
 
 
 % OK let's go!!
@@ -47,7 +46,7 @@ function [timeLags,distances] = calculateLag(index)
 
 
 % 0. initialize data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+%cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 
