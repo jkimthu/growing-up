@@ -51,7 +51,7 @@
 
 % OK let's go!
 
-%% initialize
+%% A. Initialize
 
 
 clear
@@ -64,11 +64,21 @@ load('storedMetaData.mat')
 exptArray = [2:4,5:7,9,10,11,12,13,14,15]; % list experiments by index
 
 
-% 0. initialize experiment data
+% 0. initialize fluctuating experiment data
 cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figure3')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
 experimentCount = length(dataIndex);
+
+
+% 0. initialize single shift experiment data
+cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figure4')
+load('response_singleUpshift.mat')
+load('response_singleDownshift.mat')
+
+
+% 0. initialize period lengths for hypothetical calculations (period in hours)
+periods = [12,24,48,96];
 
 
 %% B. Assemble measured data according to timescale or boundary conditions
@@ -134,17 +144,17 @@ Gfluc_std(t3600) = std(flucRates(timescales_perG==3600));
 % 4. plot G_data by timescale
 % raw values
 figure(2)
-plot([1 2 3 4],Gfluc_means,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
+plot([2 3 4 5],Gfluc_means,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar([1 2 3 4],Gfluc_means,Gfluc_std,'Color',rgb('DarkTurquoise'));
+errorbar([2 3 4 5],Gfluc_means,Gfluc_std,'Color',rgb('DarkTurquoise'));
 hold on
-plot(-1, G_monod,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
+plot(1, G_monod,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar(-1,G_monod,stableRates_std(ave),'Color',rgb('DarkCyan'),'LineWidth',2);
+errorbar(1,G_monod,stableRates_std(ave),'Color',rgb('DarkCyan'),'LineWidth',2);
 hold on
-plot(6, G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
+plot(10, G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 hold on
-axis([-1 6 0 4])
+axis([1 10 0 4])
 title('growth expectations')
 xlabel('fluctuating timescale')
 ylabel('mean growth rate (1/hr)') % growth rate = d(logV)/(dt*ln(2))
@@ -153,17 +163,17 @@ ylabel('mean growth rate (1/hr)') % growth rate = d(logV)/(dt*ln(2))
 
 % normalized by G_jensens
 figure(3)
-plot([1 2 3 4],Gfluc_means./G_jensens,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
+plot([2 3 4 5],Gfluc_means./G_jensens,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar([1 2 3 4],Gfluc_means./G_jensens,Gfluc_std./G_jensens,'Color',rgb('DarkTurquoise'));
+errorbar([2 3 4 5],Gfluc_means./G_jensens,Gfluc_std./G_jensens,'Color',rgb('DarkTurquoise'));
 hold on
-plot(-1, G_monod/G_jensens,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
+plot(1, G_monod/G_jensens,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar(-1,G_monod/G_jensens,stableRates_std(ave)./G_jensens,'Color',rgb('DarkCyan'),'LineWidth',2);
+errorbar(1,G_monod/G_jensens,stableRates_std(ave)./G_jensens,'Color',rgb('DarkCyan'),'LineWidth',2);
 hold on
-plot(6, G_jensens/G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
+plot(10, G_jensens/G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
-axis([-1 6 0.3 1.5])
+axis([1 10 0.3 1.5])
 title('growth, relative to Jensens expectations')
 xlabel('fluctuating timescale')
 ylabel('mean growth rate, normalized by G_jensens') % growth rate = d(logV)/(dt*ln(2))
@@ -172,17 +182,17 @@ ylabel('mean growth rate, normalized by G_jensens') % growth rate = d(logV)/(dt*
 
 % growth rate normalized by initial vol, normalized by G_monod
 figure(4)
-plot([1 2 3 4],Gfluc_means./G_monod,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
+plot([2 3 4 5],Gfluc_means./G_monod,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar([1 2 3 4],Gfluc_means./G_monod, Gfluc_std./G_monod,'Color',rgb('DarkTurquoise'));
+errorbar([2 3 4 5],Gfluc_means./G_monod, Gfluc_std./G_monod,'Color',rgb('DarkTurquoise'));
 hold on
-plot(-1,G_monod./G_monod,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
+plot(1,G_monod./G_monod,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
 hold on
-errorbar(-1,G_monod./G_monod,stableRates_std(ave)./G_monod,'Color',rgb('DarkCyan'),'LineWidth',2);
+errorbar(1,G_monod./G_monod,stableRates_std(ave)./G_monod,'Color',rgb('DarkCyan'),'LineWidth',2);
 hold on
-plot(6, G_jensens./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
+plot(10, G_jensens./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
-axis([-1 6 0.25 1.25])
+axis([1 10 0.25 1.25])
 title('growth, relative to average nutrient concentration')
 xlabel('fluctuating timescale')
 ylabel('mean growth rate, normalized by G_monod)') % growth rate = d(logV)/(dt*ln(2))
@@ -200,14 +210,93 @@ G_low = stableRates_mean(low)
 clear fluc low ave high counter index
 clear e experimentCount t30 t300 t900 t3600
 
+
 %% C. Calculate hypothetical time-averaged growth rates from single shift data
 
 
+% 0. initialize time to stabilize for both shifts
+ts_up = 116.3; % min
+ts_down = 297.5;
+
+
+% 1. trim growth rate signals to times until stabilized
+trimmed_upshift_gr = upshift_means(upshift_times < ts_up);
+trimmed_upshift_times = upshift_times(upshift_times < ts_up);
+
+trimmed_downshift_gr = downshift_growth(downshift_times < ts_down);
+trimmed_downshift_times = downshift_times(downshift_times < ts_down);
 
 
 
+% 2. trim growth signals to times postshift
+transition_upshift = trimmed_upshift_gr(trimmed_upshift_times >= 0);
+transition_downshift = trimmed_downshift_gr(trimmed_downshift_times >= 0);
+clear trimmed_upshift_gr trimmed_upshift_times trimmed_downshift_gr trimmed_downshift_times
 
 
+% 3. time-average transitions
+G_transit_up = mean(transition_upshift);
+G_transit_down = mean(transition_downshift);
+
+
+% 4. calculate time-averaged growth rates during high nutrient phase
+for p = 1:length(periods)
+    
+    tau = periods(p) * 60; % convert hr to min
+    phase = tau/2;
+    
+    fractionTransition = ts_up/phase;
+    weightedTransition = G_transit_up * fractionTransition;
+    weightedStable = G_high * (1-fractionTransition);
+    
+    G_phase_high(p) = mean(weightedTransition+weightedStable);
+    
+end
+clear fractionTransition weightedTransition weightedStable tau phase
+
+
+
+% 5. calculate time-averaged growth rates during low nutrient phase
+for p = 1:length(periods)
+    
+    tau = periods(p) * 60; % convert hr to min
+    phase = tau/2;
+    
+    fractionTransition = ts_down/phase;
+    weightedTransition = G_transit_down * fractionTransition;
+    weightedStable = G_low * (1-fractionTransition);
+    
+    G_phase_low(p) = mean(weightedTransition+weightedStable);
+    
+end
+clear fractionTransition weightedTransition weightedStable tau phase
+
+
+
+%. calculate time-averaged growth rates from entire period
+G_periods = (G_phase_high + G_phase_low)./2;
 
 
 %% D. Add hypothetical data to timescale plot
+
+% 1. raw values
+figure(2)
+hold on
+plot([6 7 8 9],G_periods,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2);
+hold on
+
+
+% 2. normalized by G_jensens
+figure(3)
+hold on
+plot([6 7 8 9],G_periods./G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2);
+hold on
+
+
+% 3. normalized by G_monod
+figure(4)
+hold on
+plot([6 7 8 9],G_periods./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2);
+hold on
+
+

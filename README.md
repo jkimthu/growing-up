@@ -18,6 +18,20 @@ Enjoy!
 
 
 
+
+SOURCE SCRIPTS FROM THE INTERWEB
+
+Not everything was written in house. Here the Mathworks links to functions used in these scripts (primarily for plotting) that were contributed by others.
+
+1. Shaded Error Bars by Rob Campbell
+https://www.mathworks.com/matlabcentral/fileexchange/26311-raacampbell-shadederrorbar
+
+2. RBG Color Picker by Kristjan Jonasson
+https://www.mathworks.com/matlabcentral/fileexchange/24497-rgb-triple-of-color-name-version-2?focused=5124709&tab=function
+
+
+
+
 SCRIPTS OF FINALIZED PLOTS FOR PAPER
 
 Figure
