@@ -43,8 +43,8 @@
 
 
 
-% Last edit: jen, 2019 Feb 5
-% Commit: in-progress, testing with full curves only data
+% Last edit: jen, 2019 Feb 6
+% Commit: up-to-date figure for growth reductions paper
 
 
 % OK let's go!
@@ -129,19 +129,19 @@ for e = 1:experimentCount
         clear volumes isDrop trackNum
         
         
-        % 8. trim data to full curves only
-        growthRates_fullCurves = growthRates_log2(curveFinder > 0);
-        timestamps_fullCurves = timestamps_sec(curveFinder > 0);
-        clear curveFinder
+%         % 8. trim data to full curves only
+%         growthRates_fullCurves = growthRates_log2(curveFinder > 0);
+%         timestamps_fullCurves = timestamps_sec(curveFinder > 0);
+%         clear curveFinder
         
         
         % 8. truncate data to non-erroneous (e.g. bubbles) timestamps
         minTime = 3;  % hr
         maxTime = bubbletime(c);
-        timestamps_hr = timestamps_fullCurves/3600;
+        timestamps_hr = timestamps_sec/3600;
         
         time_trim1 = timestamps_hr(timestamps_hr >= minTime);
-        growthRates_trim1 = growthRates_fullCurves(timestamps_hr >= minTime,:);
+        growthRates_trim1 = growthRates_log2(timestamps_hr >= minTime,:);
         
         if maxTime > 0
             growthRates_final = growthRates_trim1(time_trim1 <= maxTime,:);
@@ -177,10 +177,9 @@ for e = 1:experimentCount
 end
 
 
-%% Part B. Save compiled data into stored data structure
+% Part B. Save compiled data into stored data structure
 
-growthRates_monod_curve_fullCyclesONLY = growthRates_monod_curve;
-save('growthRates_monod_curve_fullCyclesONLY.mat','growthRates_monod_curve')
+save('growthRates_monod_curve.mat','growthRates_monod_curve')
 
 
 %% Part C. Access structure to plot time-averaged growth rate over time
@@ -189,8 +188,9 @@ clear
 
 % 0. initialize meta data
 load('storedMetaData.mat')
+load('growthRates_monod_curve_fullCyclesONLY.mat')
 load('growthRates_monod_curve.mat')
-dataIndex = find(~cellfun(@isempty,storedMetaData));
+dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
 experimentCount = length(dataIndex);
 
 
@@ -240,13 +240,13 @@ for e = 1:experimentCount
             xmark = shapes{1};
         elseif timescale == 300 && c == 1
             color = rgb(palette(2));
-            xmark = shapes{2};
+            xmark = shapes{1};
         elseif timescale == 900 && c == 1
             color = rgb(palette(3));
-            xmark = shapes{3};
+            xmark = shapes{1};
         elseif timescale == 3600 && c == 1
             color = rgb(palette(4));
-            xmark = shapes{4};
+            xmark = shapes{1};
         else
             color = rgb(palette(5));
             xmark = shapes{1};
@@ -258,7 +258,7 @@ for e = 1:experimentCount
         hold on
         plot(log(concentration(c)), experiment_growthRates{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
         hold on
-        ylabel('growth rate (cubic um/hr)')
+        ylabel('growth rate (1/hr)')
         xlabel('log fold LB dilution')
         title(strcat('Population-averaged growth rate (log2) vs log(ln) LB dilution'))
         
