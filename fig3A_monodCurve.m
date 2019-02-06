@@ -2,6 +2,7 @@
 
 
 % Output: Monod plot of time-averaged growth rate vs nutrient concentration.
+%         two version: log (natural) x axis, and linear x axis
 
 % Input: (1) data structures from particle tracking and quality control.
 %        (2) meta data structure to inform correct placement of data
@@ -261,6 +262,15 @@ for e = 1:experimentCount
         ylabel('growth rate (1/hr)')
         xlabel('log fold LB dilution')
         title(strcat('Population-averaged growth rate (log2) vs log(ln) LB dilution'))
+        
+        figure(2)
+        errorbar(concentration(c), experiment_growthRates{c}.mean, experiment_growthRates{c}.sem,'Color',color);
+        hold on
+        plot(concentration(c), experiment_growthRates{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
+        hold on
+        ylabel('growth rate (1/hr)')
+        xlabel('LB dilution')
+        title(strcat('Population-averaged growth rate (log2) vs LB dilution (linear)'))
         
         
     end
