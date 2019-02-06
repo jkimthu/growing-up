@@ -2,8 +2,27 @@
 
 
 %  Output: two bar plots, quantifying
-%                (1) time to stabilization and
-%                (2) mean growth rate during stable region
+%          (1) time to stabilization and
+%          (2) mean growth rate during stable region
+%
+%          in both plots, condition 1 = 15-min fluctuating nutrient
+%                         condition 2 = 60-min fluctuating nutrient
+%                         condition 3 = single upshift (low to high)
+
+
+% Input: (1) data structures from particle tracking and quality control.
+%        (2) meta data structure of all experiments
+
+%        (1) experiment data
+%        each experiment has trimmed data structure, D5, and timestamp data, T.
+%        this particular analysis uses data from fluctuating experiments
+%        with 15- or 60-min periods and single upshift experiments
+
+%        (2) meta data
+%        psuedo-manually compiled structure, storedMetaData.mat
+
+%        this code is written as if all experiment files (.mat, containing D5
+%        and T) and meta data file were in the same folder
 
 
 %  Strategy:
@@ -25,7 +44,7 @@
 
 %  last updated: jen, 2019 Feb 6
 
-%  commit: in progress, finalizing for manuscript 1
+%  commit: in progress, checked out and works well. just need to finalize comments
 %          
 
 % OK let's go!
@@ -37,7 +56,6 @@ clc
 clear
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 
@@ -75,10 +93,7 @@ for e = 1:length(exptArray)
     
     
     
-    % 3. load measured data
-    experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-    cd(experimentFolder)
-    
+    % 3. load measured data    
     if strcmp(date,'2017-11-12') == 1
         filename = 'lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat'; % says only 1.4 but it is both
     elseif ischar(timescale) == 0
@@ -274,6 +289,7 @@ for e_shift = 1:length(exptArray)
     
     counter = counter + 1;
     
+    
     % 2. initialize experiment meta data
     index = exptArray(e_shift); 
     date = storedMetaData{index}.date;
@@ -289,15 +305,13 @@ for e_shift = 1:length(exptArray)
     timescale = storedMetaData{index}.timescale;
     bubbletime = storedMetaData{index}.bubbletime;
     expType = storedMetaData{index}.experimentType;
-    shiftTime(e_shift) = storedMetaData{index}.shiftTime;        % sec
+    shiftTime(e_shift) = storedMetaData{index}.shiftTime;    % sec
 
     disp(strcat(date, ': analyze!'))
     
     
     
     % 3. load measured data
-    experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-    cd(experimentFolder)
     filename = strcat('lb-fluc-',date,'-width1p7-jiggle-0p5.mat');
     load(filename,'D5','T')
     
@@ -454,34 +468,6 @@ for e_shift = 1:length(exptArray)
         hold on
         title(strcat('response to upshift, binned every (',num2str(timePerBin),') sec'))
 
-        
-        
-%     else
-%         
-%         figure(3)    % downshift
-%         
-%         % plot!
-%         preDownshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
-%         postDownshift_times = (1:length(binned_mean{counter}(postshiftBins_single{counter})))*timePerBin_min;
-%         downshift_times_gapped = [preDownshift_times, postDownshift_times];
-%         
-%         preDownshift_growth_gapped = binned_mean{counter}(pre_downshiftBins{counter});
-%         postDownshift_growth_single = binned_mean{counter}(postshiftBins_single{counter});
-%         downshift_growth_gapped = [preDownshift_growth_gapped; postDownshift_growth_single];
-%         
-%         % don't plot zeros that are place holders for gaps in data
-%         downshift_growth = downshift_growth_gapped(downshift_growth_gapped > 0);
-%         downshift_times = downshift_times_gapped(downshift_growth_gapped > 0);
-%         
-%         plot(downshift_times,downshift_growth,'Color',color,'LineWidth',1)
-%         grid on
-%         hold on
-%         title(strcat('response to downshift, binned every (',num2str(timePerBin),') sec'))
-%              
-        
-%     end
-
-     
 end
 
 
