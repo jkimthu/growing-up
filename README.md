@@ -1,6 +1,9 @@
 # growing-up
 Peering into the mysterious nature of (bacterial) life
 
+
+
+
 GENERAL PIPELINE
 
 To extract a functiona dataset from raw .nd2 files:
@@ -12,3 +15,12 @@ To extract a functiona dataset from raw .nd2 files:
 
 The remaining scripts each strive to visualize the data (growth rate or other parameters) in unique ways.
 Enjoy!
+
+
+
+SCRIPTS OF FINALIZED PLOTS FOR PAPER
+
+Figure
+
+1. 3A monodCurve
+generates a data structure of summary stats of each experimental condition for monod curve. this structure, growthRates_monod_curve.mat, contains the values for all numbers in Supplementary table with all the means, standard deviations, etc.
