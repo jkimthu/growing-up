@@ -23,19 +23,26 @@
 %        rate for the rest of the low or high nutrient phase
 
 
-
 %        this code is written as if all experiment files (.mat, containing D5
 %        and T) and meta data file were in the same folder
 
 
 
-% Strategy: three parts A, B and C
+% Strategy: four parts A, B, C and D
+
+%  A. Initialize 
 %
-%       0. initialize complete meta data
-%       0. initialize experiment data
-%       1. for each experiment, collect G_fluc, G_low, G_ave, and G_high
-%       2. calculate mean G_low, G_ave, G_high and G_jensens across all data
-%       3. calculate mean G_fluc for each fluctuating timescale
+%       0. input complete meta data
+%       0. input fluctuating experiment data
+%       0. input single shift experiment data
+%       0. define period lengths for hypothetical calculations (12,24,48,96 hours)
+
+
+%  B. Assemble fluctuating data according to timescale or boundary conditions
+%
+%       1. for each experiment, collect time-averaged growth rates for each condition
+%       2. calculate mean and standard dev G_low, G_ave, G_high and G_jensens across all data
+%       3. calculate mean and standard dev G_fluc for each fluctuating timescale
 %       4. plot G_data by timescale, with the following normalizations:
 %               i. none
 %              ii. normalized by G_monod
@@ -43,10 +50,26 @@
 %       5. display raw values of G_ave, G_jensens, G_fluc, G_high and G_low
 
 
+%  C. Calculate hypothetical time-averaged growth rates from single shift data
+%
+%       0. initialize time to stabilize for both shifts
+%          note: these manually set values are calculated means from Figure 5
+%                (response quantifications)
+%       1. trim growth rate signals to times until stabilized
+%       2. trim growth signals to times postshift
+%       3. time-average transitions
+%       4. calculate time-averaged growth rates during high nutrient phase
+%       5. calculate time-averaged growth rates during low nutrient phase
+%       6. calculate time-averaged growth rates from entire period
 
-% Last edit: jen, 2019 Feb 6
 
-% Commit: in progress, adding hypotheticals
+%  D. Add hypothetical data to timescale plot
+
+
+
+
+% Last edit: jen, 2019 Feb 7
+% Commit: up-to-date figure for growth reductions paper
 
 
 % OK let's go!
@@ -58,32 +81,32 @@ clear
 clc
 
 
-% 0. initialize complete meta data
+% 0. input complete meta data
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 exptArray = [2:4,5:7,9,10,11,12,13,14,15]; % list experiments by index
 
 
-% 0. initialize fluctuating experiment data
+% 0. input fluctuating experiment data
 cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figure3')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
 experimentCount = length(dataIndex);
 
 
-% 0. initialize single shift experiment data
+% 0. input single shift experiment data
 cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figure4')
 load('response_singleUpshift.mat')
 load('response_singleDownshift.mat')
 
 
-% 0. initialize period lengths for hypothetical calculations (period in hours)
+% 0. define period lengths for hypothetical calculations (period in hours)
 periods = [12,24,48,96];
 
 
-%% B. Assemble measured data according to timescale or boundary conditions
+%% B. Assemble fluctuating data according to timescale or boundary conditions
 
-% 1. for each experiment, collect values of G_low and G_high
+% 1. for each experiment, collect time-averaged growth rates for each condition
 counter = 0;
 for e = 1:length(exptArray)
     
@@ -101,21 +124,19 @@ for e = 1:length(exptArray)
     ave = 3;
     high = 4;
     
-    flucRates(counter,fluc) = growthRates_monod_curve{index}{1,fluc}.mean;%/log(2);
-    stableRates(counter,low) = growthRates_monod_curve{index}{1,low}.mean;%/log(2);
-    stableRates(counter,ave) = growthRates_monod_curve{index}{1,ave}.mean;%/log(2);
-    stableRates(counter,high) = growthRates_monod_curve{index}{1,high}.mean;%/log(2);
+    flucRates(counter,fluc) = growthRates_monod_curve{index}{1,fluc}.mean;
+    stableRates(counter,low) = growthRates_monod_curve{index}{1,low}.mean;
+    stableRates(counter,ave) = growthRates_monod_curve{index}{1,ave}.mean;
+    stableRates(counter,high) = growthRates_monod_curve{index}{1,high}.mean;
     
     timescales_perG(counter) = timescale;
     dates_perG{counter} = date;
     
-
-   
 end
 
 
 
-% 2. calculate mean G_low, G_ave, G_high and G_jensens across all data
+% 2. calculate mean and standard dev G_low, G_ave, G_high and G_jensens across all data
 stableRates_mean = nanmean(stableRates);
 stableRates_std = nanstd(stableRates);
 G_jensens = (stableRates_mean(high) + stableRates_mean(low))/2;
@@ -123,7 +144,7 @@ G_monod = stableRates_mean(ave);
 
 
 
-% 3. calculate mean G_fluc for each fluctuating timescale
+% 3. calculate mean and standard dev G_fluc for each fluctuating timescale
 t30 = 1;
 t300 = 2;
 t900 = 3;
@@ -173,7 +194,7 @@ errorbar(1,G_monod/G_jensens,stableRates_std(ave)./G_jensens,'Color',rgb('DarkCy
 hold on
 plot(10, G_jensens/G_jensens,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
-axis([1 10 0.3 1.5])
+axis([1 10 0.2 1.5])
 title('growth, relative to Jensens expectations')
 xlabel('fluctuating timescale')
 ylabel('mean growth rate, normalized by G_jensens') % growth rate = d(logV)/(dt*ln(2))
@@ -192,7 +213,7 @@ errorbar(1,G_monod./G_monod,stableRates_std(ave)./G_monod,'Color',rgb('DarkCyan'
 hold on
 plot(10, G_jensens./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
-axis([1 10 0.25 1.25])
+axis([1 10 0.1 1.4])
 title('growth, relative to average nutrient concentration')
 xlabel('fluctuating timescale')
 ylabel('mean growth rate, normalized by G_monod)') % growth rate = d(logV)/(dt*ln(2))
@@ -215,7 +236,7 @@ clear e experimentCount t30 t300 t900 t3600
 
 
 % 0. initialize time to stabilize for both shifts
-ts_up = 116.3; % min
+ts_up = 116.3; % min, mean value from Figure 5 (response quantifications)
 ts_down = 297.5;
 
 
@@ -273,7 +294,7 @@ clear fractionTransition weightedTransition weightedStable tau phase
 
 
 
-%. calculate time-averaged growth rates from entire period
+% 6. calculate time-averaged growth rates from entire period
 G_periods = (G_phase_high + G_phase_low)./2;
 
 
