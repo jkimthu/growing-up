@@ -36,5 +36,17 @@ SCRIPTS OF FINALIZED PLOTS FOR PAPER
 
 Figure
 
-1. 3A monodCurve
+1. 1C fluoresceinSignal
+plots normalized signal intensities from switching junction and cell imaging position, highlighting the sharpness of generated switches and effectively non-existent decay as the signal travels down the channel.
+ 
+
+2. 3A monodCurve
 generates a data structure of summary stats of each experimental condition for monod curve. this structure, growthRates_monod_curve.mat, contains the values for all numbers in Supplementary table with all the means, standard deviations, etc.
+
+
+3. 4 expectedGrowth
+uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
+
+
+
+
