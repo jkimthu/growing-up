@@ -9,19 +9,20 @@
 %           1. for each image series, go to directory and initialize images
 %                   2. for each image in current series, load image
 %                          3. calculate sum intensity of entire image, save
-%                   4. repeat for all images
-%                   5. load timestamp data
-%                   6. plot sum intensity over time
+%                   4. load timestamp data
+%                   5. normalize intensities by signal max
+%                   6. plot normalized intensity over time
 %           7. repeat for both reference (junc) and test (xy10) signals
 %           8. save plot and output signal and timestamp data
-%           9. 9. output signal and timestamp data
+%           9. output signal and timestamp data
 
 
-% last updated: jen, 2018 October 12
-
-% commit: updated file path to data, while working on manuscript figure 1C
+% last updated: jen, 2019 Feb 8
+% commit: streamline for 2017-11-15 data
 
 % OK let's go!
+
+%%
 
 function [signals,timestamps] = calculateFluoresceinSignal(experiment)
 
@@ -38,16 +39,11 @@ if strcmp(experiment,'2017-11-15') == 1
         'test_final_xy10'              % ii. 60x mag of xy10 at end, no cropping required
         };
 else
-    timestamps = xlsread(strcat('timestamps-',experiment,'-40x.xlsx'));
-    series = {
-        'test_start_junc_40x_crop';
-        'test_start_xy10_40x_crop'
-        };
+    error('incomplete data: this function needs both junc and cell position')
 end
-clear ans
+
 
 % for each image series, go to directory and initialize images
-
 for s = 1:length(series)
     
     % 1. open corresponding directory
@@ -61,6 +57,7 @@ for s = 1:length(series)
     % initialize sum intensity vector
     sumIntensity = zeros(1,length(xyDirectory));
     
+    
     % for each image
     for img = 1:length(xyDirectory)
         
@@ -71,16 +68,24 @@ for s = 1:length(series)
         sumIntensity_x = sum(I,2);
         sumIntensity(img) = sum(sumIntensity_x);
         
-        % 4. repeat for all images
     end
     
-    % 5. load timestamps
+    % 4. load timestamps
     seriesTimestamps = timestamps(:,s);
     timeVector = seriesTimestamps(~isnan(seriesTimestamps));
     
+    
+    % 5. normalize intensities by signal max
+    minInt = min(sumIntensity);
+    bottom_norm = sumIntensity-minInt;
+    maxInt = max(bottom_norm);
+    normIntensity = bottom_norm./maxInt;
+    
+    
     % 6. plot raw intensity over time
     fluoresceinSignals = figure(1);
-    plot(timeVector, sumIntensity)
+    plot(timeVector, normIntensity)
+    
     hold on
     
     signals{s} = sumIntensity;
@@ -94,6 +99,7 @@ exptFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment,'/sign
 cd(exptFolder);
 
 legend('start','end')
+ylim([-.05 1.05])
 xlabel('time (sec)')
 ylabel('raw signal intensity')
 saveas(fluoresceinSignals,strcat('fluoresceinSignals-',experiment),'epsc')
