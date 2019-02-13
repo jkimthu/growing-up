@@ -18,8 +18,8 @@
 %
 
 
-% strategy:
-% 
+% Strategy:
+
 % SECTION ONE. function to calculate and return lag time per xy position of a given experiment
 %
 %     0. initialize meta data and specify value of effective area
@@ -32,10 +32,17 @@
 
 
 
+% SECTION TWO. overivew of summary statistics across experiments
+%
+%     Performs function of section for all experiments listed in array.
+%     Calculate and reports mean lag time per experiment and standard deviation.
+%     Also reports time difference between position #1 and #10 per experiment.
+%     Output is used in Supplementary Table 1 in growth reductions paper.
 
-% last update: jen, 2019 Feb 5
 
-% commit: edit for use in streamlined data folder 
+% last update: jen, 2019 Feb 8
+
+% commit: edit comments for SECTION TWO
 
 
 % OK let's go!!
@@ -46,7 +53,7 @@ function [timeLags,distances] = calculateLag(index)
 
 
 % 0. initialize data
-%cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 
@@ -97,24 +104,30 @@ end
 
 %% TWO. overview of lag time summary statistics across experiments
 
+% * commented so as not to disturb function performance, when called
 
-% 
-% % 0. initialize data
+%  
 % clear
 % clc
-% cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+% 
+% % 0. initialize data
+% %cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 % load('storedMetaData.mat')
 % dataIndex = find(~cellfun(@isempty,storedMetaData));
-% experimentCount = length(dataIndex);
+% 
+% exptArray = [2:4,5:7,9:12,13:15];
+% experimentCount = length(exptArray);
 % 
 % 
 % % 0. specify value of effective area
 % A_effective = 0.000264; % cm^2
 % 
+% 
 % for e = 1:experimentCount
 %     
+%     
 %     % 1. specify experiment of interest, for which to calculate time lag
-%     index = dataIndex(e);
+%     index = exptArray(e);
 %     
 %     
 %     % 2. load flow rate and x coordinates from specified experiment
@@ -142,23 +155,6 @@ end
 %     stdLag(e,1) = std(timeLags);
 %     
 % end
-% 
-% % 6. plot summary statistics of lag time
-% barWidth = 0.6;
-% 
-% figure(1)
-% stem(betweenXYs,'filled')
-% axis([0 e 0 0.5])
-% title('lag time between cell positions')
-% ylabel('lag between xy1 and xy10 (sec)')
-% 
-% figure(2)
-% bar(meanLag,barWidth)
-% hold on
-% errorbar(meanLag,stdLag,'.')
-% title('mean lag and standard deviation')
-% ylabel('lag time between junc and cell positions (sec)')
-% axis([0 e 0 3.5])
 
 
 
