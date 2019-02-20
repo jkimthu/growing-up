@@ -25,8 +25,8 @@
 %      15. repeat for all experiments 
 
 
-%  last updated: jen, 2019 Feb 19
-%  commit: first commit, plots closest, center and furtherst imaging position from 2018-02-01
+%  last updated: jen, 2019 Feb 20
+%  commit: minor comment edits
 
 
 % OK let's go!
@@ -155,7 +155,7 @@ for e = 1:length(exptArray)
             
             
             
-            % 11. calculate mean, standard dev, counts, and standard error
+            % 12. calculate mean, standard dev, counts, and standard error
             bin_means = cellfun(@mean,binned_growthRt);
             bin_stds = cellfun(@std,binned_growthRt);
             bin_counts = cellfun(@length,binned_growthRt);
@@ -163,7 +163,7 @@ for e = 1:length(exptArray)
             
             
             
-            % 12. plot growth rate over time
+            % 13. plot growth rate over time
             palette = {'DodgerBlue','Indigo','GoldenRod','FireBrick','LimeGreen','MediumPurple'};
             
             if condition == 2
@@ -177,10 +177,10 @@ for e = 1:length(exptArray)
             
 
             figure(1)
-            plot((1:length(bin_means))/binsPerHour,bin_means,'Color',color,'Marker',xmark)
+            errorbar((1:length(bin_means))/binsPerHour,bin_means,bin_sems,'Color',color,'Marker',xmark)
             hold on
             grid on
-            legend('left','center','right','left','center','right','left','center','right')
+            legend('proximal','center','distant','proximal','center','distant','proximal','center','distant')
             xlabel('Time (hr)')
             ylabel('Growth rate (1/hr)')
             xlim([0 9.5])
