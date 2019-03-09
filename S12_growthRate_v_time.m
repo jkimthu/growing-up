@@ -25,7 +25,7 @@
 %      15. repeat for all experiments 
 
 
-%  last updated: jen, 2019 Mar 7
+%  last updated: jen, 2019 Mar 8
 
 %  commit: summary plot of all data, with bubble trimmings
 
