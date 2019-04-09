@@ -181,16 +181,6 @@ errorbar(1,G_monod./G_monod,stableRates_std(ave)./G_monod,'Color',rgb('DarkCyan'
 hold on
 plot(10, G_jensens./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
-% figure(4)
-% plot([2 3 4 5],Gfluc_means./G_monod,'o','Color',rgb('DarkTurquoise'),'MarkerSize',10,'LineWidth',2);
-% hold on
-% errorbar([2 3 4 5],Gfluc_means./G_monod, Gfluc_std./G_monod,'Color',rgb('DarkTurquoise'));
-% hold on
-% plot(1,G_monod./G_monod,'o','Color',rgb('DarkCyan'),'MarkerSize',10,'LineWidth',2);
-% hold on
-% errorbar(1,G_monod./G_monod,stableRates_std(ave)./G_monod,'Color',rgb('DarkCyan'),'LineWidth',2);
-% hold on
-% plot(10, G_jensens./G_monod,'o','Color',rgb('SlateGray'),'MarkerSize',10,'LineWidth',2)
 
 axis([1 10 0.1 1.4])
 title('growth, relative to average nutrient concentration')
@@ -207,7 +197,7 @@ G_high = stableRates_mean(high)
 G_low = stableRates_mean(low)
 
 
-clear fluc low ave high counter index
+clear counter index
 clear e experimentCount t30 t300 t900 t3600
 
 
@@ -287,3 +277,16 @@ hold on
 
 axis([1,10,0.3,1.2])
 
+
+%% E. Caluclate difference from daily G_jensens and G_low
+
+% 3. normalize each G_fluc by it's corresponding G_jensens
+dailyGJ = (stableRates(:,high)+stableRates(:,low))/2;
+
+G_fluc_norm_Gj = flucRates./dailyGJ;
+byGJ_means = [nanmean(G_fluc_norm_Gj(1:3)), nanmean(G_fluc_norm_Gj(4:6)), nanmean(G_fluc_norm_Gj(7:10)), nanmean(G_fluc_norm_Gj(11:13))];
+byGJ_stds = [nanstd(G_fluc_norm_Gj(1:3)), nanstd(G_fluc_norm_Gj(4:6)), nanstd(G_fluc_norm_Gj(7:10)), nanstd(G_fluc_norm_Gj(11:13))];
+
+G_fluc_norm_Gl = flucRates./stableRates(:,low);
+byGL_means = [nanmean(G_fluc_norm_Gl(1:3)), nanmean(G_fluc_norm_Gl(4:6)), nanmean(G_fluc_norm_Gl(7:10)), nanmean(G_fluc_norm_Gl(11:13))];
+byGL_stds = [nanstd(G_fluc_norm_Gl(1:3)), nanstd(G_fluc_norm_Gl(4:6)), nanstd(G_fluc_norm_Gl(7:10)), nanstd(G_fluc_norm_Gl(11:13))];
