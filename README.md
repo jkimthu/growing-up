@@ -44,9 +44,11 @@ plots normalized signal intensities from switching junction and cell imaging pos
 generates a data structure of summary stats of each experimental condition for monod curve. this structure, growthRates_monod_curve.mat, contains the values for all numbers in Supplementary table with all the means, standard deviations, etc.
 
 
-3. 4 expectedGrowth
+3. 4 expectedGrowth - normalized to mean G_ave of replicates
 uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
 
+4. 4B expectedGrowth - normalized to daily G_ave
+uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
 
 
 
