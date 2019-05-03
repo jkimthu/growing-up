@@ -23,9 +23,9 @@
 
 
 
-%  last updated: jen, 2019 Feb 6
+%  last updated: jen, 2019 May 3
 
-%  commit: in progress, fully functional, finish comments to finalize
+%  commit: final figure, saves signal data and time vector (single and fluc)
 
 
 % OK let's go!
@@ -50,9 +50,9 @@ timePerBin = 75;
 counter = 0; % because timescales will differ between experiments
 
 % 0. initialize color designations
-color900 = 'DeepSkyBlue'; %'MediumSeaGreen'; %
-color3600 = 'Navy'; % 'MediumPurple'; %
-color_single = 'DarkCyan'; % 'DarkBlue'; %
+color900 = 'DeepSkyBlue'; 
+color3600 = 'Navy'; 
+color_single = 'DarkCyan'; 
 
 %% C1. curves for single shift data
 
@@ -100,22 +100,22 @@ for e_shift = 1:length(exptArray)
     
     
     
-    % 6. isolate volume (Va), timestamp, mu, drop and curveID data
-    volumes = conditionData(:,11);            % col 11 = calculated va_vals (cubic um)
-    timestamps_sec = conditionData(:,2);      % col 2  = timestamp in seconds
-    isDrop = conditionData(:,4);              % col 4  = isDrop, 1 marks a birth event
-    curveFinder = conditionData(:,5);         % col 5  = curve finder (ID of curve in condition)
-    trackNum = conditionData(:,20);           % col 20 = total track number in condition
+    % 5. isolate volume (Va), timestamp, mu, drop and curveID data
+    volumes = getGrowthParameter(conditionData,'volume');             % calculated va_vals (cubic um)
+    timestamps_sec = getGrowthParameter(conditionData,'timestamp');   % timestamp in seconds
+    isDrop = getGrowthParameter(conditionData,'isDrop');              % isDrop, 1 marks a birth event
+    curveFinder = getGrowthParameter(conditionData,'curveFinder');    % curve finder (ID of curve in condition)
+    trackNum = getGrowthParameter(conditionData,'trackNum');          % track number (not ID from particle tracking)
     clear xy_start xy_end
     
     
-    % 7. calculate growth rate
+    % 6. calculate growth rate
     growthRates = calculateGrowthRate(volumes,timestamps_sec,isDrop,curveFinder,trackNum);
     clear curveFinder trackNum isDrop volumes
     
     
     
-    % 8. isolate data to stabilized regions of growth
+    % 7. isolate data to stabilized regions of growth
     %    NOTE: errors (excessive negative growth rates) occur at trimming
     %          point if growth rate calculation occurs AFTER time trim.
     
@@ -247,7 +247,6 @@ for e_shift = 1:length(exptArray)
     hold on
     title(strcat('response to upshift, binned every (',num2str(timePerBin),') sec'))
     
-
      
 end
 
@@ -282,9 +281,9 @@ replicate_single_means_std = std(replicate_single_means);
 
 
 % don't plot zeros that are place holders for gaps in data
-upshift_means = replicate_single_means_mean(replicate_single_means_mean > 0);
+upshift_means_single = replicate_single_means_mean(replicate_single_means_mean > 0);
 upshift_stds = replicate_single_means_std(replicate_single_means_mean > 0);
-upshift_times = upshift_times_gapped(replicate_single_means_mean > 0);
+upshift_times_single = upshift_times_gapped(replicate_single_means_mean > 0);
 
 upshift_replicate_means = replicate_single_means(:,replicate_single_means_mean > 0);
 
@@ -293,7 +292,7 @@ upshift_replicate_means = replicate_single_means(:,replicate_single_means_mean >
 % plot
 figure(2)
 hold on
-plot(upshift_times,upshift_means,'Color',color,'LineWidth',1,'Marker','.')
+plot(upshift_times_single,upshift_means_single,'Color',color,'LineWidth',1,'Marker','.')
 title('reponse to upshifts: mean of replicate means')
 ylabel('growth rate: log2 (1/hr)')
 xlabel('time (min)')
@@ -301,7 +300,7 @@ xlabel('time (min)')
 
 figure(3)
 hold on
-ss = shadedErrorBar(upshift_times,upshift_replicate_means,{@nanmean,@nanstd},'lineprops',{'Color',color},'patchSaturation',0.3);
+ss = shadedErrorBar(upshift_times_single,upshift_replicate_means,{@nanmean,@nanstd},'lineprops',{'Color',color},'patchSaturation',0.3);
 title('response to upshift, mean and std of replicate means')
 ylabel('growth rate: log2 (1/hr)')
 xlabel('time (min)')
@@ -314,11 +313,10 @@ axis([-5,120,0,3.1])
 % save only single shift data
 figure(3)
 plotName = strcat('figure51-upshift-',specificGrowthRate,'-mean&std-singleShiftOnly');
-%saveas(gcf,plotName,'epsc')
 
 
 % save mean signal (across replicates)
-save('response_singleUpshift.mat','upshift_means','upshift_times')
+save('response_singleUpshift.mat','upshift_means_single','upshift_times_single')
 
 %% B1. compile and plot up or downshift data for each replicate 
 
@@ -346,9 +344,7 @@ for e = 1:length(exptArray)
     
     
     % 3. load measured data    
-    if strcmp(date,'2017-11-12') == 1
-        filename = 'lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat';
-    elseif ischar(timescale) == 0
+    if ischar(timescale) == 0
         filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
     end
     load(filename,'D5','T')
@@ -365,11 +361,11 @@ for e = 1:length(exptArray)
     
     
     % 5. isolate volume (Va), timestamp, mu, drop and curveID data
-    volumes = conditionData(:,11);            % col 11 = calculated va_vals (cubic um)
-    timestamps_sec = conditionData(:,2);      % col 2  = timestamp in seconds
-    isDrop = conditionData(:,4);              % col 4  = isDrop, 1 marks a birth event
-    curveFinder = conditionData(:,5);         % col 5  = curve finder (ID of curve in condition)
-    trackNum = conditionData(:,20);           % col 20 = total track number in condition
+    volumes = getGrowthParameter(conditionData,'volume');             % calculated va_vals (cubic um)
+    timestamps_sec = getGrowthParameter(conditionData,'timestamp');   % timestamp in seconds
+    isDrop = getGrowthParameter(conditionData,'isDrop');              % isDrop, 1 marks a birth event
+    curveFinder = getGrowthParameter(conditionData,'curveFinder');    % curve finder (ID of curve in condition)
+    trackNum = getGrowthParameter(conditionData,'trackNum');          % track number (not ID from particle tracking)
     clear expType xy_start xy_end
     
     
@@ -523,16 +519,16 @@ for e = 1:length(exptArray)
     % time
     preUpshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
     postUpshift_times = (1:length( binned_mean{counter}( upshiftBins{counter} ) ) )*timePerBin_min;
-    upshift_times = [preUpshift_times,postUpshift_times];
+    upshift_times_frep = [preUpshift_times,postUpshift_times];
     
     % growth rate
     preUpshift_growth = binned_mean{counter}(pre_upshiftBins{counter});
     postUpshift_growth = binned_mean{counter}(upshiftBins{counter});
-    upshift_growth = [preUpshift_growth;postUpshift_growth];
+    upshift_growth_frep = [preUpshift_growth;postUpshift_growth];
     
     
     figure(1)   % mean of each replicate
-    plot(upshift_times,upshift_growth,'Color',color,'LineWidth',1,'Marker','.')
+    plot(upshift_times_frep,upshift_growth_frep,'Color',color,'LineWidth',1,'Marker','.')
     hold on
     
     
@@ -576,6 +572,11 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
     
     % calculate mean and stdev across replicates (rows)
     replicate_means_mean = mean(replicate_means,2);
+    if t == 1
+        replicate_mean_15min = replicate_means_mean;
+    else
+        replicate_mean_60min = replicate_means_mean;
+    end
     replicate_means_std = std(replicate_means,0,2); % w=0 normalizes by N-1, w=1 normalizes by N
     
 
@@ -587,11 +588,11 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
     % concatenate growth rate to match time relative to shift
     preUpshift_growth = replicate_means_mean(pre_upshiftBins{columns(1)});
     postUpshift_growth = replicate_means_mean(upshiftBins{columns(1)});
-    upshift_growth = [preUpshift_growth;postUpshift_growth];
+    upshift_growth_fluc_means = [preUpshift_growth;postUpshift_growth];
     
     
     figure(2) % mean of replicate means
-    plot(upshift_times(1:length(upshift_growth)),upshift_growth,'Color',color,'LineWidth',1,'Marker','.')
+    plot(upshift_times_frep(1:length(upshift_growth_fluc_means)),upshift_growth_fluc_means,'Color',color,'LineWidth',1,'Marker','.')
     hold on
     
     
@@ -601,7 +602,7 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
     upshift_replicates = [preUpshift_replicates;postUpshift_replicates];
     
     y = upshift_replicates';
-    x = upshift_times(1:length(upshift_replicates))';
+    x = upshift_times_frep(1:length(upshift_replicates))';
     
     
     figure(3) % mean and std of replicate means
@@ -616,10 +617,9 @@ end
 
 xlabel('time (min)')
 ylabel(strcat('growth rate: (', specificGrowthRate,')'))
-%axis([numPreshiftBins*-1*timePerBin_min,80,0,3.1])
 axis([-5,120,0,3.1])
 
-
+save('response_flucUpshift','upshift_times_frep','replicate_mean_15min','replicate_mean_60min','binned_mean')
 clear r t color x y timescale bubbletime 
 
 %% D1. save and close complete figures
@@ -635,9 +635,7 @@ saveas(gcf,plotName,'epsc')
 close(gcf)
 
 figure(3)
-%plotName = strcat('figure51-upshift-',specificGrowthRate,'-mean&std');
 plotName = strcat('figure51-upshift-',specificGrowthRate,'-mean&std-flucOnly');
-%plotName = strcat('figure51-upshift-',specificGrowthRate,'-mean&std-flucAfterSingleShift');
 saveas(gcf,plotName,'epsc')
 close(gcf)
 

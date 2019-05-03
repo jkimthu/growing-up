@@ -23,9 +23,9 @@
 
 
 
-%  last updated: jen, 2019 Feb 6
+%  last updated: jen, 2019 May 3
 
-%  commit: in progress, fully functional, finish comments to finalize
+%  commit: final figure, saves signal data and time vector (single and fluc)
 
 
 % OK let's go!
@@ -106,11 +106,11 @@ for e_shift = 1:length(exptArray)
     
     
     % 5. isolate volume (Va), timestamp, mu, drop and curveID data
-    volumes = conditionData(:,11);            % col 11 = calculated va_vals (cubic um)
-    timestamps_sec = conditionData(:,2);      % col 2  = timestamp in seconds
-    isDrop = conditionData(:,4);              % col 4  = isDrop, 1 marks a birth event
-    curveFinder = conditionData(:,5);         % col 5  = curve finder (ID of curve in condition)
-    trackNum = conditionData(:,20);           % col 20 = total track number in condition
+    volumes = getGrowthParameter(conditionData,'volume');             % calculated va_vals (cubic um)
+    timestamps_sec = getGrowthParameter(conditionData,'timestamp');   % timestamp in seconds
+    isDrop = getGrowthParameter(conditionData,'isDrop');              % isDrop, 1 marks a birth event
+    curveFinder = getGrowthParameter(conditionData,'curveFinder');    % curve finder (ID of curve in condition)
+    trackNum = getGrowthParameter(conditionData,'trackNum');          % track number (not ID from particle tracking)
     clear xy_start xy_end
     
     
@@ -287,9 +287,9 @@ replicate_single_means_std = std(replicate_single_means);
 
 
 % don't plot zeros that are place holders for gaps in data
-downshift_means = replicate_single_means_mean(replicate_single_means_mean > 0);
+downshift_means_single = replicate_single_means_mean(replicate_single_means_mean > 0);
 downshift_stds = replicate_single_means_std(replicate_single_means_mean > 0);
-downshift_times = downshift_times_gapped(replicate_single_means_mean > 0);
+downshift_times_single = downshift_times_gapped(replicate_single_means_mean > 0);
 
 downshift_replicate_means = replicate_single_means(:,replicate_single_means_mean > 0);
 
@@ -297,14 +297,14 @@ downshift_replicate_means = replicate_single_means(:,replicate_single_means_mean
 % plot
 figure(2) % mean of replicate means
 hold on
-plot(downshift_times,downshift_means,'Color',color,'LineWidth',1,'Marker','.')
+plot(downshift_times_single,downshift_means_single,'Color',color,'LineWidth',1,'Marker','.')
 title('reponse to downshift: mean of replicate means')
 ylabel('growth rate: log2 (1/hr)')
 xlabel('time (min)')
 
 figure(3) % mean and std of replicate means
 hold on
-ss = shadedErrorBar(downshift_times,downshift_replicate_means,{@nanmean,@nanstd},'lineprops',{'Color',color},'patchSaturation',0.3);
+ss = shadedErrorBar(downshift_times_single,downshift_replicate_means,{@nanmean,@nanstd},'lineprops',{'Color',color},'patchSaturation',0.3);
 title('response to downshift, mean and std of replicate means')
 
 % set face and edge properties
@@ -315,7 +315,12 @@ axis([-5,120,-0.5,3.4])
 % save only single shift data
 figure(3)
 plotName = strcat('figure52-downshift-',specificGrowthRate,'-mean&std-singleShiftOnly');
-%saveas(gcf,plotName,'epsc')
+
+
+
+
+% save mean signal (across replicates)
+save('response_singleDownshift.mat','downshift_means_single','downshift_times_single')
 
 
 %% B1. compile and plot up or downshift data for each replicate 
@@ -333,7 +338,6 @@ for e = 1:length(exptArray)
     index = exptArray(e);                               % previous, dataIndex(e);
     date = storedMetaData{index}.date;
     timescale = storedMetaData{index}.timescale;
-    %timescale_vector(e) = timescale;
     timescale_vector(counter) = timescale;
     
     bubbletime = storedMetaData{index}.bubbletime;
@@ -344,9 +348,7 @@ for e = 1:length(exptArray)
     
     
     % 3. load measured data
-    if strcmp(date,'2017-11-12') == 1
-        filename = 'lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat';
-    elseif ischar(timescale) == 0
+    if ischar(timescale) == 0
         filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
     end
     load(filename,'D5','T')
@@ -363,11 +365,11 @@ for e = 1:length(exptArray)
     
     
     % 5. isolate volume (Va), timestamp, mu, drop and curveID data
-    volumes = conditionData(:,11);            % col 11 = calculated va_vals (cubic um)
-    timestamps_sec = conditionData(:,2);      % col 2  = timestamp in seconds
-    isDrop = conditionData(:,4);              % col 4  = isDrop, 1 marks a birth event
-    curveFinder = conditionData(:,5);         % col 5  = curve finder (ID of curve in condition)
-    trackNum = conditionData(:,20);           % col 20 = total track number in condition
+    volumes = getGrowthParameter(conditionData,'volume');             % calculated va_vals (cubic um)
+    timestamps_sec = getGrowthParameter(conditionData,'timestamp');   % timestamp in seconds
+    isDrop = getGrowthParameter(conditionData,'isDrop');              % isDrop, 1 marks a birth event
+    curveFinder = getGrowthParameter(conditionData,'curveFinder');    % curve finder (ID of curve in condition)
+    trackNum = getGrowthParameter(conditionData,'trackNum');          % track number (not ID from particle tracking)
     clear expType xy_start xy_end
     
     
@@ -525,14 +527,14 @@ for e = 1:length(exptArray)
         % time (same as upshift, just different variable names)
         preDownshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
         postDownshift_times = (1:length( binned_mean{counter}( upshiftBins{counter} ) ) )*timePerBin_min;
-        downshift_times = [preDownshift_times,postDownshift_times];
+        downshift_times_frep = [preDownshift_times,postDownshift_times];
         
         % growth rate
         preDownshift_growth = binned_mean{counter}(pre_downshiftBins{counter});
         postDownshift_growth = binned_mean{counter}(downshiftBins{counter});
-        downshift_growth = [preDownshift_growth;postDownshift_growth];
+        downshift_growth_frep = [preDownshift_growth;postDownshift_growth];
         
-        plot(downshift_times,downshift_growth,'Color',color,'LineWidth',1,'Marker','.')
+        plot(downshift_times_frep,downshift_growth_frep,'Color',color,'LineWidth',1,'Marker','.')
         hold on
         title(strcat('response to downshift, binned every (',num2str(timePerBin),') sec'))
         
@@ -580,6 +582,11 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
     
     % calculate mean and stdev across replicates (rows)
     replicate_means_mean = mean(replicate_means,2);
+    if t == 1
+        downshift_replicate_mean_15min = replicate_means_mean;
+    else
+        downshift_replicate_mean_60min = replicate_means_mean;
+    end
     replicate_means_std = std(replicate_means,0,2); % w=0 normalizes by N-1, w=1 normalizes by N
     
     
@@ -594,9 +601,9 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
         % growth rate
         preDownshift_growth = replicate_means_mean(pre_downshiftBins{columns(1)});
         postDownshift_growth = replicate_means_mean(downshiftBins{columns(1)});
-        downshift_growth = [preDownshift_growth;postDownshift_growth];
+        downshift_growth_fluc_means = [preDownshift_growth;postDownshift_growth];
         
-        plot(downshift_times(1:length(downshift_growth)),downshift_growth,'Color',color,'LineWidth',1,'Marker','.')
+        plot(downshift_times(1:length(downshift_growth_fluc_means)),downshift_growth_fluc_means,'Color',color,'LineWidth',1,'Marker','.')
         hold on
         title(strcat('response to downshift, binned every (',num2str(timePerBin),') sec'))
         
@@ -605,7 +612,7 @@ for t = 1:2 % loop through the two timescales, 15 min and 60 min
         downshift_replicates = [preDownshift_replicates;postDownshift_replicates];
         
         y = downshift_replicates';
-        x = downshift_times(1:length(downshift_replicates))';
+        x = downshift_times_frep(1:length(downshift_replicates))';
         
         figure(3)
         hold on
@@ -623,13 +630,11 @@ xlabel('time (min)')
 ylabel(strcat('growth rate: (', specificGrowthRate,')'))
 axis([-5,120,-0.5,3.4])
 
-
+save('response_flucDownshift','downshift_times_frep','downshift_replicate_mean_15min','downshift_replicate_mean_60min','binned_mean')
 clear r t color x y timescale bubbletime 
 
 
 %% D1. save and close figures
-
-cd('/Users/jen/Documents/StockerLab/Data_analysis/currentPlots/')
 
 
 figure(1)
