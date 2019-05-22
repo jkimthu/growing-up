@@ -25,10 +25,9 @@
 %     7. woohoo!
 
 
-% last edit: jen, 2018 November 19
+% last edit: jen, 2018 May 7
 
-% commit: using data tracked with uniform 1.7 upperBound, visualize width
-%         distribution for xy 1,2,11,12,21,22,31 and 32 of 2018-02-01
+% commit: making a pretty movie for image analysis visualizations
 
 
 % OK LEZ GO!
@@ -46,7 +45,7 @@ load('storedMetaData.mat')
 
 
 % 0. initialize experiment and xy movie to analyze
-index = 15; % 2018-02-01
+index = 22; % 2018-08-01
 xy = 32;
 
 % 1. collect experiment meta data
@@ -58,7 +57,7 @@ expType = storedMetaData{index}.experimentType;
 % 2. load measured data
 experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
 cd(experimentFolder)
-%filename = strcat('lb-fluc-',date,'-window5-width1p4-1p7-jiggle-0p5.mat');
+%filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
 filename = strcat('lb-fluc-',date,'-width1p7-jiggle-0p5.mat');
 load(filename,'D5','T');
 
@@ -70,20 +69,15 @@ xyData = buildDM(D5, T, xy_start, xy_end, index, expType);
 clear D5 T xy_start xy_end e
 
 
-% % 4. isolate condition data to those with full cell cycles
-% curveIDs = xyData(:,6);                         % col 6 = curve ID
-% xyData_fullOnly = xyData(curveIDs > 0,:);
-% clear curveFinder
 
-
-% 5. initialize image data
+% 4. initialize image data
 conversionFactor = 6.5/60;      % scope5 Andor COSMOS = 6.5um pixels / 60x magnification
 %n = 40;                         % movie (xy position) of interest, in case different than xy
 img_prefix = strcat('lb-fluc-',date,'_xy', num2str(xy), 'T'); 
 img_suffix = 'XY1C1.tif';
 
 
-% 6. open folder for images of interest (one xy position of experiment)
+% 5. open folder for images of interest (one xy position of experiment)
 cd(experimentFolder)
 if xy >= 10
     img_folder=strcat('xy', num2str(xy));
@@ -93,13 +87,14 @@ end
 cd(img_folder);
 
 
-% 7. create directory of image names in chronological order
-imgDirectory = dir(strcat('lb-fluc-',date,'_xy*.tif'));
+% 6. create directory of image names in chronological order
+%imgDirectory = dir(strcat('lb-fluc-',date,'_xy*.tif'));
+imgDirectory = dir(strcat('singleupshift-',date,'_xy*.tif'));
 names = {imgDirectory.name};
 clear img_folder img_prefix img_suffix experiment newFolder img_folder
 
 
-% 8. identify tracks present in each frame
+% 7. identify tracks present in each frame
 totalFrames = length(imgDirectory); % total frame number
 trackIDs = [];
 for fr = 1:totalFrames
@@ -123,7 +118,7 @@ for img = 1:length(names)
     
     figure(1)
     % imtool(I), displays image in grayscale with range
-    imshow(I, 'DisplayRange',[2300 5000]); %lowering right # increases num sat'd pxls
+    imshow(I, 'DisplayRange',[500 1600]); %lowering right # increases num sat'd pxls
     
     
     % ii. if no particles to display, save and skip
@@ -132,18 +127,18 @@ for img = 1:length(names)
         continue
         
     else
+        
         % iii. else when tracked lineages are present, isolate data for each image
-        %dm_currentImage = xyData_fullOnly(xyData_fullOnly(:,18) == img,:);    % col 18 = frame #
         dm_currentImage = xyData(xyData(:,16) == img,:);    % col 16 = frame #
         
-        majorAxes = dm_currentImage(:,3);           %  col 3 = lengths
-        minorAxes = dm_currentImage(:,10);          % col 10 = widths
+        majorAxes = getGrowthParameter(dm_currentImage,'length');         %  lengths
+        minorAxes = getGrowthParameter(dm_currentImage,'width');          %  widths
         
-        centroid_X = dm_currentImage(:,14);         % col 14 = x coordinate of centroid
-        centroid_Y = dm_currentImage(:,15);         % col 15 = y coordinate of centroid
-        angles = dm_currentImage(:,19);             % col 19 = angle of rotation of fit ellipses
+        centroid_X = getGrowthParameter(dm_currentImage,'x_pos');          % x coordinate of centroid
+        centroid_Y = getGrowthParameter(dm_currentImage,'y_pos');          % y coordinate of centroid
+        angles = getGrowthParameter(dm_currentImage,'angle');             % angle of rotation of fit ellipses
 
-        IDs = dm_currentImage(:,1);                 % col 1 = track ID as assigned in ND2Proc_XY
+        IDs = getGrowthParameter(dm_currentImage,'trackID');              % track ID as assigned in ND2Proc_XY
         
         
         
