@@ -50,5 +50,5 @@ uses data structure from 3A and growth rate signals from 5A to plot measured and
 4. 4B expectedGrowth - normalized to daily G_ave
 uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
 
-
+0. Discussion: calculations of yield are found in script estimateYield.m
 
