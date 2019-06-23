@@ -52,3 +52,6 @@ uses data structure from 3A and growth rate signals from 5A to plot measured and
 
 0. Discussion: calculations of yield are found in script estimateYield.m
 
+
+
+S10. Percent of timesteps with a nutrient shift
