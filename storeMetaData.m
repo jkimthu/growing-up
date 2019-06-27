@@ -25,6 +25,9 @@
 %                       5. none     (monod)
 %                       6. single upshift
 %                       7. single downshift
+%                       8. fluc to stable
+%                       9. ave to high
+%                      10. steady to fluc
 
 %               2. each row is a different experimental replicate
 
@@ -55,8 +58,8 @@
 %                - for specific strategy, scroll to section
 
 
-% last updated: 2018 Dec 9
-% commit message: add polyK 2018-12-04 to meta data
+% last updated: 2019 June 27
+% commit message: add new column (#10) for steady to fluc experiments
 
 % OK let's go!
 
@@ -66,10 +69,10 @@ clear
 cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
-%%
+%% 1. input meta data for a new experiment
 
 % 1. prompt user for experiment type
-prompt = 'Enter experiment type as a string (origFluc/monod/upshift/downshift/fluc2stable): ';
+prompt = 'Enter experiment type as a string (origFluc/monod/upshift/downshift/steady2fluc): ';
 expType = input(prompt);
 metadata(1).experimentType = expType;
 
@@ -85,6 +88,8 @@ metadata(1).timescale = timescale;
 
 if strcmp(expType,'fluc2stable') == 1 % needs to be earlier than timescale ID, 
     column = 8;                       % as there is also a timecale designation
+elseif strcmp(expType,'steady2fluc') == 1
+    column = 10;
 elseif timescale == 30
     column = 1;
 elseif timescale == 300
@@ -122,8 +127,8 @@ if strcmp(nutrientSource,'LB') == 1
     aveConc = 105/10000;
     highConc = 1/50;
     flucConc = aveConc;
-    %metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
-    metadata(1).concentrations = [highConc; highConc; lowConc; lowConc]; % for poly-lysine control 2018-12-04
+    metadata(1).concentrations = [flucConc; lowConc; aveConc; highConc];
+    %metadata(1).concentrations = [highConc; highConc; lowConc; lowConc]; % for poly-lysine control 2018-12-04
 else
     alternative = 'Enter concentrations as vector ([c1; c2; c3;...]): ';
     altConcentrations = input(alternative);
@@ -132,11 +137,15 @@ end
 
 
 %  iii. designate xy positions
-xyfluc = 1:10;
-xylow = 11:20;
-xyave = 21:30;
-xyhigh = 31:40;
-metadata(1).xys = [xyfluc; xylow; xyave; xyhigh];
+%xyfluc = 1:10;
+%xylow = 11:20;
+%xyave = 21:30;
+%xyhigh = 31:40;
+xyfluc = 1:15; % for steady to fluc experiments
+xylow = 16:24; % for steady to fluc experiments
+xyave = 25:33; % for steady to fluc experiments
+xyhigh = 34:42; % for steady to fluc experiments
+metadata(1).xys = {xyfluc; xylow; xyave; xyhigh};
 
 
 % 6. prompt user for bubbles in fluc, assign to field
