@@ -53,5 +53,7 @@ uses data structure from 3A and growth rate signals from 5A to plot measured and
 0. Discussion: calculations of yield are found in script estimateYield.m
 
 
+S7. Growth rate measurements performed on the same day are correlated.
+	Positive correlations lead us to normalize by daily Gs!
 
 S10. Percent of timesteps with a nutrient shift
