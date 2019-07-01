@@ -26,8 +26,8 @@
 
 
 
-% last edit: 2019 June 26
-% commit: data trimming of steady-to-fluc experiment 2019-06-25, width 1p4 and 1p7
+% last edit: 2019 July 1st
+% commit: data trimming of steady-to-fluc experiment 2019-06-26, width 1p4 and 1p7
 
 
 
@@ -38,7 +38,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2019-06-25';
+experiment = '2019-06-26';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
@@ -420,6 +420,6 @@ clear SizeStrainer n i m tooSmalls X;
 %% Saving results
 
 
-save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-width1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
+save(strcat('lb-fluc-',experiment,'-c123-width1p4-c4-1p7-jiggle-0p5.mat'), 'D', 'D2', 'D3', 'D4', 'D5', 'rejectD', 'T')%, 'reader', 'ConversionFactor')
 
 
