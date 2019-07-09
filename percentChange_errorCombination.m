@@ -32,8 +32,9 @@
 
 
 
-% Last edit: jen, 2019 July 7
-% Commit: add part 5 to calculate for day-to-day relationships (parts 1-4 use averages)
+% Last edit: jen, 2019 July 9
+% Commit: add plot of percent change (mean and standard deviation between
+%         daily replicates)
 
 % OK let's go!
 
@@ -111,32 +112,31 @@ daily_G = [
 
     ];
 
-daily_err = [
-    
-    0.0040, 0.0024, 0.0053, 0.0067;
-    0.0040, 0.0038, 0.0087, 0.0183;
-    0.0077, 0.0036, 0.0092, 0.0109;
-    
-    0.0063, 0.0050, 0.0105, 0.0143;
-    0.0075, 0.0054, 0.0098, 0.0110;
-    0.0037, 0.0018, 0.0088,    NaN;
-    
-    0.0109, 0.0061, 0.0105, 0.0150;
-    0.0077,    NaN, 0.0083,    NaN;
-    0.0123, 0.0024, 0.0151, 0.0156;
-    0.0123, 0.0029, 0.0141, 0.0092;
-   
-    0.0096, 0.0026, 0.0055, 0.0050;
-    0.0129, 0.0026, 0.0063, 0.0096;
-    0.0091, 0.0022, 0.0076, 0.0074;
-    
-    ];
+% daily_err = [
+%     
+%     0.0040, 0.0024, 0.0053, 0.0067;
+%     0.0040, 0.0038, 0.0087, 0.0183;
+%     0.0077, 0.0036, 0.0092, 0.0109;
+%     
+%     0.0063, 0.0050, 0.0105, 0.0143;
+%     0.0075, 0.0054, 0.0098, 0.0110;
+%     0.0037, 0.0018, 0.0088,    NaN;
+%     
+%     0.0109, 0.0061, 0.0105, 0.0150;
+%     0.0077,    NaN, 0.0083,    NaN;
+%     0.0123, 0.0024, 0.0151, 0.0156;
+%     0.0123, 0.0029, 0.0141, 0.0092;
+%    
+%     0.0096, 0.0026, 0.0055, 0.0050;
+%     0.0129, 0.0026, 0.0063, 0.0096;
+%     0.0091, 0.0022, 0.0076, 0.0074;
+%     
+%     ];
 
 
 
 % 1. calculate daily Jensens
 daily_Jensens = (daily_G(:,low) + daily_G(:,high))/2;  
-daily_Jensens_err = error_top(daily_err(:,low),daily_err(:,high));
 
 
 
@@ -153,18 +153,59 @@ daily_pc_fromLow = (daily_G(:,fluc) - daily_G(:,low))./daily_G(:,low) * 100;
 
 
 
-% 3. percent error calculations, combing top and bottom
+% 3. mean and standard deviation within a timescale
+daily_means = zeros(4,3); % row is timescale: 30s, 5 min, 15 min, 60 min
+daily_std = zeros(4,3); % column 1 = from ave; 
+                          % column 2 = from Jensens;
+                          % column 3 = from Low;
+ 
+% from ave                          
+daily_means(1,1) = nanmean(daily_pc_fromAve(1:3));
+daily_means(2,1) = nanmean(daily_pc_fromAve(4:6));
+daily_means(3,1) = nanmean(daily_pc_fromAve(7:10));
+daily_means(4,1) = nanmean(daily_pc_fromAve(11:13));  
 
-% from G_ave
-daily_perr_fromAve = error_final(daily_err(:,fluc),daily_G(:,fluc),daily_err(:,ave),daily_G(:,ave));
-daily_perr_fromAve = daily_perr_fromAve * 100;
+daily_std(1,1) = nanstd(daily_pc_fromAve(1:3));
+daily_std(2,1) = nanstd(daily_pc_fromAve(4:6));
+daily_std(3,1) = nanstd(daily_pc_fromAve(7:10));
+daily_std(4,1) = nanstd(daily_pc_fromAve(11:13));  
 
-% from G_Jensens
-daily_perr_fromJensens = error_final(daily_err(:,fluc),daily_G(:,fluc),daily_Jensens_err,daily_Jensens);
-daily_perr_fromJensens = daily_perr_fromJensens * 100;
 
-% from G_low
-daily_perr_fromLow = error_final(daily_err(:,fluc),daily_G(:,fluc),daily_err(:,low),daily_G(:,low)); 
-daily_perr_fromLow = daily_perr_fromLow * 100;
+% from Jensens
+daily_means(1,2) = nanmean(daily_pc_fromJensens(1:3));
+daily_means(2,2) = nanmean(daily_pc_fromJensens(4:6));
+daily_means(3,2) = nanmean(daily_pc_fromJensens(7:10));
+daily_means(4,2) = nanmean(daily_pc_fromJensens(11:13));  
 
+daily_std(1,2) = nanstd(daily_pc_fromJensens(1:3));
+daily_std(2,2) = nanstd(daily_pc_fromJensens(4:6));
+daily_std(3,2) = nanstd(daily_pc_fromJensens(7:10));
+daily_std(4,2) = nanstd(daily_pc_fromJensens(11:13)); 
+
+
+% from Low
+daily_means(1,3) = nanmean(daily_pc_fromLow(1:3));
+daily_means(2,3) = nanmean(daily_pc_fromLow(4:6));
+daily_means(3,3) = nanmean(daily_pc_fromLow(7:10));
+daily_means(4,3) = nanmean(daily_pc_fromLow(11:13));  
+
+daily_std(1,3) = nanstd(daily_pc_fromLow(1:3));
+daily_std(2,3) = nanstd(daily_pc_fromLow(4:6));
+daily_std(3,3) = nanstd(daily_pc_fromLow(7:10));
+daily_std(4,3) = nanstd(daily_pc_fromLow(11:13)); 
+
+
+
+% 4. bar plot of percent change
+spacing = [0.73, 0.91, 1.09, 1.27;
+           1.73, 1.91, 2.09, 2.27;
+           2.73, 2.91, 3.09, 3.27];
+
+figure(1)
+bar(daily_means')
+hold on
+errorbar(spacing,daily_means',daily_std','.','Color',rgb('Black'))
+ylabel('percent change')
+xlabel('reference growth rate')
+title('percent change in growth rate')
 
