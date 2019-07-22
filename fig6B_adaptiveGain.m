@@ -25,19 +25,17 @@
 
 %  last updated: jen, 2019 July 11
 
-%  commit: first commit, calculate gain
+%  commit: add gain from downshift, but perhaps doesn't make sense?
 
 
 % OK let's go!
 
-%% A. initialize
+%% A. Gain during upshift
+
 
 clc
 clear
 
-% 0. initialize complete meta data
-% cd('/Users/jen/Documents/StockerLab/Data_analysis/')
-% load('storedMetaData.mat')
 
 % 0. load mean growth rate signal from upshift and downshift comparisons
 cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures/figure5/')
@@ -46,28 +44,13 @@ single_upshift_means = upshift_means_single;
 single_upshift_times = upshift_times_single;
 clear upshift_means_single upshift_times_single
 
-% 0. single, downshift
-load('response_singleDownshift.mat')
-single_downshift_means = downshift_means_single;
-single_downshift_times = downshift_times_single;
-clear downshift_means_single downshift_times_single
 
 % 0. fluctuating data, upshift
 load('response_flucUpshift_2.mat','upshift_times_frep','upshift_growth_frep')
-%fluc_upshift_mean_15min = replicate_mean_15min;
 fluc_upshift_mean_60min = upshift_growth_frep;
 fluc_upshift_times = upshift_times_frep;
-clear replicate_mean_15min replicate_mean_60min upshift_times_frep
+clear replicate_mean_60min upshift_times_frep
 
-% 0. fluctuating data, downshift
-load('response_flucDownshift_2.mat','downshift_times_frep','downshift_growth_frep')
-%fluc_downshift_mean_15min = downshift_replicate_mean_15min;
-fluc_downshift_mean_60min = downshift_growth_frep;
-fluc_downshift_times = downshift_times_frep;
-clear downshift_replicate_mean_15min downshift_replicate_mean_60min downshift_times_frep
-
-
-%% B. Gain during upshift
 
 
 % 1. define shift type, growth rate and time bin of interest
@@ -155,6 +138,10 @@ clear ot
 extension = ones(1,length(comparable_single_extended));
 comparable_fluc_extended = extension * mean(comparable_fluc(11:end));
 
+figure(1)
+hold on
+plot(comparable_single_extended_times,comparable_fluc_extended,'o')
+
 
 % v. calculate % difference between means of measured and extended data
 for comp = 1:length(comparable_fluc)
@@ -181,13 +168,156 @@ compared_extended_times = [overlap'; comparable_single_extended_times'];
 figure(2)
 bar(compared_extended_times,compared_extended)
 xlim([0 65])
-xlabel('percent difference from steady-state')
+ylabel('percent difference from steady-state')
+xlabel('time since shift (min)')
+
+
+%% B. Gain during downshift
+
+clear
+clc
+
+% 0. load single downshift data
+load('response_singleDownshift.mat')
+single_downshift_means = downshift_means_single;
+single_downshift_times = downshift_times_single;
+clear downshift_means_single downshift_times_single
+
+
+% 0. load fluctuating data, downshift
+load('response_flucDownshift_2.mat','downshift_times_frep','downshift_growth_frep')
+%fluc_downshift_mean_15min = downshift_replicate_mean_15min;
+fluc_downshift_mean_60min = downshift_growth_frep;
+fluc_downshift_times = downshift_times_frep;
+clear downshift_replicate_mean_60min downshift_times_frep
+
+
+% 1. define shift type, growth rate and time bin of interest
+shiftType = 'downshift';
+
+
+% 2. calculate mean growth rate between time of most neg point in single and t = 30 min
+
+% single
+vel = diff(single_downshift_means);
+start_sd = find(vel == min(vel)) + 1;
+final_sd = length(single_downshift_times);
+%final_sd = find(single_downshift_times == 60);
+counter = 0;
+for ss = start_sd+1:final_sd
+    counter = counter + 1;
+    growth_downshift_single(counter) = nanmean(single_downshift_means(start_sd:ss));
+end
+clear counter ss
+
+growth_downshift_single_times = single_downshift_times(start_sd+1:final_sd);
+
+figure(3)
+hold on
+plot(growth_downshift_single_times,growth_downshift_single)
+
+
+
+% fluctuating (60 min only)
+start_fd = find(fluc_downshift_times == growth_downshift_single_times(1));
+final_fd = find(fluc_downshift_times == 30);
+ct = 0;
+for ff = start_fd+1:final_fd
+    ct = ct + 1;
+    growth_downshift_fluc(ct) = mean(fluc_downshift_mean_60min(start_fd:ff));
+end
+clear ct ff 
+
+%figure(1)
+%plot(fluc_downshift_times,fluc_downshift_mean_60min)
+%hold on
+%plot(start_fd,fluc_downshift_mean_60min(start_fd),'o')
+%hold on
+%plot(single_downshift_times,single_downshift_means)
+
+growth_downshift_fluc_times = fluc_downshift_times(start_fd+1:final_fd);
+
+figure(3)
+hold on
+plot(growth_downshift_fluc_times,growth_downshift_fluc)
+
+clear start_sd final_sd start_fd final_fd
+
+
+
+
+% 3. calculate difference between means
+
+% i. find timepoints in single that fit within range of fluctuating data
+inBoth = ismember(growth_downshift_fluc_times,growth_downshift_single_times);
+time_both = growth_downshift_fluc_times(inBoth==1);
+overlap = time_both(time_both > 0);
+clear inBoth time_both
+
+
+% ii. find means from both for these timepoints
+for ot = 1:length(overlap)
+    
+    comparable_single(ot) = growth_downshift_single(growth_downshift_single_times == overlap(ot));
+    comparable_fluc(ot) = growth_downshift_fluc(growth_downshift_fluc_times == overlap(ot));
+    
+end
+
+figure(3)
+hold on
+plot(overlap,comparable_single,'o')
+hold on
+plot(overlap,comparable_fluc,'o')
+xlim([0 185])
+xlabel('mean growth rate since shift (1/h)')
 ylabel('time since shift (min)')
 
-% 0. initialize color designations
-%color900 = 'DeepSkyBlue'; 
-%color3600 = 'Navy'; 
-%color_single = 'DarkCyan'; 
+
+% iii. find means from single data extending beyond overlap
+overlap_final = find(growth_downshift_single_times == overlap(ot));
+comparable_single_extended = growth_downshift_single(overlap_final+1:end);
+comparable_single_extended_times = growth_downshift_single_times(overlap_final+1:end);
+clear ot
+
+
+% iv. generate vector of 'extended' data for fluctuating condition, of
+%     equal length to extended single data
+extension = ones(1,length(comparable_single_extended));
+comparable_fluc_extended = extension * mean(comparable_fluc(11:end));
+
+figure(3)
+hold on
+plot(comparable_single_extended_times,comparable_fluc_extended,'o')
+ylim([0.1 0.5])
+
+% v. calculate % difference between means of measured and extended data
+for comp = 1:length(comparable_fluc)
+    
+    sub = comparable_fluc(comp) - comparable_single(comp);
+    compared_data(comp) = sub/comparable_single(comp) * 100;
+    
+end
+clear comp sub
+
+for ext = 1:length(comparable_fluc_extended)
+    
+    sb = comparable_fluc_extended(ext) - comparable_single_extended(ext);
+    compared_extended(ext) = sb/comparable_single_extended(ext) * 100;
+    
+end
+clear ext
+
+
+
+% vi. plot comparison
+compared_extended = [compared_data'; compared_extended'];
+compared_extended_times = [overlap'; comparable_single_extended_times'];
+
+figure(4)
+bar(compared_extended_times,compared_extended)
+xlim([0 185])
+ylabel('percent difference from steady-state')
+xlabel('time since shift (min)')
 
 
 %% supplement 1. compile upshift data from 60 min replicates 
