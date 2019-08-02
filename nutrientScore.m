@@ -4,6 +4,9 @@
 % goal: devise a quantitative measure of a cell's nutrient experience,
 %       using timestamps of birth and division to calculate a nutrient score
 
+% note: input data matrix need to be trimmed such that it contains full
+%       curves only
+
 % strategy:
 
 %       0. initialize timestamp and volume data
@@ -115,6 +118,8 @@ for tr = 1:max(trackNum)
     % 11. concatenate scores for all tracks
     nScore = [nScore; trackScore];
     binaryNutrientSignal = [binaryNutrientSignal; trackBNS];
+    
+    
 end
 
 % 12. output binaryNutrientSignal and nScore vectors for entire condition
