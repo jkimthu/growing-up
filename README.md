@@ -34,7 +34,7 @@ https://www.mathworks.com/matlabcentral/fileexchange/24497-rgb-triple-of-color-n
 
 SCRIPTS OF FINALIZED PLOTS FOR PAPER
 
-Figure
+Fig
 
 1. 1C fluoresceinSignal
 plots normalized signal intensities from switching junction and cell imaging position, highlighting the sharpness of generated switches and effectively non-existent decay as the signal travels down the channel.
@@ -57,3 +57,20 @@ S7. Growth rate measurements performed on the same day are correlated.
 	Positive correlations lead us to normalize by daily Gs!
 
 S10. Percent of timesteps with a nutrient shift
+
+
+figure 4. 
+A
+B
+C
+
+D1
+D2
+D3 upshift percent change in growth rate from t=0 to t=7.5 min postshift
+
+E1
+E2
+E3 downshift percent change in growth rate from t=0 to t=7.5 min postshift
+
+F
+G
