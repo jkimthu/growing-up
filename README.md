@@ -73,4 +73,4 @@ E2
 E3 downshift percent change in growth rate from t=0 to t=7.5 min postshift
 
 F
-G
+G  difference in fluc vs single shift growth rate over time
