@@ -4,15 +4,15 @@
 %       (rows) for all cells in a given xy position. option to specificy xy
 %       positions and streamline data concatenation.
 
-% last updated: jen, 2018 Oct 3
+% last updated: jen, 2019 Oct 17
 
-% commit: edit such that corrected time is calculated for all experiment
-%         types, except monod
+% commit: edit to track total tracks assembled per condition
 
 
 function [dm] = buildDM(D5,T,xy_start,xy_end,index,expType)
 %% initialize all values
   
+m_counter = 0;
 tn_counter = 0;
 curveCounter_total = 0;
 dropThreshold = -0.75; % consider greater negatives a division event
@@ -228,9 +228,10 @@ for n = xy_start:xy_end % n = each inidividual xy position from experiment (movi
     end % for m
     
     disp(['Tracks (', num2str(m), ') assembled from movie (', num2str(n), ') !'])
+    m_counter = m_counter + m;
     
 end % for n
-
+disp(['Total tracks in condition (',num2str(m_counter),')'])
 
 
 %% lag corrected time

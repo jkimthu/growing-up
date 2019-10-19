@@ -53,7 +53,7 @@ function [timeLags,distances] = calculateLag(index)
 
 
 % 0. initialize data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+%cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 
