@@ -59,6 +59,12 @@ S7. Growth rate measurements performed on the same day are correlated.
 S10. Percent of timesteps with a nutrient shift
 
 
+figure 3.
+A
+B
+C relative change in G (between Gfluc and Gave or Gjensens)
+
+
 figure 4. 
 A
 B
@@ -75,3 +81,4 @@ E3 downshift percent change in growth rate from t=0 to t=7.5 min postshift
 F
 G  difference in fluc vs single shift growth rate over time
 H  growth rate from successive periods, overlaid
+
