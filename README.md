@@ -82,3 +82,7 @@ F
 G  difference in fluc vs single shift growth rate over time
 H  growth rate from successive periods, overlaid
 
+
+figure 6.
+A  growth rate dynamics from successive periods, overlaid
+B  integrated growth rate from high, low and total sections of successive periods
