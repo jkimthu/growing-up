@@ -79,8 +79,8 @@
 %  F. Add fast predictions to timescale plot
 
 
-% Last edit: jen, 2019 October 8
-% Commit: new predictions at fast timescales, high and low adapated
+% Last edit: jen, 2019 October 21
+% Commit: edit to update folder path for data
 
 
 % OK let's go!
@@ -99,7 +99,7 @@ exptArray = [2:4,5:7,9,10,11,12,13,14,15]; % list experiments by index
 
 
 % 0. input fluctuating experiment data
-cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures re-worked/Figure 6')
+cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures v15')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
 
@@ -211,6 +211,7 @@ G_low = stableRates_mean(low);
 clear counter index
 clear e experimentCount t30 t300 t900 t3600
 clear date 
+
 
 %% C. Slow calculations of predicted G from single shift data
 
@@ -412,17 +413,50 @@ plot([2 3 4 5],G_adapted_high_normalized,'o','Color',rgb('DarkSlateGray'),'Marke
 axis([1,10,0.3,1.2])
 
 
-%% G. Caluclate difference from daily G_jensens and G_low
+%% E. Caluclate difference from measured fluc and predicted fluc
 
-% note: these values represent the different in G_fluc from G_jensens and G_low
+% 1. predicted by low-adapted simulations
 
-% 3. normalize each G_fluc by it's corresponding G_jensens
-dailyGJ = (stableRates(:,high)+stableRates(:,low))/2;
+% i) create vector of predicted values that matches replicate measured vals
+G_fluc_predicted_low(1:3,1) = G_adapted_low_normalized(1);
+G_fluc_predicted_low(4:6,1) = G_adapted_low_normalized(2);
+G_fluc_predicted_low(7:10,1) = G_adapted_low_normalized(3);
+G_fluc_predicted_low(11:13,1) = G_adapted_low_normalized(4);
 
-G_fluc_norm_Gj = flucRates./dailyGJ;
-byGJ_means = [nanmean(G_fluc_norm_Gj(1:3)), nanmean(G_fluc_norm_Gj(4:6)), nanmean(G_fluc_norm_Gj(7:10)), nanmean(G_fluc_norm_Gj(11:13))];
-byGJ_stds = [nanstd(G_fluc_norm_Gj(1:3)), nanstd(G_fluc_norm_Gj(4:6)), nanstd(G_fluc_norm_Gj(7:10)), nanstd(G_fluc_norm_Gj(11:13))];
+% ii) calculate relative change from measured to predicted
+relative_G_low = (G_fluc_norm-G_fluc_predicted_low)./G_fluc_norm;
 
-G_fluc_norm_Gl = flucRates./stableRates(:,low);
-byGL_means = [nanmean(G_fluc_norm_Gl(1:3)), nanmean(G_fluc_norm_Gl(4:6)), nanmean(G_fluc_norm_Gl(7:10)), nanmean(G_fluc_norm_Gl(11:13))];
-byGL_stds = [nanstd(G_fluc_norm_Gl(1:3)), nanstd(G_fluc_norm_Gl(4:6)), nanstd(G_fluc_norm_Gl(7:10)), nanstd(G_fluc_norm_Gl(11:13))];
+% iii) calculate mean and std for each timescale
+relative_G_low_mean(1) = mean(relative_G_low(1:3));
+relative_G_low_mean(2) = mean(relative_G_low(4:6));
+relative_G_low_mean(3) = mean(relative_G_low(7:10));
+relative_G_low_mean(4) = mean(relative_G_low(11:13));
+
+relative_G_low_std(1) = std(relative_G_low(1:3));
+relative_G_low_std(2) = std(relative_G_low(4:6));
+relative_G_low_std(3) = std(relative_G_low(7:10));
+relative_G_low_std(4) = std(relative_G_low(11:13));
+
+
+
+% 2. predicted by high-adapted simulations
+
+% i) create vector of predicted values that matches replicate measured vals
+G_fluc_predicted_high(1:3,1) = G_adapted_high_normalized(1);
+G_fluc_predicted_high(4:6,1) = G_adapted_high_normalized(2);
+G_fluc_predicted_high(7:10,1) = G_adapted_high_normalized(3);
+G_fluc_predicted_high(11:13,1) = G_adapted_high_normalized(4);
+
+% ii) calculate relative change from measured to predicted
+relative_G_high = (G_fluc_norm-G_fluc_predicted_high)./G_fluc_norm;
+
+% iii) calculate mean and std for each timescale
+relative_G_high_mean(1) = mean(relative_G_high(1:3));
+relative_G_high_mean(2) = mean(relative_G_high(4:6));
+relative_G_high_mean(3) = mean(relative_G_high(7:10));
+relative_G_high_mean(4) = mean(relative_G_high(11:13));
+
+relative_G_high_std(1) = std(relative_G_high(1:3));
+relative_G_high_std(2) = std(relative_G_high(4:6));
+relative_G_high_std(3) = std(relative_G_high(7:10));
+relative_G_high_std(4) = std(relative_G_high(11:13));
