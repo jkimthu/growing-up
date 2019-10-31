@@ -1,4 +1,4 @@
-%%  figure 4H - overlaid growth rate from successive periods
+%%  figure 6 - overlaid growth rate from successive periods
 
 
 %  Goal: plot growth rate vs nutrient phase,
@@ -31,8 +31,8 @@
 
 
 
-%  Last edit: jen, 2019 October 19
-%  commit: add growth rate analysis, total growth over successive periods
+%  Last edit: jen, 2019 October 31
+%  commit: edit integrated growth, normalizing by integration time
 
 
 % Okie, go go let's go!
@@ -330,15 +330,17 @@ for rep = 1:numReps
         currentPeriod = currentReplicate{per};
         
         % high phase integral
-        hpi = sum(currentPeriod(bins_high));
+        %hpi = sum(currentPeriod(bins_high));
+        hpi = mean(currentPeriod(bins_high));
         integrals_high(rep,per) = hpi;
         
         % low phase integral
-        lpi = sum(currentPeriod(bins_low));
+        %lpi = sum(currentPeriod(bins_low));
+        lpi = mean(currentPeriod(bins_low));
         integrals_low(rep,per) = lpi;
         
         % total period integral
-        integrals_total(rep,per) = hpi+lpi;
+        integrals_total(rep,per) = (hpi+lpi)/2;
         clear hpi lpi
         
     end
@@ -364,12 +366,17 @@ clear std_high std_low std_total
 
 % 3. plot mean and sem of each integral
 figure(4)
-errorbar(mean_high,sem_high)
+%plot(mean_high)
+errorbar(mean_high,sem_high,'Marker','o')
 hold on
-errorbar(mean_low,sem_low)
+%plot(mean_low)
+errorbar(mean_low,sem_low,'Marker','o')
 hold on
-errorbar(mean_total,sem_total)
+%plot(mean_total)
+errorbar(mean_total,sem_total,'Marker','o')
 legend('high integral','low integral','total integral')
 xlabel('Period')
 ylabel('Integrated growth rate')
-ylim([0 50])
+ylim([0.2 2.5])
+
+
