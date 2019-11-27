@@ -7,15 +7,14 @@
 %           0. input date of calibration data
 %           0. initialize image series of signals to compare: 
 %                   i. channel only crop of junc at start
-%                  ii. channel only crop of junc at end
-%           1. for each image series, go to directory and initialize images
-%                   2. for each image in current series, load image
-%                   3. calculate sum intensity of entire image, save
-%                   4. load timestamp data
-%                   5. normalize intensities by signal max
-%                   6. plot normalized intensity over time
-%           7. repeat for both reference (junc) and test (xy10) signals
-%           8. save plot and output signal and timestamp data
+%           1. for each image series, go to directory 
+%           2. initialize images
+%           3. initialize vector of summed intensities
+%           4. for each image in current series, load image
+%           5. calculate sum intensity of entire image, save
+%           6. load timestamp data
+%           7. normalize intensities by signal max
+%           8. plot normalized intensity over time
 
 
 
@@ -33,7 +32,6 @@ experiment = '2017-11-15'; % 30 sec period
 timestamps = xlsread(strcat(experiment,'-timestamps-60x.xlsx'));
 series = {
     'test_final_junc_60x';          % i. 60x mag of junc at end, no cropping required
-    %'test_final_xy10'              % ii. 60x mag of xy10 at end, no cropping required
     };
 
 
