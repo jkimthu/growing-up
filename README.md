@@ -10,8 +10,11 @@ To extract a functiona dataset from raw .nd2 files:
 
 1. Particle identification and tracking with...            ND2Proc_XY.m
 2. Quality control with...                        dataTrimmer_revised.m
-3. Calculate growth rate with...                  calculateGrowthRate.m  (a function)
-4. Visualize growth rate over time...             visualizeGrowthRate.m  (for example of above func in use)
+3. Visualize tracking with...					dynamicOutlines_width.m  (overlays ellipse with dif colors 																		     based on width)
+
+4. Calculate growth rate with...                  calculateGrowthRate.m  (a function)
+5. Visualize growth rate over time...             visualizeGrowthRate.m  (for example of above func in use)
+
 
 The remaining scripts each strive to visualize the data (growth rate or other parameters) in unique ways.
 Enjoy!

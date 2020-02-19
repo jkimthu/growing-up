@@ -38,7 +38,7 @@
 % particle tracking data
 clear
 clc
-experiment = '2019-07-18';
+experiment = '2019-01-31';
 
 % 0. open folder for experiment of interest
 %newFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',experiment);
