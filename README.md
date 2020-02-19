@@ -1,4 +1,4 @@
-# growing-up
+## growing-up
 Peering into the mysterious nature of (bacterial) life
 
 
@@ -8,13 +8,16 @@ GENERAL PIPELINE
 
 To extract a functiona dataset from raw .nd2 files:
 
-1. Particle identification and tracking with...           ND2Proc_XY.m
+1. Particle identification and tracking with...            ND2Proc_XY.m
 2. Quality control with...                                dataTrimmer.m
-3. Calculate elongation rates with...                     slidingFits.m
-4. View growth rate over time with...                     seeingMus.m
+3. Calculate growth rate with...                  calculateGrowthRate.m  (a function)
+4. Visualize growth rate over time...             visualizeGrowthRate.m  (for example of above func in use)
 
 The remaining scripts each strive to visualize the data (growth rate or other parameters) in unique ways.
 Enjoy!
+
+
+
 
 
 
@@ -34,21 +37,31 @@ https://www.mathworks.com/matlabcentral/fileexchange/24497-rgb-triple-of-color-n
 
 SCRIPTS OF FINALIZED PLOTS FOR PAPER
 
-Fig
+# Figure 1
 
 1. 1C fluoresceinSignal
 plots normalized signal intensities from switching junction and cell imaging position, highlighting the sharpness of generated switches and effectively non-existent decay as the signal travels down the channel.
  
 
+# Figure 2
 2. 3A monodCurve
 generates a data structure of summary stats of each experimental condition for monod curve. this structure, growthRates_monod_curve.mat, contains the values for all numbers in Supplementary table with all the means, standard deviations, etc.
 
 
+# Figure 3
 3. 4 expectedGrowth - normalized to mean G_ave of replicates
 uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
 
+
+# Figure 4
 4. 4B expectedGrowth - normalized to daily G_ave
 uses data structure from 3A and growth rate signals from 5A to plot measured and hypothetical time-averaged growth rates as a function of nutrient timescale
+
+
+# Figure 5
+
+# Figure 6
+
 
 0. Discussion: calculations of yield are found in script estimateYield.m
 
