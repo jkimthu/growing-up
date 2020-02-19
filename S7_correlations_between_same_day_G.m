@@ -29,7 +29,7 @@ clear
 clc
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figure3/')
+cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures/figure3/')
 load('growthRates_monod_curve.mat')
 
 
