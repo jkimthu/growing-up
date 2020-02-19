@@ -36,6 +36,7 @@ clc
 clear
 
 % 0. initialize complete meta data
+cd('/Users/jen/Documents/StockerLab/Data_analysis/')
 load('storedMetaData.mat')
 
 
@@ -255,8 +256,8 @@ xlabel('time (min)')
 ylabel(strcat('growth rate: (', specificGrowthRate,')'))
 axis([numPreshiftBins*-1*timePerBin_min,160,xmin,xmax])
 
-clear e_shift date
-clear replicate_means replicate_means_mean replicate_means_std
+%clear e_shift date
+%clear replicate_means replicate_means_mean replicate_means_std
 
 %% C2. find mean and standard deviation between single-shift replicates
 
