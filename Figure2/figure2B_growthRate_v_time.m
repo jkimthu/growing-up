@@ -1,4 +1,4 @@
-%% figure 2B: growth rate vs time
+%% figure 2B - growth rate vs time
 
 
 %  Goals: plot growth rate over time
@@ -22,20 +22,20 @@
 
 
 
-%  last updated: jen, 2019 April 8
-
-%  commit: plot figure 2B, trimmed x axis and edited comments
+%  last updated: jen, 2020 Feb 24
+%  commit: final figure 2B, plot from Source_data
 
 
 % OK let's go!
 
-%% initialize
+
+%% Part 0. initialize
 
 clear
 clc
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+% cd to Source_data
 load('storedMetaData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 
@@ -50,7 +50,7 @@ binsPerHour_small = 60/smallBin;
 binsPerHour_big = 60/bigBin;
 
 
-%% compiled data and plot
+%% Part 1. compile data and plot
 
 
 % 1. initialize experiment meta data
@@ -64,8 +64,8 @@ disp(strcat(date, ': analyze!'))
 
 
 % 2. load measured experiment data
-experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-cd(experimentFolder)
+%experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
+%cd(experimentFolder)
 
 filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
 load(filename,'D5','T');
@@ -155,7 +155,7 @@ for condition = 1:length(bubbletime)
     hold on
     plot((1:length(bin_means_big))/binsPerHour_big,bin_means_big,'Color',color,'Marker',xmark)
     hold on
-    legend('high,untreated','high,treated','low,untreated','low,treated')
+    %legend('high,untreated','high,treated','low,untreated','low,treated')
     axis([3,9,-1,4])
     xlabel('Time (hr)')
     ylabel('Growth rate')
