@@ -1,0 +1,10 @@
+figure_S4A_data
+
+The raw image files (.tif) of fluctuating fluorescein used to generate Figure 1C are too large to host on GitHub. Please contact the Lead Author, Roman Stocker, who will make the data available upon request.
+
+Data folders: 
+
+	1. "test_final_junc_60x"
+	2. "test_final_xy10"
+
+Series of fluorescent images of fluid exiting signal junction (junc_60x) and cell imaging region ("xy10") of the Microfluidic Signal Generator.
