@@ -25,6 +25,8 @@
 
 %% Part One. initialize data
 
+clear
+clc
 
 % 0. initialize fluctuating fluorescein image series
 experiment = '2017-11-15'; % 30 sec period
@@ -92,6 +94,6 @@ legend('start','end')
 ylim([-.05 1.05])
 xlabel('time (sec)')
 ylabel('raw signal intensity')
-saveas(fluoresceinSignals,strcat('fluoresceinSignals-norm-',experiment),'epsc')
-close(fluoresceinSignals)
+%saveas(fluoresceinSignals,strcat('fluoresceinSignals-norm-',experiment),'epsc')
+%close(fluoresceinSignals)
     
