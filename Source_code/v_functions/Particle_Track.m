@@ -1,4 +1,7 @@
-function ParticleOut=ParticleTrack(particles, trackmode, Rmax, matchmethod)
+function ParticleOut=Particle_Track(particles, trackmode, Rmax, matchmethod)
+
+% updated by Jen Nguyen to include MajAx and MinAx, etc
+% 2020 Feb 24
 
 PlotFlag=0;
 % Jeffrey Guasto
@@ -36,7 +39,7 @@ for n = 1:N_frames
     N_now = length(particles(n).X);
     % First loop: make cell array "ParticleTracks"; 
     % Discontinuous frames: deactivate all old tracks, start new tracks with all new particles
-    particleMat=[particles(n).X,particles(n).Y,particles(n).A,particles(n).MaxInt,ones(size(particles(n).X))*particles(n).Frame];
+    particleMat=[particles(n).X,particles(n).Y,particles(n).A,particles(n).MaxInt,ones(size(particles(n).X))*particles(n).Frame,particles(n).Ecc,particles(n).MajAx,particles(n).MinAx,particles(n).Ang];
     if n == 1; 
         ParticleTracks([1:N_now]) = num2cell(particleMat,2);    
         active = 1:N_now;
@@ -158,5 +161,5 @@ end % ii
     disp(['  Elapsed Time: ', num2str(mytime), ' seconds'])
     disp('  ')
   
-    ParticleOut=cellfun(@(A) struct('X',A(:,1),'Y',A(:,2),'Area',A(:,3),'Intensity',A(:,4),'Frame',A(:,5),'TrackID',A(:,6),'Conv',particles(1).Conv),ParticleTracks); 
+    ParticleOut=cellfun(@(A) struct('X',A(:,1),'Y',A(:,2),'Area',A(:,3),'Intensity',A(:,4),'Frame',A(:,5),'Ecc',A(:,6),'MajAx',A(:,7),'MinAx',A(:,8),'Ang',A(:,9),'TrackID',A(:,10),'Conv',particles(1).Conv),ParticleTracks); 
 end
