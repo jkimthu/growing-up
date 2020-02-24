@@ -1,4 +1,4 @@
-%% figure 7
+%% figure 2B: growth rate vs time
 
 
 %  Goals: plot growth rate over time
