@@ -30,18 +30,20 @@
 
 
 
-% Last edit: jen, 2019 November 27
-% Commit: G_fluc relative to G_ave and G_jensens with standard error
+% Last edit: jen, 2020 Feb 25
+% Commit: finalize for code sharing with source data
 
 
 % OK let's go!
 
-%% Part A. Initialize data
+%% Part 0. Initialize data
 
 clear
 clc
 
 % 0. initialize meta data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
@@ -57,7 +59,7 @@ t30s = 1:3; t5 = 4:6; t15 = 7:10; t60 = 11:13;
 timescales = {t30s; t5; t15; t60};
 
 
-%% Part B. Access data structure to organize replicate G from each condition
+%% Part 1. Access data structure to organize replicate G from each condition
 
 
 % 1. compile all mean values of G
@@ -85,7 +87,7 @@ daily_change_ave = (daily_G(:,fluc) - daily_G(:,ave))./daily_G(:,ave) * 100;
 daily_change_jensens = (daily_G(:,fluc) - daily_Jensens)./daily_Jensens * 100;   
 
 
-%% Part C. Perform calculations and plot percent change with standard error
+%% Part 2. Perform calculations and plot percent change with standard error
 
 % 4. collect mean and standard error within a timescale
 daily_means = zeros(4,2); % row is timescale: 30s, 5 min, 15 min, 60 min
