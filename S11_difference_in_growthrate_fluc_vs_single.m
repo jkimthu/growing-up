@@ -1,4 +1,4 @@
-%% figure 4G - difference in fluc-adapted and single-shift growth over time after an upshift
+%% S11 - difference in fluc-adapted and single-shift growth over time after an upshift
 %
 %  Output: plot the difference in growth rate in real time after an upshift
 %          between fluc-adapted (60 min) and single-shift growth rates as a
@@ -16,9 +16,8 @@
 
 
 
-%  last updated: jen, 2019 October 14
-
-%  commit: first commit, adapted from Fig6_adaptiveGain script
+%  last updated: jen, 2020 Feb 25
+%  commit: updated with source data, but still in progress
 
 
 % OK let's go!
@@ -26,13 +25,13 @@
 
 %% A. Gain during upshift
 
-
 clc
 clear
 
 
 % 0. load mean growth rate signal from upshift and downshift comparisons
-cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures/figure5/')
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('response_singleUpshift.mat')
 single_upshift_means = upshift_means_single;
 single_upshift_times = upshift_times_single;
@@ -40,8 +39,8 @@ clear upshift_means_single upshift_times_single
 
 
 % 0. fluctuating data, upshift
-load('response_flucUpshift_2.mat','upshift_times_frep','upshift_growth_frep')
-fluc_upshift_mean_60min = upshift_growth_frep;
+load('response_flucUpshift.mat','upshift_times_frep','replicate_mean_60min')
+fluc_upshift_mean_60min = replicate_mean_60min; %upshift_growth_frep;
 fluc_upshift_times = upshift_times_frep;
 clear replicate_mean_60min upshift_times_frep
 
@@ -52,7 +51,6 @@ shiftType = 'upshift';
 
 
 % 2. calculate mean growth rate between time zero and t = 30 min
-
 % single
 start_s = find(single_upshift_times == 0);
 final_s = find(single_upshift_times == 60);
@@ -68,7 +66,6 @@ growth_upshift_single_times = single_upshift_times(start_s+1:final_s);
 %figure(1)
 %hold on
 %plot(growth_upshift_single_times,growth_upshift_single)
-
 
 
 
@@ -99,8 +96,6 @@ inBoth = ismember(fluc_upshift_times,single_upshift_times);
 time_both = fluc_upshift_times(inBoth==1);
 overlap = time_both(time_both > 0);
 clear inBoth time_both
-
-
 
 % ii. find means from both for these timepoints
 for ot = 1:length(overlap)
