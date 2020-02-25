@@ -86,7 +86,8 @@ for e_shift = 1:length(exptArray)
     
     
     % 3. load measured data
-    cd('/Users/jen/Documents/StockerLab/Data/Manuscript_1')
+    source_data = '/Users/jen/Documents/StockerLab/Source_data';
+    cd(source_data)
     filename = strcat('lb-fluc-',date,'-width1p7-jiggle-0p5.mat');
     load(filename,'D5','T')
     
