@@ -35,7 +35,8 @@ clear
 clc
 
 % 0. initialize complete meta data
-% cd to Source_data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
 
@@ -52,7 +53,6 @@ binsPerHour_big = 60/bigBin;
 
 %% Part 1. compile data and plot
 
-
 % 1. initialize experiment meta data
 index = 13; % 2019-01-29 data
 date = storedMetaData{index}.date;
@@ -62,15 +62,9 @@ timescale = storedMetaData{index}.timescale;
 disp(strcat(date, ': analyze!'))
 
 
-
 % 2. load measured experiment data
-%experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-%cd(experimentFolder)
-
 filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
 load(filename,'D5','T');
-
-
 
 
 % 3. build data matrix from specified condition
