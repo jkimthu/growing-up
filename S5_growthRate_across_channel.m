@@ -1,4 +1,4 @@
-%% figure S4. growth rate across channel
+%% figure S5. growth rate across channel
 
 
 %  Goals: plot growth rate over time for each channel position
