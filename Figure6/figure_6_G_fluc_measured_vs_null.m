@@ -79,27 +79,25 @@
 %  F. Add fast predictions to timescale plot
 
 
-% Last edit: jen, 2019 November 27
-% Commit: compares measured G_fluc to null models that predict G_fluc from steady states
+% Last edit: jen, 2020 Feb 25
+% Commit: final figure 6 for sharing with source data
 
 
 % OK let's go!
 
-%% A. Initialize
-
+%% Part 0. initialize
 
 clear
 clc
 
-
 % 0. input complete meta data
-%cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 exptArray = [2:4,5:7,9,10,11,12,13,14,15]; % list experiments by index
 
 
 % 0. input fluctuating experiment data
-%cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures v15')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
 
@@ -109,13 +107,12 @@ load('response_singleUpshift.mat')
 load('response_singleDownshift.mat')
 
 
-
 % 0. define period lengths for hypothetical calculations (period in hours)
 periods_slow = [12,24,48,96]; % hours
 periods_fast = [30,300,900,3600]; % sec
 
 
-%% B. Assemble fluctuating data according to timescale or boundary conditions
+%% Part 1. Assemble fluctuating data according to timescale or boundary conditions
 
 % 1. for each experiment, collect time-averaged growth rates for each condition
 counter = 0;
@@ -154,10 +151,8 @@ G_jensens = (stableRates_mean(high) + stableRates_mean(low))/2;
 G_monod = stableRates_mean(ave);
 
 
-
 % 3. normalize each G_fluc by it's corresponding G_ave
 G_fluc_norm = flucRates./stableRates(:,ave);
-
 
 
 % 4. calculate mean and standard dev G_fluc for each fluctuating timescale
@@ -213,7 +208,7 @@ clear e experimentCount t30 t300 t900 t3600
 clear date 
 
 
-%% C. Slow calculations of predicted G from single shift data
+%% Part 2. Slow calculations of predicted G from single shift data
 
 
 % 0. initialize time to stabilize for both shifts
@@ -300,7 +295,7 @@ hold on
 axis([1,10,0.3,1.2])
 
 
-%% D. Fast calculations of predicted G from single shift data
+%% Part 3. Fast calculations of predicted G from single shift data
 %
 %  1) high-adapted, from single-shifts
 %  2) low-adapted, from single-shifts
@@ -391,7 +386,6 @@ clear tscale
     
     
 % 4. combine high and low phases to calculate G_restart
-%    G_restart = ( G_in_high(half period) + G_in_low(half period) )/ 2
 G_adapted_low = (G_low_adapted_in_high + G_low)./2;
 G_adapted_low_normalized = G_adapted_low./G_monod;
     
@@ -413,7 +407,7 @@ plot([2 3 4 5],G_adapted_high_normalized,'o','Color',rgb('DarkSlateGray'),'Marke
 axis([1,10,0.3,1.2])
 
 
-%% E. Caluclate difference from measured fluc and predicted fluc
+%% Part 4. Caluclate difference from measured fluc and predicted fluc
 
 % 1. predicted by low-adapted simulations
 
