@@ -31,13 +31,14 @@
 
 
 
-%  Last edit: jen, 2019 October 19
-%  commit: add growth rate analysis, total growth over successive periods
+%  Last edit: jen, 2020 Feb 25
+%  commit: final figure 5A&B for sharing from source data
 
 
 % Okie, go go let's go!
 
-%% A. initialize analysis
+%% Part 0. initialize analysis
+
 clc
 clear
 
@@ -51,18 +52,17 @@ specificColumn = 3;
 
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Data_analysis/')
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 exptArray = [37,38,39]; % list experiments by index
 
 
 % 0. initialize colors per successive period
-%colorSpectrum = {'Indigo','MediumSlateBlue','DodgerBlue','DeepSkyBlue','Teal','DarkGreen','MediumSeaGreen','GoldenRod','DarkOrange','Red'};
-%colorSpectrum = {'Indigo','DodgerBlue','DeepSkyBlue','Teal','MediumSeaGreen','GoldenRod','Gold'};
 colorSpectrum = {'SlateGray','DarkCyan','CadetBlue','DeepSkyBlue','DodgerBlue','Navy','Indigo',};
 
 
-%% B. loop through each period and isolate growth rates
+%% Part 1. loop through each period and isolate growth rates
 
 % 1. for all experiments in dataset
 exptCounter = 0;
@@ -85,8 +85,8 @@ for e = 1:length(exptArray)
     
     
     % 3. load measured data
-    experimentFolder = strcat('/Users/jen/Documents/StockerLab/Data/LB/',date);
-    cd(experimentFolder)
+    source_data = '/Users/jen/Documents/StockerLab/Source_data';
+    cd(source_data)
     filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
     load(filename,'D5','T');
     
@@ -229,7 +229,7 @@ clear growthRt_binned growthRt isEnd period_current period_first period_mus pp
 clear shape shiftTime specificColumn date e filename exptCounter exptArray
 
 
-%% C. compile replicate data with errorbars
+%% Part 2. compile replicate data with errorbars
 
 % for each period
 time = -1:30;
@@ -283,25 +283,24 @@ for period = 1:7
 end
 
 
-%% D. growth rate analysis: plot total growth over period number
+%% Part 3. growth rate analysis: plot mean growth over period number
 %
 %  goal: visualize effect of adaptation
-%        plot (1) integrated growth rate in high nutrient phase
-%             (2) integrated growth rate in low nutrient phase
-%             (3) integrated total period
+%        plot (1) mean growth rate in high nutrient phase
+%             (2) mean growth rate in low nutrient phase
+%             (3) mean growth rate during whole period
 
 
 %  strategy: from each period signal (variable: signals_all),
 %        
-%        integral of high phase = sum of values in bins 3-17
-%        integral of low phase = sum of values in bins 18-29
-%        integral of total period = sum of values in bins 3-29
+%        mean of high phase = sum of values in bins 3-17
+%        mean of low phase = sum of values in bins 18-29
+%        mean of total period = sum of values in bins 3-29
 %        (bins 1&2 repeat final bins of previous period)
 
-%  note: while bin 32 is the end of all signals, we only integrate until
+%  note: while bin 32 is the end of all signals, we only average until
 %        bin 29. reason, replicate 1 has only 29 values in final bin.
-%        thus, all low integrals calculate up to bin 29 for even
-%        comparisons.
+%        thus, all low means calculate up to bin 29 for even comparisons.
 
 
 clear index timescale expType specificGrowthRate
@@ -330,15 +329,15 @@ for rep = 1:numReps
         currentPeriod = currentReplicate{per};
         
         % high phase integral
-        hpi = sum(currentPeriod(bins_high));
+        hpi = mean(currentPeriod(bins_high));
         integrals_high(rep,per) = hpi;
         
         % low phase integral
-        lpi = sum(currentPeriod(bins_low));
+        lpi = mean(currentPeriod(bins_low));
         integrals_low(rep,per) = lpi;
         
         % total period integral
-        integrals_total(rep,per) = hpi+lpi;
+        integrals_total(rep,per) = (hpi+lpi)/2;
         clear hpi lpi
         
     end
@@ -371,5 +370,5 @@ hold on
 errorbar(mean_total,sem_total)
 legend('high integral','low integral','total integral')
 xlabel('Period')
-ylabel('Integrated growth rate')
-ylim([0 50])
+ylabel('Mean growth rate')
+
