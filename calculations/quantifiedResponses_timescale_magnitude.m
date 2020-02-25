@@ -1,5 +1,7 @@
-%% figure 5A - in text quantifications
-%
+%% Quantifications of timescale and magnitude of growth rate responses
+%  for dynamics plotted in Figure 4 and Figure S10
+
+
 %  Output: quantifications from growth rate dynamics
 
 %          (1) timescale of change in growth rate
@@ -14,20 +16,24 @@
 
 %  These quantifications are performed for the dynamic reponse to upshifts and downshifts, from:
 %
-%           Part A. cells grown in steady-state exposed to a single shift
-%           Part B. cells grown in repeatedly shifting environments (period 15 min)
-%           Part C. cells grown in repeatedly shifting environments (period 60 min)
+%           Part 1. cells grown in steady-state exposed to a single shift
+%           Part 2. cells grown in repeatedly shifting environments (period 15 min)
+%           Part 3. cells grown in repeatedly shifting environments (period 60 min)
 
 
-%  last update: jen, 2019 May 3
+%  last update: jen, 2020 Feb 25
+%  commit: for sharing with source data
+
 
 %  OK let's go!
 
-%% PART A. single upshift and single downshift
+%% PART 1. single upshift and single downshift
 
 clear
 clc
 
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('response_singleUpshift.mat')
 load('response_singleDownshift.mat')
 
@@ -65,11 +71,13 @@ percentChange_single_down(3) = (postDownshift_mu_single - G_low)/G_low;
 timescale_of_change_single_down = downshift_times_single(shiftTime+1);
 
 
-%% PART B. upshifts and downshifts from 15 min periods
+%% PART 2. upshifts and downshifts from 15 min periods
 
 clear
 clc
 
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('response_flucUpshift.mat')
 load('response_flucDownshift.mat')
 
@@ -104,12 +112,13 @@ percentChange_15_down(1) = (postDownshift_mu_15 - preDownshift_mu_15)/preDownshi
 percentChange_15_down(2) = (postDownshift_mu_15 - replicate_mean_15min(downTime))/replicate_mean_15min(downTime); % change from growth rate measured immediately preceding shift
 
 
-
-%% PART C. upshifts and downshifts from 60 min periods
+%% PART 3. upshifts and downshifts from 60 min periods
 
 clear
 clc
 
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('response_flucUpshift.mat')
 load('response_flucDownshift.mat')
 
@@ -128,3 +137,4 @@ percentChange_single_up(2) = (postUpshift_mu_60 - replicate_mean_60min(upTime))/
 %   iii. quantify time step of detected increase
 shiftTime = find(upshift_times_frep == 0);
 timescale_of_change_15min = upshift_times_frep(shiftTime+1);
+
