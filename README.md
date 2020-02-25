@@ -2,7 +2,7 @@
 Curated by Jen Nguyen, 2020 February 25
 For the manuscript titled:
 
-##A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
+## A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
 
 
 ## TABLE OF CONTENTS
