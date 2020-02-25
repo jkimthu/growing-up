@@ -1,4 +1,4 @@
-%% figure S4. poly-lysine challenge
+%% figure S3. poly-lysine challenge
 
 
 %  Goals: plot growth rate over time for poly-lysine +/- conditions
