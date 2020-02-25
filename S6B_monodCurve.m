@@ -1,4 +1,4 @@
-% figure S11: building a Monod curve
+% figure S6B: building a Monod curve
 
 %  Output: time-averaged growth rate vs nutrient concentration
 %          overlays data from:
