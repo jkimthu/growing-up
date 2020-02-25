@@ -17,49 +17,47 @@
 %        and T) and meta data file were in the same folder
 
 
-% Strategy: three parts A, B and C
+% Strategy:
 
-%  A. Manipulate and compile data from each experiment
+%  Part 0. initialize analysis
 
-%       0. initialize complete meta data
-%       0. define growth rate of interest
-%       0. define experiments to include in analysis
+%  Part 1. compile data from each experiment
 %       1. for each experiment, identify experiment by date and extract relevant parameters
 %       2. load experiment data
 %       3. build experiment data matrix
 %       4. for each condition, calculate instantaneous growth rates by...
 %       5. isolating all data from current condition
 %       6. isolate volume (Va), timestamp, drop, curve, and trackNum data
-%       7. calculate growth rates
-%               ALT: 8. trim data to full curves only (BUT commented out for final manuscript figure)
+%       7. calculate growth rates  
 %       8. truncate data to non-erroneous (e.g. bubbles) timestamps
 %       9. calculate average and s.e.m. of stabilized data  
 %      10. accumulate data for storage / plotting  
 %      11. store data from all conditions into compiled data structure, growthRates_monod_curve.mat  
 
 
-%  B. Save compiled data into stored data structure (PART B)
-%  C.  Access structure to plot time-averaged growth rate over time
+%  Part 2. save compiled data into stored data structure (PART B)
+%  Part 3. access structure to plot time-averaged growth rate over time
+%  Part 4. access structure to calculate mean G for all conditions
 
 
 
-
-% Last edit: jen nguyen, 2019 November 27
-% Commit: calculate and plot mean growth rate vs nutrient concentration
+% Last edit: jen nguyen, 2020 Feb 25
+% Commit: finalize for code sharing with source data
 
 
 % OK let's go!
 
 
-%% initialize analysis
+%% Part 0. Initialize analysis
 
 clear
 clc
 
 % 0. initialize complete meta data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 dataIndex = find(~cellfun(@isempty,storedMetaData));
-
 
 
 % 0. define growth rate of interest
@@ -72,7 +70,7 @@ exptArray = [2,3,4,5,6,7,9,10,11,12,13,14,15,17,18]; % use corresponding dataInd
 experimentCount = length(exptArray);
 
 
-%% Part A. Compile data from each experiment
+%% Part 1. Compile data from each experiment
 
 for e = 1:experimentCount
     
@@ -170,17 +168,21 @@ for e = 1:experimentCount
 end
 
 
-%% Part B. Save compiled data into stored data structure
+%% Part 2. Save compiled data into stored data structure
 
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 save('growthRates_monod_curve.mat','growthRates_monod_curve')
 
 
-%% Part C. Access structure to plot time-averaged growth rate over time
+%% Part 3. Access structure to plot time-averaged growth rate over time
 
 clc
 clear
 
 % 0. initialize meta data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
@@ -252,7 +254,7 @@ for e = 1:experimentCount
         hold on
         plot(log(concentration(c)), experiment_growthRates{c}.mean,'Marker',xmark,'MarkerSize',10,'Color',color)
         hold on
-        ylabel('growth rate (1/hr)')
+        ylabel('growth rate (1/h)')
         xlabel('log fold LB dilution')
         title(strcat('Population-averaged growth rate (log2) vs log(ln) LB dilution'))
                
@@ -262,13 +264,15 @@ for e = 1:experimentCount
 end
 
 
-%% Part D. Access structure to calculate mean G for all conditions
+%% Part 4. Access structure to calculate mean G for all conditions
 
 clc
 clear
 
 
 % 0. initialize meta data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 load('growthRates_monod_curve.mat')
 dataIndex = find(~cellfun(@isempty,growthRates_monod_curve));
@@ -310,3 +314,4 @@ fluc_means = cellfun(@mean,fluctuating);
 fluc_std = cellfun(@std,fluctuating);
 fluc_counts = cellfun(@length, fluctuating);
 fluc_sem = fluc_std./sqrt(fluc_counts);
+
