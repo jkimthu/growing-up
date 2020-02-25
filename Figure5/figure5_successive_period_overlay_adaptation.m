@@ -1,4 +1,4 @@
-%%  figure 4H - overlaid growth rate from successive periods
+%%  figure 5 - overlaid growth rate from successive periods
 
 
 %  Goal: plot growth rate vs nutrient phase,
