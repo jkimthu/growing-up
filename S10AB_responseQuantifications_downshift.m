@@ -1,28 +1,8 @@
-%% figure 5B - quantifying response to upshifts
-
-
-%  Output: two bar plots, quantifying
-%          (1) time to stabilization and
-%          (2) mean growth rate during stable region
+%% figure S10A&B - quantifying response to downshifts
 %
-%          in both plots, condition 1 = 15-min fluctuating nutrient
-%                         condition 2 = 60-min fluctuating nutrient
-%                         condition 3 = single upshift (low to high)
-
-
-% Input: (1) data structures from particle tracking and quality control.
-%        (2) meta data structure of all experiments
-
-%        (1) experiment data
-%        each experiment has trimmed data structure, D5, and timestamp data, T.
-%        this particular analysis uses data from fluctuating experiments
-%        with 15- or 60-min periods and single upshift experiments
-
-%        (2) meta data
-%        psuedo-manually compiled structure, storedMetaData.mat
-
-%        this code is written as if all experiment files (.mat, containing D5
-%        and T) and meta data file were in the same folder
+%  Goals: from downshift data, calculate
+%                   (1) time to stabilization and
+%                   (2) mean growth rate during stable region
 
 
 %  Strategy:
@@ -32,35 +12,41 @@
 %         3. mean growth rate within window = mean growth rate of stabilized signal
 
 
+%  Note: or single downshift experiments (class 3 below), only one replicate reaches G_low
+%        thus, (a) calculate "time to stable" as "time to G_low" 
+%              (b) confirm that between "time to G_low" and end that mean gr is G_low
+        
+
 
 %  Summary of code sections:
 %
-%         Part A. initialize folder with stored meta data
-%         Part B. curves for fluctuating data
-%         Part C. curve for single shift data
-%         Part D. fitting for quantifications
-%         Part E. plot quantifications
+%         Part 0. initialize folder with stored meta data
+%         Part 1. curves for fluctuating data
+%         Part 2. curve for single downshift data
+%         Part 3. fitting slopes to quantify time until stable
+%         Part 4. plot quantifications
 
 
-%  last updated: jen, 2019 Feb 6
-
-%  commit: in progress, checked out and works well. just need to finalize comments
+%  last updated: jen, 2020 Feb 25
+%  commit: final figure S10A&B for upshift responses using source data
 %          
 
 % OK let's go!
 
 
-%% Part A. initialize
+%% Part 0. initialize
 
 clc
 clear
 
 % 0. initialize complete meta data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('storedMetaData.mat')
 
 
 % 0. define shift type, growth rate and time bin of interest
-shiftType = 'upshift';
+shiftType = 'downshift';
 
 specificGrowthRate = 'log2';
 specificColumn = 3; % log2 growth rate
@@ -70,7 +56,12 @@ xmax = 3.5;
 timePerBin = 75; % matches binning in shift response plots
 
 
-%% Part B. accumulate upshift data
+% 0. define value of G_low
+G_low = 1.07;
+std_low = 0.23;
+
+
+%% Part 1. accumulate downshift data
 
 
 % 1. create array of experiments of interest, then loop through each
@@ -88,17 +79,14 @@ for e = 1:length(exptArray)
     timescale = storedMetaData{index}.timescale;
     bubbletime = storedMetaData{index}.bubbletime;
     expType = storedMetaData{index}.experimentType;
-
     disp(strcat(date, ': analyze!'))
     
     
     
-    % 3. load measured data    
-    if strcmp(date,'2017-11-12') == 1
-        filename = 'lb-fluc-2017-11-12-width1p4-jiggle-0p5.mat'; % says only 1.4 but it is both
-    elseif ischar(timescale) == 0
-        filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
-    end
+    % 3. load measured data
+    source_data = '/Users/jen/Documents/StockerLab/Source_data';
+    cd(source_data)
+    filename = strcat('lb-fluc-',date,'-c123-width1p4-c4-1p7-jiggle-0p5.mat');
     load(filename,'D5','T')
     clear experimentFolder
     
@@ -119,6 +107,7 @@ for e = 1:length(exptArray)
     curveFinder = conditionData(:,5);         % col 5  = curve finder (ID of curve in condition)
     trackNum = conditionData(:,20);           % col 20 = total track number in condition
     clear expType xy_start xy_end
+    
     
     
     % 6. calculate growth rate
@@ -156,7 +145,6 @@ for e = 1:length(exptArray)
     % 8. isolate selected specific growth rate
     growthRt = growthRates_trim2(:,specificColumn);
     
-    
 
     
     % 9. isolate corrected timestamp
@@ -166,7 +154,6 @@ for e = 1:length(exptArray)
         correctedTime = conditionData_trim2(:,22); % col 22 = timestamps corrected for signal lag
     end
     clear D5 T isDrop timestamps_sec  
-    
     
     
     
@@ -183,41 +170,55 @@ for e = 1:length(exptArray)
     
     timeInPeriodFraction_inSeconds = timeInPeriodFraction * timescale;
     bins = ceil(timeInPeriodFraction_inSeconds/timePerBin);
+    bins_unique = unique(bins);
     clear timeInPeriods timeInPeriodFraction
+    
     
     
     % 12. find which bins are boundaries signal phases
     lastBin_Q1 = (timescale/timePerBin)/4;                      % last bin before downshift
+    firstBin_downshift = (timescale/4)/timePerBin + 1;
     lastBin_downshift = (timescale*3/4)/timePerBin;             % last bin before upshift
-    
-    firstBin_upshift = (timescale*3/4)/timePerBin + 1;          % first bin of upshift
     lastBin_ofPeriod = timescale/timePerBin;                    % total bins in signal period
-    
     
     
     
     % 13. list bins chronologically to combine broken up high nutrient phase
     %       i.e. start of upshift is Q4, concatenate Q1
-    upshiftBins{counter} = [firstBin_upshift:lastBin_ofPeriod, 1:lastBin_Q1];
+    downshiftBins{counter} = firstBin_downshift:lastBin_downshift;
     clear timeInPeriodFraction timeInPeriodFraction_inSeconds
-    
     
     
 
     % 14. choose which pre-shift data bins to plot
-
     % decide how much data to plot prior to shift
-    % upshift used here, but it is equal in length to downshift
-    if length(upshiftBins{counter}) >= 5
+    if length(downshiftBins{counter}) >= 5
         numPreshiftBins = 4;
     else
         numPreshiftBins = 2;
     end
+
     
-    
-    % for upshifts
-    % bins are already chronological in number, so the job is easy!
-    pre_upshiftBins{counter} = lastBin_downshift - (numPreshiftBins-1) : lastBin_downshift;
+    % for downshifts
+    % shorter timescales (less bins) require pulling from Q4 growth data
+    if lastBin_Q1 - numPreshiftBins <= 0
+        
+        % absolute value of (lastBin_Q1 - preShift_bins) = number of bins needed from Q4
+        % flipping list of bins from last to first lets us use absolute value as index
+        bins_unique_flipped = flipud(bins_unique);
+        first_pre_downshiftBin = bins_unique_flipped( abs(lastBin_Q1 - numPreshiftBins) );
+        
+        % array of pre-downshift bin numbers in chronological order
+        pre_downshiftBins{counter} = [first_pre_downshiftBin:lastBin_ofPeriod,1:lastBin_Q1];
+        
+        clear bins_unique_flipped
+        
+    else
+        
+        % if no need to tap into Q4 data...
+        pre_downshiftBins{counter} = lastBin_Q1 - (numPreshiftBins-1) : lastBin_Q1;
+        
+    end
     
 
 
@@ -227,7 +228,6 @@ for e = 1:length(exptArray)
     clear bins
     
    
-    
     
     % 17. plot response in growth rate for all timescales over time
     timePerBin_min = timePerBin/60; % time per bin in minutes
@@ -240,24 +240,22 @@ for e = 1:length(exptArray)
     
     
     
-    % plot!
-    %concatenate pre and post upshift data
+    figure(1)  % binned downshift
     
-    % time
-    preUpshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
-    postUpshift_times = (1:length( binned_mean{counter}( upshiftBins{counter} ) ) )*timePerBin_min;
-    upshift_times = [preUpshift_times,postUpshift_times];
+    %concatenate pre and post downshift data
+    % time (same as upshift, just different variable names)
+    preDownshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
+    postDownshift_times = (1:length( binned_mean{counter}( downshiftBins{counter} ) ) )*timePerBin_min;
+    downshift_times = [preDownshift_times,postDownshift_times];
     
     % growth rate
-    preUpshift_growth = binned_mean{counter}(pre_upshiftBins{counter});
-    postUpshift_growth = binned_mean{counter}(upshiftBins{counter});
-    upshift_growth = [preUpshift_growth;postUpshift_growth];
+    preDownshift_growth = binned_mean{counter}(pre_downshiftBins{counter});
+    postDownshift_growth = binned_mean{counter}(downshiftBins{counter});
+    downshift_growth = [preDownshift_growth;postDownshift_growth];
     
-    
-    figure(1)   % binned upshift
-    plot(upshift_times,upshift_growth,'Color',color,'LineWidth',1,'Marker','.')
+    plot(downshift_times,downshift_growth,'Color',color,'LineWidth',1,'Marker','.')
     hold on
-    title(strcat('response to upshift, binned every (',num2str(timePerBin),') sec'))
+    title(strcat('response to downshift, binned every (',num2str(timePerBin),') sec'))
     
     clear x y ycenter ybegin yend color
     clear conditionData_trim1 conditionData_trim2 growthRates_trim1 growthRates_trim2
@@ -272,16 +270,17 @@ axis([numPreshiftBins*-1*timePerBin_min,80,xmin,xmax])
 
 
 clear bins_unique bubbletime correctedTime_noNans filename numPreshiftBins
-clear timestamps_hr postUpshift_growth postUpshift_times
-clear preUpshift_growth preUpshift_times preShift_bins upshift_growth upshift_times
-clear timePerBin_min
+clear timestamps_hr 
+clear preDownshift_growth preDownshift_times downshift_growth downshift_times
+clear postDownshift_growth postDownshift_times
+clear timePerBin_min preShift_bins
 
 
-%% Part C. accumulate single shift data
+%% Part 2. accumulate single downshift data
 
 
 % 1. create array of experiments of interest, then loop through each
-exptArray = [21,22]; % dataIndex values of single upshift experiments
+exptArray = [26,27];  % dataIndex values of single downshift experiments
 
 
 %counter = 0;  % keep counter value from part B and continue
@@ -289,32 +288,32 @@ for e_shift = 1:length(exptArray)
     
     counter = counter + 1;
     
-    
     % 2. initialize experiment meta data
     index = exptArray(e_shift); 
     date = storedMetaData{index}.date;
     
     % define which frames to ignore (noisy tracking)
-    if strcmp(date,'2018-06-15') == 1
+    if strcmp(date,'2018-08-09') == 1
+        ignoredFrames = [115,116,117];
+    elseif strcmp(date,'2018-08-08') == 1
         ignoredFrames = [112,113,114];
-    elseif strcmp(date,'2018-08-01') == 1
-        ignoredFrames = [94,95];
     end
     
     
     timescale = storedMetaData{index}.timescale;
     bubbletime = storedMetaData{index}.bubbletime;
     expType = storedMetaData{index}.experimentType;
-    shiftTime(e_shift) = storedMetaData{index}.shiftTime;    % sec
+    shiftTime(e_shift) = storedMetaData{index}.shiftTime;        % sec
 
     disp(strcat(date, ': analyze!'))
     
     
     
     % 3. load measured data
+    source_data = '/Users/jen/Documents/StockerLab/Source_data';
+    cd(source_data)
     filename = strcat('lb-fluc-',date,'-width1p7-jiggle-0p5.mat');
     load(filename,'D5','T')
-    
     
     
     
@@ -326,7 +325,7 @@ for e_shift = 1:length(exptArray)
     
     
     
-    % 6. isolate volume (Va), timestamp, mu, drop and curveID data
+    % 5. isolate volume (Va), timestamp, mu, drop and curveID data
     volumes = conditionData(:,11);            % col 11 = calculated va_vals (cubic um)
     timestamps_sec = conditionData(:,2);      % col 2  = timestamp in seconds
     isDrop = conditionData(:,4);              % col 4  = isDrop, 1 marks a birth event
@@ -335,13 +334,14 @@ for e_shift = 1:length(exptArray)
     clear xy_start xy_end
     
     
-    % 7. calculate growth rate
+    
+    % 6. calculate growth rate
     growthRates = calculateGrowthRate(volumes,timestamps_sec,isDrop,curveFinder,trackNum);
     clear curveFinder trackNum isDrop volumes
     
     
     
-    % 8. isolate data to stabilized regions of growth
+    % 7. isolate data to stabilized regions of growth
     %    NOTE: errors (excessive negative growth rates) occur at trimming
     %          point if growth rate calculation occurs AFTER time trim.
     
@@ -369,7 +369,7 @@ for e_shift = 1:length(exptArray)
 
     
      
-    % 9. isolate selected specific growth rate
+    % 8. isolate selected specific growth rate
     growthRt = growthRates_trim2(:,specificColumn);
     % specificColumn is already defined in Part B.
     % not re-defining it here ensures that we use the same metric between both
@@ -377,14 +377,13 @@ for e_shift = 1:length(exptArray)
     
 
     
-    % 10. isolate corrected timestamp
+    % 9. isolate corrected timestamp
     correctedTime = conditionData_trim2(:,22); % col 22 = timestamps corrected for signal lag
     clear D5 T isDrop conditionData_trim1
     
     
     
-    
-    % 11. assign NaN to all growth rates associated with frames to ignore
+    % 10. assign NaN to all growth rates associated with frames to ignore
     frameNum = conditionData_trim2(:,16); % col 16 = original frame number
     growthRt_ignorant = growthRt;
     for fr = 1:length(ignoredFrames)
@@ -392,7 +391,8 @@ for e_shift = 1:length(exptArray)
     end
     
     
-    % 12. remove nans from data analysis
+    
+    % 11. remove nans from data analysis
     growthRt_noNaNs = growthRt_ignorant(~isnan(growthRt_ignorant),:);
     correctedTime_noNans = correctedTime(~isnan(growthRt_ignorant),:);
     clear growthRt growthRt_ignorant correctedTime frameNum
@@ -400,7 +400,7 @@ for e_shift = 1:length(exptArray)
     
     
     
-    % 13. assign corrected timestamps to bins, by which to accumulate growth data
+    % 12. assign corrected timestamps to bins, by which to accumulate growth data
     bins = ceil(correctedTime_noNans/timePerBin);      % bin 1 = first timePerBin sec of experiment
     bins_unique = (min(bins):max(bins))';              % avoids missing bins due to lack of data
     
@@ -413,61 +413,53 @@ for e_shift = 1:length(exptArray)
     
     
     
-    % 14. choose which pre-shift data bins to plot
+    % 13. choose which pre-shift data bins to plot
     
     % single shift experiments don't have high/low phase interruptions
     % however, they do have bins missing data!
     numPreshiftBins = 10;
-
+    %preShift_bins{counter} = numPreshiftBins;
 
     % determine pre-shift bins
     index_single_shift = find(bins_unique == first_postshiftBin_single);
-    pre_upshiftBins{counter} = bins_unique(index_single_shift-numPreshiftBins : index_single_shift-1); % same bins in both single down and upshifts
-    %pre_downshiftBins{counter} = bins_unique(index_single_shift-numPreshiftBins : index_single_shift-1);
-    
-
+    %pre_upshiftBins{counter} = bins_unique(index_single_shift-numPreshiftBins : index_single_shift-1); % same bins in both single down and upshifts
+    pre_downshiftBins{counter} = bins_unique(index_single_shift-numPreshiftBins : index_single_shift-1);
     
     
-    % 15. collect growth rate data into bins and calculate stats
+    
+    % 14. collect growth rate data into bins and calculate stats
     %     WARNING: bins variable does not i
     binned_growthRate{counter} = accumarray(bins,growthRt_noNaNs,[],@(x) {x});
     binned_mean{counter} = accumarray(bins,growthRt_noNaNs,[],@mean);
     clear bins
     
-   
     
     
-    % 17. plot response in growth rate for all timescales over time
+    % 15. plot response in growth rate for all timescales over time
     timePerBin_min = timePerBin/60; % time per bin in minutes
     color = rgb('DarkOliveGreen');
-
     
-%     if strcmp(shiftType,'upshift') == 1
-        
-        figure(1)   % binned upshift
-
-        % plot!
-        preUpshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
-        postUpshift_times = (1:length(binned_mean{counter}(postshiftBins_single{counter})))*timePerBin_min;
-        upshift_times_gapped = [preUpshift_times, postUpshift_times];
-        
-        preUpshift_growth = binned_mean{counter}(pre_upshiftBins{counter});
-        postUpshift_growth_single = binned_mean{counter}(postshiftBins_single{counter});
-        upshift_growth_gapped = [preUpshift_growth; postUpshift_growth_single];
-        
-        
-         % don't plot zeros that are place holders for gaps in data
-        upshift_growth = upshift_growth_gapped(upshift_growth_gapped > 0);
-        upshift_times = upshift_times_gapped(upshift_growth_gapped > 0);
-        
-        
-        plot(upshift_times,upshift_growth,'Color',color,'LineWidth',1,'Marker','.')
-        
-        
-        grid on
-        hold on
-        title(strcat('response to upshift, binned every (',num2str(timePerBin),') sec'))
-
+    
+    figure(1)    % downshift
+    
+    % plot!
+    preDownshift_times = ((numPreshiftBins-1)*-1:0)*timePerBin_min;
+    postDownshift_times = (1:length(binned_mean{counter}(postshiftBins_single{counter})))*timePerBin_min;
+    downshift_times_gapped = [preDownshift_times, postDownshift_times];
+    
+    preDownshift_growth_gapped = binned_mean{counter}(pre_downshiftBins{counter});
+    postDownshift_growth_single = binned_mean{counter}(postshiftBins_single{counter});
+    downshift_growth_gapped = [preDownshift_growth_gapped; postDownshift_growth_single];
+    
+    % don't plot zeros that are place holders for gaps in data
+    downshift_growth = downshift_growth_gapped(downshift_growth_gapped > 0);
+    downshift_times = downshift_times_gapped(downshift_growth_gapped > 0);
+    
+    plot(downshift_times,downshift_growth,'Color',color,'LineWidth',1)
+    grid on
+    hold on
+    title(strcat('response to downshift, binned every (',num2str(timePerBin),') sec'))
+     
 end
 
 
@@ -475,20 +467,18 @@ xlabel('time (min)')
 ylabel(strcat('growth rate: (', specificGrowthRate,')'))
 axis([numPreshiftBins*-1*timePerBin_min,160,xmin,xmax])
 
-
 clear bubbletime color conditionData_trim2 date correctedTime_noNans
 clear bins_unique e_shift experimentFolder exptArray expType filename
 clear fr growthRt_noNaNs ignoredFrames index index_single_shift
-clear numPreshiftBins postshiftBins_single preUpshift_times preUpshift_growth
+clear numPreshiftBins postshiftBins_single preDownshift_times preDownshift_growth
 clear shiftType specificColumn specificGrowthRate timePerBin_min
-clear timescale times_trim1 upshift_growth upshift_growth_gapped
-clear xmax xmin first_postshiftBin_single postUpshift_growth_single
-clear postUpshift_times upshift_times_gapped upshift_times
+clear timescale times_trim1 downshift_growth downshift_growth_gapped
+clear xmax xmin first_postshiftBin_single postDownshift_growth_single
+clear postDownshift_times downshift_times_gapped downshift_times
 
 
-%% Part D. fitting slopes to find time until stable
-%
-% .. and once stable region is determined, calculate mean steady growth rate
+%% Part 3. fitting slopes to find time until stable
+%       ...and once stable region is determined, calculate mean steady growth rate
 
 clear steadinessTimescale steadinessValue r
 
@@ -505,14 +495,13 @@ for currentClass = 1:length(cl)
         currentData = cell2mat( binned_mean(expClass==currentClass) );
         finalBin = length(currentData);
         
-        % order signal such that 1st half is upshift (start to end of high phase),
-        %                        2nd half is downshift (start to end of low phase)
-        binOrder = [4:finalBin, 1:3];
-        [~,binOrder_sorted] = sort(binOrder);           % get the order for sorting
-        orderedData = currentData(binOrder_sorted,:);   % sort data so that first high after low starts the array
+        % order signal such that 1st half is downshift (start to end of low phase),
+        %                        2nd half is upshift (start to end of high phase)
+        binOrder = [4:finalBin, 1:3];                   % order for sorting
+        orderedData = currentData(binOrder,:);   % sort data so that first low after high starts the array
         
         % generate generic timesignal
-        genericTime = ((1:finalBin)*75)';
+        genericTime = ((1:finalBin)*timePerBin)';
         orderedTime = [genericTime, genericTime, genericTime, genericTime];
         
         % from tpt zero to end, find fit a linear function and save slope
@@ -557,10 +546,11 @@ for currentClass = 1:length(cl)
         currentData = cell2mat( binned_mean(expClass==currentClass) );
         finalBin = length(currentData);
         
-        % order signal such that 1st half is upshift, 2nd half is downshift
-        binOrder = [13:finalBin, 1:12];
-        [~,binOrder_sorted] = sort(binOrder); % get the order of binOrder
-        orderedData = currentData(binOrder_sorted,:);
+        
+        % order signal such that 1st half is downshift (start to end of low phase),
+        %                        2nd half is upshift (start to end of high phase)
+        binOrder = [13:finalBin, 1:12];         % order for sorting
+        orderedData = currentData(binOrder,:);
         
         % generate generic timesignal
         genericTime = ((1:finalBin)*75)';
@@ -599,20 +589,21 @@ for currentClass = 1:length(cl)
         
     elseif currentClass == 3
         
-        clear steadiedGR section_compiled orderedData time2steady slopes slopes_abs orderedTime currentData section section_time orderedTime_trim
+
+        % for downshifts, only one replicate reaches G_low
+        % thus, only calculate "time to stable" as "time to G_low" 
+        % confirm that between "time to G_low" and end that mean gr is G_low
+
         
-        shiftTime_bin = ceil(shiftTime./75); % bin at t=zero. 75 seconds is first true bin after shift.
+        clear steadiedGR section_compiled orderedData time2steady slopes slopes_abs orderedTime currentData section section_time orderedTime_trim
         
         
         % isolate single shift experiment data
-        % entire signal
-        currentData_temp = binned_mean(expClass==currentClass);
-        finalBin = 128; % 75 sec/bin * 128 bins =  9600 sec  = 160 min
-                        % reflects final of analysis which starts at shift
-        initialBin = 64; % 80 min * 60 sec/min / 75 sec/bin = 64 bin
-                        
-                        
+        currentData_temp = binned_mean(expClass==currentClass); % entire signal
+        
+
         % trim to start at upshift
+        shiftTime_bin = ceil(shiftTime./timePerBin); % bin at t=zero. 75 seconds is first true bin after shift.
         for rep = 1:2
             
             % data for current replicate
@@ -629,7 +620,7 @@ for currentClass = 1:length(cl)
         clear d d_zeroed zeroBin rep
         
         
-        % trim so datasets have equal lengths
+        % trim so datasets have equal lengths (though for single downshift they already do)
         numBins = cellfun(@length,currentData_zeroed);
         shorty = min(numBins);
         for rep = 1:2
@@ -641,46 +632,54 @@ for currentClass = 1:length(cl)
         end
         clear currentData_temp currentData_zeroed rep dz
         
+        
+        
         % generate generic timesignal
         genericTime = ((1:shorty)*75)';
         orderedTime = [genericTime, genericTime];
         
         
-        % from tpt zero to end, find fit a linear function and save slope
+        
+        % from tpt zero to end, find growth rates within std of G_low
+        orderedData(1,:) = NaN; % ignore data from 1st timepoint of each, as they are still coming down from high N
+        near_G = find(orderedData > (G_low-std_low) );  
+        
+        
+        % as expected near_G only finds frames within range of G_low in first single downshift, 2018-08-08
+        % because NaNs do not appear consecutively, consider "steady-state low" 
+        % as reached when indeces between near_G are consistently less than 3
+        % 1st index allowed for NaN, 2nd for noise in growth signal
+        
+        idx_diffs = [NaN; diff(near_G)];
+        allowables = idx_diffs < 3;
+        last_jump = max(find(allowables == 0)); % last large gap in growth rates that hit G_low range
+        stable_start = last_jump + 1;
+        
+        
+        % from first "stable" data index in near_G to end, find mean slope
         clear slopes
-        for r = initialBin:finalBin-5
-            
-            % select section to compute slope over
-            section = orderedData(r:finalBin,:);
-            section_time = orderedTime(r:finalBin,:);
-            
-            for col = 1:2
-                
-                gr = section(:,col);
-                t = section_time(:,col);
-                idx = isnan(gr);
-                section_slope = polyfit(t(~idx),gr(~idx),1);
-                
-                %section_slope = polyfit(section_time(:,col),section(:,col),1);
-                slopes(r,col) = section_slope(1);
-                section_compiled{r,col} = gr;
-            end
-            
-        end
-        clear r section_slope col
         
-        % find which slope is closest to zero
-        slopes_abs = abs(slopes(initialBin:end,:));
-        section_compiled_abs = section_compiled(initialBin:end,:);
-        flats = min(slopes_abs,[],1);
+        finalIndex = length(near_G);
+        col = 1;
+
+        % select section to compute slope over
+        tpt_first = near_G(stable_start);
+        gr = orderedData(tpt_first:end,col);
+        t = orderedTime(tpt_first:end,col);
         
-        % find times associated with flattest slope
-        orderedTime_trim = orderedTime(initialBin:end,:);
-        for col = 1:2
-            time2steady(col) = orderedTime_trim(slopes_abs(:,col) == flats(col));
-            steadiedGR(col) = cellfun(@nanmean,section_compiled_abs(slopes_abs(:,col) == flats(col),col));
-        end
+        % compute slope 
+        idx = isnan(gr);
+        section_slope = polyfit(t(~idx),gr(~idx),1);
         
+        % store slope, mean growth rate, first timepoint of steaded range, and growth rate data within section
+        slopes = section_slope(1);
+        steadiedGR = nanmean(gr);
+        time2steady = t(1);
+        section_compiled{1,1} = gr;
+        
+        clear section_slope col idx gr t idx_diffs
+        
+        % store mean growth rate and first timepoint of steaded range across classes
         steadinessTimescale{currentClass} = time2steady;
         steadinessValue{currentClass} = steadiedGR;
         
@@ -694,7 +693,7 @@ clear shorty t section section_time numBins gr finalBin initialBin
 clear genericTime steadiedGR
 
 
-%% Part E. plot bar graphs of time to saturation and final saturation value
+%% Part 4. plot bar graphs of time to saturation and final saturation value
 
 % time to saturation
 t_sat_mean = cellfun(@mean,steadinessTimescale)./60;
@@ -712,6 +711,7 @@ ylabel('time (min)')
 t_sat_mean % display values
 t_sat_std
 
+
 figure(3)
 hold on
 bar(sat_gr_mean)
@@ -720,6 +720,4 @@ ylabel('growth rate (1/hr)')
 
 sat_gr_mean % display values
 sat_gr_std
-
-
 
