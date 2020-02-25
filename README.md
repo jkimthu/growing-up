@@ -2,7 +2,7 @@
 Curated by Jen Nguyen, 2020 February 25
 For the manuscript titled:
 
-A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
+##A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
 
 
 ## TABLE OF CONTENTS
@@ -14,7 +14,7 @@ A distinct growth physiology enhances bacterial growth under rapid nutrient fluc
 
 
 
-# 1. IMAGE ANALYSIS & PROCESSING PIPELINE
+## 1. IMAGE ANALYSIS & PROCESSING PIPELINE
 
 To extract a functiona dataset from raw .nd2 files:
 
@@ -31,7 +31,7 @@ To extract a functiona dataset from raw .nd2 files:
 
 
 
-# 2. MAIN FIGURES
+## 2. MAIN FIGURES
 
 ## Figure 1
 1. 1C  normalized fluorescein signal from cell imaging position
@@ -68,7 +68,7 @@ To extract a functiona dataset from raw .nd2 files:
 
 
 
-# CALCULATIONS REPORTED IN MANUSCRIPT
+## CALCULATIONS REPORTED IN MANUSCRIPT
 
 1. calculations of yield are found in script estimateYield.m
 2. calculations regarding response of growth rate to nutrient shifts (timescale and magnitude of change)
@@ -77,7 +77,7 @@ To extract a functiona dataset from raw .nd2 files:
 
 
 
-# SUPPLEMENTARY FIGURES
+## SUPPLEMENTARY FIGURES
 
 S7. Growth rate measurements performed on the same day are correlated.
 	Positive correlations lead us to normalize by daily Gs!
@@ -94,7 +94,7 @@ S10. A) Quantify time between shift and growth rate stabilization
 
 
 
-# SOURCE SCRIPTS FROM THE INTERWEB
+## SOURCE SCRIPTS FROM THE INTERWEB
 
 Not everything was written in house. Here the Mathworks links to functions used in these scripts (primarily for plotting) that were contributed by others.
 
