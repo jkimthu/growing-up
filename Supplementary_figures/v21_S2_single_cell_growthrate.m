@@ -1,4 +1,4 @@
-%% figure 2b (_v21). single cell growth rate from different conditions
+%% figure S2 (_v21). single cell growth rate from different conditions
 
 
 %  Goals: plot single-cell tracks of growth rate over time
@@ -25,7 +25,7 @@
 
 
 %  last updated: jen, 2020 June 13
-%  commit: new visualization of single-cell growth rates
+%  commit: edit title (supplementary S2 _v21) and y axis range
 
 
 % OK let's go!
@@ -211,11 +211,16 @@ for condition = 1:length(bubbletime)
         % i. calculate mean, standard dev, counts, and standard error
         %bin_mean = accumarray(bins,yy,[],@mean);
         %bin_std = accumarray(bins,yy,[],@std);
-
-        subplot(10,2,counter)
+        
+        if selection < tracksPerCondition
+            rr = ceil(selection/2);
+        else
+            rr = 10;
+        end
+        subplot(rr,2,counter)
         plot(xx,yy,'Color',color,'Marker',xmark,'LineWidth',2)
         %plot(timeVector,bin_mean(bins_unique),'Color',color,'Marker',xmark,'LineWidth',2)
-        axis([3,9,-1,4])
+        axis([3,9,-1,6])
         
     end
     clear sc
