@@ -70,9 +70,9 @@ To extract a functiona dataset from raw .nd2 files:
 
 ## CALCULATIONS REPORTED IN MANUSCRIPT
 
-1. calculations of yield are found in script estimateYield.m
+1. calculations of yield (estimateYield.m)
 2. calculations regarding response of growth rate to nutrient shifts (timescale and magnitude of change)
-
+3. calculations quantifying noise in single-cell instantaneous growth rate (quantifyNoise.m)
 
 
 
