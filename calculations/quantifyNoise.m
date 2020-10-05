@@ -186,4 +186,30 @@ end
 cd(source_data)
 save('quantifyNoise.mat','noise_compiled')
 
+%% 2. plot boxplot of noise per condition
 
+clear
+clc
+
+
+% 0. load noise data
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
+load('quantifyNoise.mat')
+palette = {'DodgerBlue','Indigo','GoldenRod','FireBrick'};
+
+
+% 0. initialize x-axis values to spread out individual points
+spread_x = ones(size(noise_compiled)).*(1+(rand(size(noise_compiled))-0.4)/10);
+
+
+% 1. plot!
+figure(1)
+boxplot(noise_compiled)
+hold on
+for col = 1:4
+    color = rgb(palette{col});
+    scatter(spread_x(:,col)+col-1,noise_compiled(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+
+ylabel('Noise in single-cell growth rate')
