@@ -213,3 +213,11 @@ for col = 1:4
 end
 
 ylabel('Noise in single-cell growth rate')
+
+
+% 2. calculate mean
+condition_noise = nanmean(noise_compiled);
+condition_median = nanmedian(noise_compiled);
+condition_stdev = nanstd(noise_compiled);
+condition_n = sum(~isnan(noise_compiled));
+condition_sem = condition_stdev./sqrt(condition_n);
