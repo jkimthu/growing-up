@@ -11,10 +11,8 @@
 %        Y. box plot with scatter of growth rate of pre- and post- division in Chigh and Clow
 
 
-%  last updated: jen, 2020 Oct 15
-%  commit: first commit, plots rejecting hypothesis that average, not
-%          single-cell growth rate fluctuates
-     
+%  last updated: jen, 2020 Oct 16
+%  commit: replace Part Y boxplot with bar plot for clarity
 
 % OK let's go!
 
@@ -249,7 +247,6 @@ for ii = 1:length(t60)
         current_window = current_index-2:current_index+2;
         current_envir = binaryNutrient(current_window);
         current_mu = growthRt_stable(current_window);
-        clear growthRt_stable
         
         
         % ii. accumulate growth rates according to timepoint relative to division
@@ -262,9 +259,9 @@ for ii = 1:length(t60)
             low_divs = [low_divs; current_mu'];
             
         end
-        clear current_index current_window current_envir current_mu binaryNutrient
+        clear current_index current_window current_envir current_mu 
     end
-    clear ev division_events event_envir event_index event_timestamp
+    clear ev division_events event_envir event_index event_timestamp binaryNutrient growthRt_stable
     
     
     % 10. calculate stats for each experiment
@@ -291,7 +288,73 @@ end
 clear ii index D5 T conditionData_bubbleTrimmed date filename
 
 
-%% Plot for Part Y
+%% Bar plot for Part Y
+
+% Goal:  plot growth rate before and after division
+
+% 0. initialize columns in data
+high = 1; low = 2;
+color = rgb('DodgerBlue');
+
+
+% 1. calculate replicate means and s.e.m.
+means_high = nan(3,5);
+sems_high = nan(3,5);
+means_low = nan(3,5);
+sems_low = nan(3,5);
+for rep = 1:3
+    
+    means_high(rep,:) = stats{rep,high}.mean;
+    means_low(rep,:) = stats{rep,low}.mean;
+    
+    sems_high(rep,:) = stats{rep,high}.sem;
+    sems_low(rep,:) = stats{rep,low}.sem;
+    
+end
+
+% 2. calculate mean and s.e.m. of compiled data
+compiled_mean_high = nanmean(high_i);
+compiled_mean_low = nanmean(low_i);
+compiled_std_high = nanstd(high_i);
+compiled_std_low = nanstd(low_i);
+compiled_n_high = length(high_i);
+compiled_n_low = length(low_i);
+compiled_sem_high = compiled_std_high./sqrt(compiled_n_high);
+compiled_sem_low = compiled_std_low./sqrt(compiled_n_low);
+
+% 3. prepare to spread replicate points
+spread_x = ones(size(means_high)).*(1+(rand(size(means_high))-0.4)/10);
+
+% 4. plot
+figure(2)
+subplot(1,2,1)
+bar(compiled_mean_high)
+hold on
+errorbar(compiled_mean_high,compiled_sem_high,'.')
+ylim([0 3])
+ylabel('growth rate (1/h)')
+xlabel('timepoint relative to cell division')
+title('cells dividing in Chigh')
+hold on
+for col = 1:5
+    scatter(spread_x(:,col)+col-1,means_high(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+
+subplot(1,2,2)
+bar(compiled_mean_low)
+hold on
+errorbar(compiled_mean_low,compiled_sem_low,'.')
+ylim([0 3])
+ylabel('growth rate (1/h)')
+xlabel('timepoint relative to cell division')
+title('cells dividing in Clow')
+hold on
+for col = 1:5
+    scatter(spread_x(:,col)+col-1,means_low(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+
+
+%% Box plot for Part Y
 
 % 11. plot growth rate before and after division
 high = 1; low = 2;
@@ -335,12 +398,4 @@ hold on
 for col = 1:5
     scatter(spread_x(:,col)+col-1,means_low(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
 end
-
-
-
-
-
-
-
-
 
