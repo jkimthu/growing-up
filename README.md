@@ -41,6 +41,7 @@ To extract a functiona dataset from raw .nd2 files:
 ## Figure 2
 1. 2B  example of instantaneous growth rate over time (one replicate)
 2. 2C  mean growth rate as a function of the nutrient period (each replicate fluctuating timescale plotted)
+3. 2XY testing the alternative hypothesis that fluctuations in average growth rate are from mixed populations of growing and non-growing cells, rather than changes in growth at the single cell level
 
 
 ## Figure 3
