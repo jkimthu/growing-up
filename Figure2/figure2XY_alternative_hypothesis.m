@@ -7,11 +7,11 @@
 
 %  Strategy:
 %
-%        X. division events over time
+%        X. division events and total cells over time
 %        Y. box plot with scatter of growth rate of pre- and post- division in Chigh and Clow
 
 
-%  last updated: jen, 2020 Oct 16
+%  last updated: jen, 2020 Dec 5
 %  commit: replace Part Y boxplot with bar plot for clarity
 
 % OK let's go!
