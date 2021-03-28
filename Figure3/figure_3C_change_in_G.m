@@ -30,8 +30,8 @@
 
 
 
-% Last edit: jen, 2020 Feb 25
-% Commit: finalize for code sharing with source data
+% Last edit: jen, 2021 Mar 27
+% Commit: add data points to bar plot
 
 
 % OK let's go!
@@ -98,6 +98,8 @@ for tt = 1:length(timescales)
     
     daily_means(tt,1) = nanmean(daily_change_ave(timescales{tt}));
     daily_means(tt,2) = nanmean(daily_change_jensens(timescales{tt}));
+    daily_data{tt,1} = daily_change_ave(timescales{tt});
+    daily_data{tt,2} = daily_change_jensens(timescales{tt});
     
     sdev = nanstd(daily_change_ave(timescales{tt}));
     count = length(daily_change_ave(timescales{tt}));
@@ -114,9 +116,7 @@ end
 % 4. bar plot of percent change
 spacing = [0.73, 0.91, 1.09, 1.27;
            1.73, 1.91, 2.09, 2.27];
-       
-    
-       
+          
 figure(1)
 bar(daily_means')
 hold on
@@ -125,7 +125,11 @@ ylabel('percent change')
 xlabel('reference growth rate')
 title('percent change in growth rate')
 
-
-
-
-
+% add scattered individual points
+color = rgb('SlateGray');
+spacing_data = [0.73; 0.91; 1.09; 1.27;
+           1.73; 1.91; 2.09; 2.27];
+hold on
+for col = 1:8
+    scatter(spacing_data(col).*ones(length(daily_data{col}),1),daily_data{col},'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
