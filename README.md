@@ -80,6 +80,9 @@ To extract a functiona dataset from raw .nd2 files:
 
 ## SUPPLEMENTARY FIGURES
 
+S3. Characterization of generated nutrient signal with fluorescent indicator.
+	See script in Source_code folder entitled "calculateFluoresceinSignal.m"
+
 S7. Growth rate measurements performed on the same day are correlated.
 	Positive correlations lead us to normalize by daily Gs!
 
