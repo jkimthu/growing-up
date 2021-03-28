@@ -1,4 +1,4 @@
-%% figure S10A&B - quantifying response to upshifts
+%% figure 4d,e - quantifying response to upshifts
 
 
 %  Output: two bar plots, quantifying
@@ -42,8 +42,8 @@
 %         Part 4. plot quantifications
 
 
-%  last updated: jen, 2020 Nov 11
-%  commit: final figure 4d & e for upshift responses using source data
+%  last updated: jen, 2021 Mar 28
+%  commit: revised to include data points on bar plots
 %          
 
 % OK let's go!
@@ -709,8 +709,17 @@ bar(t_sat_mean)
 errorbar(1:3,t_sat_mean,t_sat_std,'.')
 ylabel('time (min)')
 
-%t_sat_mean % display values
-%t_sat_std
+% add scattered individual points
+color = rgb('SlateGray');
+
+figure(2)
+hold on
+for cl = 1:3
+    spread_x = ones(size(steadinessTimescale{cl})).*(1+(rand(size(steadinessTimescale{cl}))-0.4)/10);
+    scatter(spread_x.*cl,(steadinessTimescale{cl})./60,'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+title('Fig. 4e, upshift')
+
 
 figure(3)
 hold on
@@ -718,8 +727,14 @@ bar(sat_gr_mean)
 errorbar(1:3,sat_gr_mean,sat_gr_std,'.')
 ylabel('growth rate (1/hr)')
 
-%sat_gr_mean % display values
-%sat_gr_std
+% add scattered individual points
+figure(3)
+hold on
+for cl = 1:3
+    spread_x = ones(size(steadinessValue{cl})).*(1+(rand(size(steadinessValue{cl}))-0.4)/10);
+    scatter(spread_x.*cl,steadinessValue{cl},'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+title('Fig. 4d, upshift')
 
 
 
