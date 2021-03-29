@@ -11,8 +11,9 @@
 %        Y. box plot with scatter of growth rate of pre- and post- division in Chigh and Clow
 
 
-%  last updated: jen, 2020 Dec 5
-%  commit: replace Part Y boxplot with bar plot for clarity
+%  last updated: jen, 2021 Mar 29
+%  commit: retired, see S8_alt_hypothesis.m in Supplementary_figures
+%          folder
 
 % OK let's go!
 

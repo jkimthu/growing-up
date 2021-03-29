@@ -7,13 +7,15 @@
 
 %  Strategy:
 %
-%        A. division events over time
-%        B. division events as a fraction of total cells over time
-%        C. box plot with scatter of growth rate of pre- and post- division in Chigh and Clow
+%        Part A. division events over time (Suppl Fig. 8a)
+%        Part B. division events as a fraction of total cells over time (Suppl Fig. 8c)
+%                and, tracked cells over time (Suppl Fig. 8d)
+%        Part C. bar plot with scatter of growth rate of pre- and post- division in Chigh and Clow
+%                (Suppl Fig. 8b)
 
 
-%  last updated: jen, 2020 Dec 5
-%  commit: first commit, new supplementary figure 8 (v23)
+%  last updated: jen, 2021 March 28
+%  commit: revised for final submission of Supplementary Fig. 8
 
 
 % OK let's go!
@@ -395,16 +397,16 @@ end
 clear ii index D5 T conditionData_bubbleTrimmed date filename
 
 
-%% Bar plot for Part C
 
-% Goal:  plot growth rate before and after division
 
-% 0. initialize columns in data
+% 12. plot growth rate before and after division
+
+% i. initialize columns in data
 high = 1; low = 2;
 color = rgb('DodgerBlue');
 
 
-% 1. calculate replicate means and s.e.m.
+% ii. calculate replicate means and s.e.m.
 means_high = nan(3,5);
 sems_high = nan(3,5);
 means_low = nan(3,5);
@@ -419,7 +421,7 @@ for rep = 1:3
     
 end
 
-% 2. calculate mean and s.e.m. of compiled data
+% iii. calculate mean and s.e.m. of compiled data
 compiled_mean_high = nanmean(high_i);
 compiled_mean_low = nanmean(low_i);
 compiled_std_high = nanstd(high_i);
@@ -429,11 +431,11 @@ compiled_n_low = length(low_i);
 compiled_sem_high = compiled_std_high./sqrt(compiled_n_high);
 compiled_sem_low = compiled_std_low./sqrt(compiled_n_low);
 
-% 3. prepare to spread replicate points
+% iv. prepare to spread replicate points
 spread_x = ones(size(means_high)).*(1+(rand(size(means_high))-0.4)/10);
 
-% 4. plot
-figure(2)
+% v. plot
+figure(3)
 subplot(1,2,1)
 bar(compiled_mean_high)
 hold on
@@ -461,48 +463,4 @@ for col = 1:5
 end
 
 
-%% Box plot for Part C
-
-% 11. plot growth rate before and after division
-high = 1; low = 2;
-color = rgb('DodgerBlue');
-
-means_high = nan(3,5);
-sems_high = nan(3,5);
-means_low = nan(3,5);
-sems_low = nan(3,5);
-for rep = 1:3
-    
-    means_high(rep,:) = stats{rep,high}.mean;
-    means_low(rep,:) = stats{rep,low}.mean;
-    
-    sems_high(rep,:) = stats{rep,high}.sem;
-    sems_low(rep,:) = stats{rep,low}.sem;
-    
-end
-
-spread_x = ones(size(means_high)).*(1+(rand(size(means_high))-0.4)/10);
-
-figure(2)
-subplot(1,2,1)
-boxplot(high_i,'symbol','')
-ylim([-3 6])
-ylabel('growth rate (1/h)')
-xlabel('timepoint relative to cell division')
-title('cells dividing in Chigh')
-hold on
-for col = 1:5
-    scatter(spread_x(:,col)+col-1,means_high(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
-end
-
-subplot(1,2,2)
-boxplot(low_i,'symbol','')
-ylim([-3 6])
-ylabel('growth rate (1/h)')
-xlabel('timepoint relative to cell division')
-title('cells dividing in Clow')
-hold on
-for col = 1:5
-    scatter(spread_x(:,col)+col-1,means_low(:,col),'MarkerFaceColor',color,'MarkerEdgeColor',color)
-end
 
