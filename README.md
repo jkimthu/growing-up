@@ -1,5 +1,5 @@
 # growing-up
-Curated by Jen Nguyen, 2020 February 25
+
 For the manuscript titled:
 
 ## A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
@@ -16,22 +16,33 @@ For the manuscript titled:
 
 ## 1. IMAGE ANALYSIS & PROCESSING PIPELINE
 
-To extract a functiona dataset from raw .nd2 files:
+To extract a functional dataset from raw .nd2 files: 
 
-1. Particle identification and tracking with...            ND2Proc_XY.m
-2. Quality control with...                        dataTrimmer_revised.m
-3. Visualize tracking with...					dynamicOutlines_width.m  (overlays ellipse with dif colors 																		     based on width)
+1. ND2Proc_XY.m
+	- identifies and tracks particles from raw .nd2 image files 
+	- folder: Image_analysis&processing
+2. dataTrimmer_revised.m
+	- removes erroneous tracked particles to limit dataset to single cells
+	- folder: Image_analysis&processing
 
-4. Calculate growth rate with...                  calculateGrowthRate.m  (a function)
-5. Visualize growth rate over time...             visualizeGrowthRate.m  (for example of above func in use)
+Visualize tracking parameters and/or growth rate folder titled "visualized_tracking":
 
-
-
+3. dynamicOutlines_width.m  
+	- overlays an ellipse (from particle tracking) with dif colors based on parameter of interest
+	- folder: visualized_tracking
+4. calculateGrowthRate.m
+	- calculate growth rate in a variety of methods, we used log2 in this study
+	- folder: functions
+5. visualizeGrowthRate.m
+	- plots growth rate over time   
+	- folder: main        
 
 
 
 
 ## 2. MAIN FIGURES
+
+Scripts used to generate each Figure are organized within Figure specific folder:
 
 ## Figure 1
 1. 1C  normalized fluorescein signal from cell imaging position
@@ -85,6 +96,9 @@ S3. Characterization of generated nutrient signal with fluorescent indicator.
 
 S7. Noise in single-cell growth rate.
 	See script in "calculations" folder titled "quantifyNoise.m"
+
+S8. Cell division in fluctuations.
+	See script in folder titled Supplementary_figures "v23_S8_alt_hypothesis"
 
 S9. Percent of timesteps with a nutrient shift
 
