@@ -1,4 +1,4 @@
-%% figure S10D - percent change in growth rate from pre-shift value
+%% figure 4f - percent change in growth rate from pre-upshift value
 %
 %
 %  Output: from downshift data, calculate percent change 
@@ -434,9 +434,22 @@ p_change_std(3) = std(p_change_single);
 %% Part 4. plot bar graphs of time to saturation and final saturation value
 
 % percent change from t=0 growth rate value
-figure(1)
+figure(2)
 hold on
 bar(p_change_means)
 errorbar(1:3,p_change_means,p_change_std,'.')
 ylabel('% change from t=0 growth rate')
 
+% add scattered individual points
+color = rgb('SlateGray');
+change_by_tpt{1} = p_change_15min;
+change_by_tpt{2} = p_change_60min;
+change_by_tpt{3} = p_change_single;
+
+figure(2)
+hold on
+for cond = 1:3
+    spread_x = ones(size(change_by_tpt{cond})).*(1+(rand(size(change_by_tpt{cond}))-0.4)/10);
+    scatter(spread_x.*cond,change_by_tpt{cond},'MarkerFaceColor',color,'MarkerEdgeColor',color)
+end
+title('Fig. 4f, downshift')

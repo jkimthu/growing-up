@@ -27,8 +27,8 @@
 %         Part 4. plot quantifications
 
 
-%  last updated: jen, 2020 Feb 25
-%  commit: final figure S10A&B for upshift responses using source data
+%  last updated: jen, 2020 Nov 11
+%  commit: final figure Fig. 4 d & e for downshift responses using source data
 %          
 
 % OK let's go!
