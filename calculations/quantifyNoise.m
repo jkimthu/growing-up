@@ -13,8 +13,8 @@
 %       2. compare noise between steady and fluctuating conditions
 
 
-%  last updated: jen, 2020 Oct 1
-%  commit: quantify noise in single-cell growth rate
+%  last updated: jen, 2021 March 28
+%  commit: final code for Supplementary Fig. 7c
 
 
 % OK let's go!
@@ -185,6 +185,7 @@ end
 
 cd(source_data)
 save('quantifyNoise.mat','noise_compiled')
+
 
 %% 2. plot boxplot of noise per condition
 
