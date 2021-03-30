@@ -1,4 +1,4 @@
-%% figure S2 (_v21). single cell growth rate from different conditions
+%% figure S7a. single cell growth rate from different conditions
 
 
 %  Goals: plot single-cell tracks of growth rate over time
@@ -24,9 +24,8 @@
 %      14. save plots
 
 
-%  last updated: jen, 2020 June 13
-%  commit: edit title (supplementary S2 _v21) and y axis range
-
+%  last updated: jen, 2021 March 29
+%  commit: final revision for Supplementary Fig. 7a,b
 
 % OK let's go!
 
@@ -57,7 +56,6 @@ tracksPerCondition = 20;
 
 
 %% Part 1. collect single cell data from 10 cells per conditions
-
 
 % 1. initialize experiment meta data
 index = 13; % 2019-01-29 data
@@ -96,12 +94,9 @@ for condition = 1:length(bubbletime)
     trackNum = getGrowthParameter(conditionData,'trackNum');          % track number, not ID from particle tracking
     
     
-    
     % 6. calculate growth rate
     growthRates = calculateGrowthRate(volumes,timestamps_sec,isDrop,curveFinder,trackNum);
     clear volumes isDrop curveFinder trackNum
-
-
     
     
     % 7. truncate data to non-erroneous (e.g. bubbles) timestamps
@@ -118,9 +113,7 @@ for condition = 1:length(bubbletime)
         timestamps_bubbleTrimmed = timestamps_hr;
     end
     clear timestamps_hr timestamps_sec 
-    
-    
-    
+        
     
     % 8. remove data with timestamps earlier than 3 h
     minTime = 3;
@@ -131,14 +124,10 @@ for condition = 1:length(bubbletime)
     clear minTime maxTime
     
     
-    
-    
     % 9. isolate selected specific growth rate
     growthRt = growthRates_final(:,specificColumn);
     trackNum = getGrowthParameter(conditionData_final,'trackNum');
     clear conditionData
-    
-    
     
     
     % 10. remove nans from data analysis
@@ -146,8 +135,6 @@ for condition = 1:length(bubbletime)
     timestamps_noNans = timestamps_final(~isnan(growthRt),:);
     trackNum_noNans = trackNum(~isnan(growthRt),:);
     clear growthRates growthRt growthRates_bubbleTrimmed timestamps_final trackNum
-    
-    
     
     
     % 11. sort growth rate and timestamp data by track
@@ -174,8 +161,6 @@ for condition = 1:length(bubbletime)
     clear ut currentTrack currentMus currentTimes
     
     
-    
-    
     % 12. select tracks for plotting
     track_lengths = cellfun(@length,track_timestamps);
     selection = find(track_lengths >= 155);
@@ -187,8 +172,6 @@ for condition = 1:length(bubbletime)
     tr_ts = track_timestamps(selection);
     
 
-    
- 
     % 13. plot growth rate of each single cell over time
     palette = {'DodgerBlue','Indigo','GoldenRod','FireBrick'};
     color = rgb(palette(condition));
@@ -226,25 +209,11 @@ for condition = 1:length(bubbletime)
     clear sc
     
     xlabel('Time (h)')
-    ylabel('Growth rate')
-    
+    ylabel('Growth rate')   
     
     
 end
 clear color condition 
-
-
-% 14. save plots
-cd('/Users/jen/Documents/StockerLab/Data_analysis/currentPlots/')
-for pp = 1:4
-    
-    figure(pp)
-    plotName = strcat('singlecell-mu-tracks-',date,'-','condition-',num2str(pp));
-    saveas(gcf,plotName,'epsc')
-    
-end
-clear pp plotName
-
 
 
 
