@@ -1,4 +1,4 @@
-%% Figure S10: percent of timesteps with nutrient shift
+%% Supplementary Table 8: correlations between same day growth rate measurements
 
 
 %  Goal: test whether conditions run on the same day correlate
@@ -17,8 +17,8 @@
 %       3. plot and save
 
 
-%  last updated: jen, 2019 June 24
-%  commit: first commit, correlations between combinations of Gfluc, Glow, Gave & Ghigh
+%  last updated: jen, 2021 March 29
+%  commit: final revision, correlations between combinations of Gfluc, Glow, Gave & Ghigh
 
 
 %  OK let's go!
@@ -29,9 +29,9 @@ clear
 clc
 
 % 0. initialize complete meta data
-cd('/Users/jen/Documents/StockerLab/Writing/manuscript 1/figures/figure3/')
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 load('growthRates_monod_curve.mat')
-
 
 % 0. initialize experiments to plot
 exptArray = [2:7,9:15];
@@ -269,32 +269,4 @@ xlabel('growth rate in high')
 ylabel('growth rate in fluc')
 title('correlation of Ghigh and Gfluc')
 
-%% save plots
-
-% 1. save plots
-cd('/Users/jen/Documents/StockerLab/Data_analysis/currentPlots/')
-
-figure(1)
-plotName = strcat('figure58-fig1-Glow_v_Ghigh');
-saveas(gcf,plotName,'epsc')
-
-figure(2)
-plotName = strcat('figure58-fig2-Glow_v_Gave');
-saveas(gcf,plotName,'epsc')
-
-figure(3)
-plotName = strcat('figure58-fig3-Gave_v_Ghigh');
-saveas(gcf,plotName,'epsc')
-
-figure(4)
-plotName = strcat('figure58-fig4-Gave_v_Gfluc');
-saveas(gcf,plotName,'epsc')
-    
-figure(5)
-plotName = strcat('figure58-fig5-Glow_v_Gfluc');
-saveas(gcf,plotName,'epsc')
-
-figure(6)
-plotName = strcat('figure58-fig6-Ghigh_v_Gfluc');
-saveas(gcf,plotName,'epsc')
 
