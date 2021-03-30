@@ -102,23 +102,24 @@ S4. Growth rate does not vary across length of channel.
 	v25_S4_growthRate_across_channel.m
 
 S5. Characterization of growth conditions.
-	b   S6B_monodCurve.m
-	c,d v23_taheri_comparison.m
+	b   v25_S5b_monodCurve.m
+	c,d v25_S5c_d_taheri_comparison.m
 
 S6. Metabolomics analysis from batch samples.
 	Acknowledgment: Sammy Pontrelli performed this data visualization.
 	Raw data is in the main folder titled "TableS6_metabolomics_intensities.xlsx" as well as on massIVE under the accession code MSV000087096. 
 
 S7. Noise in single-cell growth rate.
-	See script in "calculations" folder titled "quantifyNoise.m"
+	a,b v25_S7_single_cell_growthrate.m
+	c   See script in "calculations" folder titled "quantifyNoise.m"
 
 S8. Cell division in fluctuations.
 	a-d v25_S8_alt_hypothesis.m
 	e   v25_S8_division_time_distributions.m
 
 S9. Nutrient shift frequency and implications.
-	a  S9_percent_timesteps_with_shift.m
-	b. S11_difference_in_growthrate_fluc_vs_single.m
+	a   v25_S9_percent_timesteps_with_shift.m
+
 
 
 Values in most Supplementary Tables are from the above scripts. Those from other calculations are listed below:
@@ -130,7 +131,7 @@ T3. Yield estimation
 	Estimate difference between fluc and steady ave environment with "estimateYield.m" in "calculations" folder
 
 T8. Correlations between experiments performed on the same day (different nutrient conditions)
-	S7_correlations_between_same_day_G.m in Supplementary_figures folder
+	T8_correlations_between_same_day_G.m in Supplementary_figures folder
 
 
 
