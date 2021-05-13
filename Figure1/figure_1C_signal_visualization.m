@@ -18,8 +18,8 @@
 
 
 
-% last updated: jen nguyen, 2019 November 27
-% commit: visualize fluorescein signal in the MSG
+% last updated: jen nguyen, 2021 April 5
+% commit: edit to use Source_data
 
 % OK let's go!
 
@@ -29,6 +29,8 @@ clear
 clc
 
 % 0. initialize fluctuating fluorescein image series
+source_data = '/Users/jen/Documents/StockerLab/Source_data';
+cd(source_data)
 experiment = '2017-11-15'; % 30 sec period
 
 timestamps = xlsread(strcat(experiment,'-timestamps-60x.xlsx'));
