@@ -4,6 +4,7 @@ For the manuscript titled:
 
 ## A distinct growth physiology enhances bacterial growth under rapid nutrient fluctuations
 
+Nguyen et al. Nature Communications (2021)
 
 
 
@@ -45,7 +46,7 @@ Visualize tracking parameters and/or growth rate folder titled "visualized_track
 
 ## 2. MAIN FIGURES
 
-Scripts used to generate each Main Text Figure are organized within Figure specific folder:
+Scripts used to generate each Main Text Figure from Source_data:
 
 ## Figure 1
 1. 1c  normalized fluorescein signal from cell imaging position
