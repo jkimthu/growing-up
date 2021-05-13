@@ -79,8 +79,9 @@
 %  F. Add fast predictions to timescale plot
 
 
-% Last edit: jen, 2020 Feb 25
-% Commit: final figure 6 for sharing with source data
+
+% Last edit: jen, 2021 May 13
+% Commit: correction to growth loss calculations
 
 
 % OK let's go!
@@ -219,8 +220,7 @@ ts_down = 297.5;
 % 0. initialize shorter names for data from both shifts
 upshift_means = upshift_means_single;
 upshift_times = upshift_times_single;
-downshift_means = downshift_means_single;
-downshift_times = downshift_times_single;
+downshift_means = downshift_growth;
 clear upshift_means_single upshift_times_single downshift_means_single downshift_times_single
 
 
@@ -407,51 +407,40 @@ plot([2 3 4 5],G_adapted_high_normalized,'o','Color',rgb('DarkSlateGray'),'Marke
 axis([1,10,0.3,1.2])
 
 
-%% Part 4. Caluclate difference from measured fluc and predicted fluc
+%% Part 4. Calculations of growth loss relative to G_ave 
 
-% 1. predicted by low-adapted simulations
-
-% i) create vector of predicted values that matches replicate measured vals
-G_fluc_predicted_low(1:3,1) = G_adapted_low_normalized(1);
-G_fluc_predicted_low(4:6,1) = G_adapted_low_normalized(2);
-G_fluc_predicted_low(7:10,1) = G_adapted_low_normalized(3);
-G_fluc_predicted_low(11:13,1) = G_adapted_low_normalized(4);
-
-% ii) calculate relative change from measured to predicted
-relative_G_low = (G_fluc_norm-G_fluc_predicted_low)./G_fluc_norm;
-
-% iii) calculate mean and std for each timescale
-relative_G_low_mean(1) = mean(relative_G_low(1:3));
-relative_G_low_mean(2) = mean(relative_G_low(4:6));
-relative_G_low_mean(3) = mean(relative_G_low(7:10));
-relative_G_low_mean(4) = mean(relative_G_low(11:13))
-
-relative_G_low_std(1) = std(relative_G_low(1:3));
-relative_G_low_std(2) = std(relative_G_low(4:6));
-relative_G_low_std(3) = std(relative_G_low(7:10));
-relative_G_low_std(4) = std(relative_G_low(11:13));
+% Measured growth loss as a percent of predicted growth loss from low
+% adapted null model
 
 
+fluc = 1;
+low = 2;
+ave = 3;
+high = 4;
 
-% 2. predicted by high-adapted simulations
+G_fluc_measured = flucRates;
+G_ave_measured = stableRates(:,ave);
 
-% i) create vector of predicted values that matches replicate measured vals
-G_fluc_predicted_high(1:3,1) = G_adapted_high_normalized(1);
-G_fluc_predicted_high(4:6,1) = G_adapted_high_normalized(2);
-G_fluc_predicted_high(7:10,1) = G_adapted_high_normalized(3);
-G_fluc_predicted_high(11:13,1) = G_adapted_high_normalized(4);
+% measured loss in growth from G_ave
+loss_measured_from_Gave = (G_ave_measured - G_fluc_measured)./G_ave_measured;
 
-% ii) calculate relative change from measured to predicted
-relative_G_high = (G_fluc_norm-G_fluc_predicted_high)./G_fluc_norm;
+% predicted loss in growth from G_ave
+loss_predicted_from_Gave(1:3,1) = G_adapted_low_normalized(1);
+loss_predicted_from_Gave(4:6,1) = G_adapted_low_normalized(2);
+loss_predicted_from_Gave(7:10,1) = G_adapted_low_normalized(3);
+loss_predicted_from_Gave(11:13,1) = G_adapted_low_normalized(4);
 
-% iii) calculate mean and std for each timescale
-relative_G_high_mean(1) = mean(relative_G_high(1:3));
-relative_G_high_mean(2) = mean(relative_G_high(4:6));
-relative_G_high_mean(3) = mean(relative_G_high(7:10));
-relative_G_high_mean(4) = mean(relative_G_high(11:13));
+% measured loss as a percentage of predicted loss
+loss_compared = loss_measured_from_Gave./loss_predicted_from_Gave * 100;
 
-relative_G_high_std(1) = std(relative_G_high(1:3));
-relative_G_high_std(2) = std(relative_G_high(4:6));
-relative_G_high_std(3) = std(relative_G_high(7:10));
-relative_G_high_std(4) = std(relative_G_high(11:13));
+% comparison by group
+loss_compared_mean(1) = mean(loss_compared(1:3));
+loss_compared_mean(2) = mean(loss_compared(4:6));
+loss_compared_mean(3) = mean(loss_compared(7:10));
+loss_compared_mean(4) = mean(loss_compared(11:13));
+
+loss_compared_std(1) = std(loss_compared(1:3));
+loss_compared_std(2) = std(loss_compared(4:6));
+loss_compared_std(3) = std(loss_compared(7:10));
+loss_compared_std(4) = std(loss_compared(11:13));
 
